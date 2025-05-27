@@ -1,0 +1,6 @@
+[submodule "addons/GDDataForge"]
+	path = addons/GDDataForge
+	url = git@github.com:LiGameAcademy/GDDataForge.git
+[submodule "addons/godot_core_system"]
+	path = addons/godot_core_system
+	url = git@github.com:LiGameAcademy/godot_core_system.git
