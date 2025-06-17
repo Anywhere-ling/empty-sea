@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://iegorx0n1tjw"]
+
+[ext_resource type="Theme" uid="uid://cr5es1wy1227s" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/字体大小.tres" id="1_hk82t"]
+[ext_resource type="Script" uid="uid://dymvxxoudran7" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/不定数量的数据节点容器_h.gd" id="2_y224o"]
+
+[node name="不定数量的数据节点容器_h" type="HBoxContainer"]
+unique_name_in_owner = true
+offset_right = 34.0
+offset_bottom = 31.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 1
+theme = ExtResource("1_hk82t")
+script = ExtResource("2_y224o")
+
+[node name="加" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "  +  "
+
+[node name="选项卡" type="OptionButton" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[connection signal="button_up" from="加" to="." method="_on_加_button_up"]

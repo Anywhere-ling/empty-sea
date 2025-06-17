@@ -1,0 +1,45 @@
+[gd_scene load_steps=8 format=3 uid="uid://dp46167mmhfua"]
+
+[ext_resource type="Script" uid="uid://dlle1lma6ghme" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/效果设计区.gd" id="1_ee1if"]
+[ext_resource type="PackedScene" uid="uid://h77wus3ca8n4" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/不定数量的数据节点容器.tscn" id="2_ms2j7"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xympb"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tjsov"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_why27"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qvcdu"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8o4ip"]
+
+[node name="效果设计区" type="HBoxContainer"]
+offset_top = 57.0
+offset_right = 95.0
+offset_bottom = 137.0
+script = ExtResource("1_ee1if")
+
+[node name="名字" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "基础数据节点容器的名字"
+tooltip_auto_translate_mode = 2
+mouse_filter = 1
+text = "效果1"
+
+[node name="提供焦点" type="Button" parent="名字"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_xympb")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_tjsov")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_why27")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_qvcdu")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_8o4ip")
+
+[node name="不定数量的数据节点容器" parent="." instance=ExtResource("2_ms2j7")]
+unique_name_in_owner = false
+layout_mode = 2

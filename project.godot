@@ -13,3 +13,18 @@ config_version=5
 config/name="无尽之海"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+DataManager="*res://addons/GDDataForge/source/data_manager.gd"
+CoreSystem="*res://addons/godot_core_system/source/core_system.gd"
+DatatableLoader="*res://代码/自动加载/datatable_loader.gd"
+
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="ignore"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/GDDataForge/plugin.cfg", "res://addons/godot_core_system/plugin.cfg")

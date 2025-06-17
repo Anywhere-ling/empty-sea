@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ck1e57034114b"]
+
+[ext_resource type="Script" uid="uid://dolwfvry0qna" path="res://代码/自动加载/datatable_loader.gd" id="1_v28rs"]
+
+[node name="datatable_loader" type="Node"]
+script = ExtResource("1_v28rs")

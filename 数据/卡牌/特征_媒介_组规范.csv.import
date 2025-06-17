@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cjo5ikum4ydcp"
+
+[deps]
+
+files=["res://数据/卡牌/特征_媒介_组规范.特征简介.translation", "res://数据/卡牌/特征_媒介_组规范.媒介.translation", "res://数据/卡牌/特征_媒介_组规范.组.translation"]
+
+source_file="res://数据/卡牌/特征_媒介_组规范.csv"
+dest_files=["res://数据/卡牌/特征_媒介_组规范.特征简介.translation", "res://数据/卡牌/特征_媒介_组规范.媒介.translation", "res://数据/卡牌/特征_媒介_组规范.组.translation"]
+
+[params]
+
+compress=true
+delimiter=0
