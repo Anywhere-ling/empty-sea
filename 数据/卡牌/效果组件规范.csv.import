@@ -3,13 +3,11 @@
 importer="csv_translation"
 type="Translation"
 uid="uid://crts2lh62ahlk"
+valid=false
 
 [deps]
 
-files=["res://数据/卡牌/效果组件规范.描述.translation", "res://数据/卡牌/效果组件规范.1.translation", "res://数据/卡牌/效果组件规范.2.translation", "res://数据/卡牌/效果组件规范.3.translation", "res://数据/卡牌/效果组件规范.4.translation", "res://数据/卡牌/效果组件规范.5.translation", "res://数据/卡牌/效果组件规范.6.translation", "res://数据/卡牌/效果组件规范.7.translation", "res://数据/卡牌/效果组件规范.8.translation", "res://数据/卡牌/效果组件规范.9.translation"]
-
 source_file="res://数据/卡牌/效果组件规范.csv"
-dest_files=["res://数据/卡牌/效果组件规范.描述.translation", "res://数据/卡牌/效果组件规范.1.translation", "res://数据/卡牌/效果组件规范.2.translation", "res://数据/卡牌/效果组件规范.3.translation", "res://数据/卡牌/效果组件规范.4.translation", "res://数据/卡牌/效果组件规范.5.translation", "res://数据/卡牌/效果组件规范.6.translation", "res://数据/卡牌/效果组件规范.7.translation", "res://数据/卡牌/效果组件规范.8.translation", "res://数据/卡牌/效果组件规范.9.translation"]
 
 [params]
 

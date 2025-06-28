@@ -1,0 +1,55 @@
+[gd_scene load_steps=10 format=3 uid="uid://b3jhuoclqxoef"]
+
+[ext_resource type="Script" uid="uid://c06wajmtprs4i" path="res://代码/战斗/场景/战斗场景.gd" id="1_ueb0u"]
+[ext_resource type="Script" uid="uid://poy0bjbsuknh" path="res://代码/战斗/系统/战斗系统.gd" id="2_2qwbv"]
+[ext_resource type="Script" uid="uid://bcqokb4gm1dab" path="res://代码/战斗/系统/回合系统.gd" id="2_yi2mw"]
+[ext_resource type="Script" uid="uid://7pdy8tqulm8p" path="res://代码/战斗/场景/日志系统.gd" id="3_aa82g"]
+[ext_resource type="Script" uid="uid://dlpths6j63ht4" path="res://代码/战斗/系统/单位管理系统.gd" id="3_yi2mw"]
+[ext_resource type="Script" uid="uid://dgecl2hyeh7q6" path="res://代码/战斗/系统/buff系统.gd" id="4_fji2p"]
+[ext_resource type="Script" uid="uid://c5yohmgqit05i" path="res://代码/战斗/系统/效果系统.gd" id="6_og1up"]
+[ext_resource type="Script" uid="uid://c32wksdrsayrg" path="res://代码/战斗/系统/发动判断系统.gd" id="7_og1up"]
+[ext_resource type="Script" uid="uid://b7hl31mfjfq1j" path="res://代码/战斗/系统/最终行动系统.gd" id="8_55ukw"]
+
+[node name="战斗场景" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ueb0u")
+
+[node name="战斗系统" type="Node" parent="."]
+script = ExtResource("2_2qwbv")
+
+[node name="日志系统" type="Node" parent="战斗系统"]
+unique_name_in_owner = true
+script = ExtResource("3_aa82g")
+
+[node name="回合系统" type="Node" parent="战斗系统"]
+unique_name_in_owner = true
+script = ExtResource("2_yi2mw")
+
+[node name="单位管理系统" type="Node" parent="战斗系统"]
+unique_name_in_owner = true
+script = ExtResource("3_yi2mw")
+
+[node name="卡牌管理系统" type="Node" parent="战斗系统/单位管理系统"]
+
+[node name="控制系统" type="Node" parent="战斗系统/单位管理系统"]
+
+[node name="buff系统" type="Node" parent="战斗系统/单位管理系统"]
+script = ExtResource("4_fji2p")
+
+[node name="效果系统" type="Node" parent="战斗系统"]
+unique_name_in_owner = true
+script = ExtResource("6_og1up")
+
+[node name="发动判断系统" type="Node" parent="战斗系统/效果系统"]
+unique_name_in_owner = true
+script = ExtResource("7_og1up")
+
+[node name="连锁系统" type="Node" parent="战斗系统"]
+
+[node name="最终行动系统" type="Node" parent="战斗系统"]
+script = ExtResource("8_55ukw")

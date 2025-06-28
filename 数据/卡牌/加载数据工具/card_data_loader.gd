@@ -6,11 +6,17 @@ extends "res://addons/GDDataForge/source/data_loader.gd"
 
 ## 加载数据表
 func load_datatable(table_path: StringName) -> Dictionary:
+	var file_func:String#.文件夹.txt中的方法
+	var flie_文件夹:= FileAccess.open(table_path,FileAccess.READ)
+	file_func = flie_文件夹.get_line()
+	
+	
+	
 	
 	var file_data : Dictionary = {}
 	
 	#加载卡牌名总表
-	var card_folder := DirAccess.open(文件路径.folder卡牌())
+	var card_folder := DirAccess.open(文件路径.call(file_func))
 	var ok := DirAccess.get_open_error()
 	if ok != OK: 
 		push_error("未能正确打开文件！")
@@ -21,7 +27,7 @@ func load_datatable(table_path: StringName) -> Dictionary:
 	
 	while file_name != "":
 		if not card_folder.current_is_dir():  # 忽略子文件夹
-			file_data[file_name] = 文件路径.json卡牌文件(file_name)
+			file_data[file_name] = 文件路径.call(file_func) + file_name + ".json"
 		file_name = card_folder.get_next()
 	
 	card_folder.list_dir_end()
@@ -87,6 +93,6 @@ func load_datatable(table_path: StringName) -> Dictionary:
 		#file_data[card_name] = new_card_data
 	#
 	
-	DatatableLoader.储存辅助数据("卡名总表", file_data.keys())
+	
 	
 	return file_data

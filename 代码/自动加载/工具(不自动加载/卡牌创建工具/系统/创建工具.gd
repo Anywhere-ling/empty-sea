@@ -1,5 +1,5 @@
-extends 创建工具
-class_name 卡牌创建工具
+extends Control
+class_name 创建工具
 
 '''
 用于创建卡牌的gui工具
@@ -16,48 +16,65 @@ class_name 卡牌创建工具
 
 '''
 
-
-@onready var 组件: 卡牌创建工具_带搜索的选择器 = %组件
-@onready var 特征: 卡牌创建工具_带搜索的选择器 = %特征
-@onready var 标点: 卡牌创建工具_带搜索的选择器 = %标点
-@onready var 特: 卡牌创建工具_带搜索的选择器 = %特
-@onready var 媒: 卡牌创建工具_带搜索的选择器 = %媒
-@onready var 组: 卡牌创建工具_带搜索的选择器 = %组
+@onready var 卡牌设计区容器: TabContainer = %卡牌设计区容器
+@onready var 文件: 卡牌创建工具_带搜索的选择器 = %文件
+@onready var 简介: Label = %简介
+@onready var 提供焦点: Button = %提供焦点
+@onready var 路径: Label = %路径
+@onready var 存储区数据: Label = %存储区数据
+@onready var 复制储存区: VBoxContainer = %复制储存区
+@onready var push_error: PanelContainer = %push_error
 
 
 
 
 #规范文件的加载数据
+var specification_效果组件:Dictionary
+var specification_效果特征:Dictionary
+var specification_效果标点:Dictionary = {
+	"特征":["效果的特征，用于检测", "括号"],
+}
+
+var specification_特征:Dictionary
+var specification_媒介:Array
+var specification_组:Array
+
+var cards_data:Dictionary
+var buffs_data:Dictionary
+var equips_data:Dictionary
+var lifes_data:Dictionary
+
+
+var copy_node_data:#储存复制数据
+	set(value):
+		copy_node_data = value
+		存储区数据.text = str(copy_node_data)
+var 读取中:bool = false
+var save_不可为空:bool = false
 
 
 
 
 
-func _ready() -> void:
-	await DatatableLoader.加载完成
-	_加载卡牌数据()
-	_加载规范文件并处理数据()
-	print(specification_效果组件)
-	print(specification_效果特征)
-	_将数据写入选择器()
-	组件.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
-	特征.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
-	标点.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
-	特.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
-	媒.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
-	组.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
-	组件.请求显示简介.connect(_选择器的请求显示简介的信号)
-	特征.请求显示简介.connect(_选择器的请求显示简介的信号)
-	标点.请求显示简介.connect(_选择器的请求显示简介的信号)
-	特.请求显示简介.connect(_选择器的请求显示简介的信号)
-	
-	add_单个卡牌设计区()
 
 
 func _加载卡牌数据() -> void:
 	var names:Array = DatatableLoader.other_data["卡名总表"]
 	for i:String in names:
 		cards_data[i] = DatatableLoader.get_dic_data("card_data", i)
+		
+	var names2:Array = DatatableLoader.other_data["buff名总表"]
+	for i:String in names2:
+		buffs_data[i] = DatatableLoader.get_dic_data("buff_data", i)
+		
+	var names3:Array = DatatableLoader.other_data["装备名总表"]
+	for i:String in names3:
+		equips_data[i] = DatatableLoader.get_dic_data("equip_data", i)
+		
+	var names4:Array = DatatableLoader.other_data["单位名总表"]
+	for i:String in names4:
+		lifes_data[i] = DatatableLoader.get_dic_data("life_data", i)
+	
 
 
 func _加载规范文件并处理数据() -> void:
@@ -130,18 +147,6 @@ func _加载规范文件并处理数据() -> void:
 		specification_效果组件[new_arr[0]] = new_arr
 
 func _将数据写入选择器() -> void:
-	标点.choose_data = specification_效果标点.keys()
-	标点.start_build()
-	特征.choose_data = specification_效果特征.keys()
-	特征.start_build()
-	组件.choose_data = specification_效果组件.keys()
-	组件.start_build()
-	特.choose_data = specification_特征.keys()
-	特.start_build()
-	媒.choose_data = specification_媒介
-	媒.start_build()
-	组.choose_data = specification_组
-	组.start_build()
 	文件.choose_data = cards_data.keys()
 	文件.start_build()
 
@@ -414,8 +419,8 @@ func _tran_node_to_data(node:Control) -> Variant:
 
 
 
-func add_单个卡牌设计区() -> 卡牌创建工具_单个卡牌设计区:
-	var node:卡牌创建工具_单个卡牌设计区 = load(文件路径.tscn卡牌创建工具_单个卡牌设计区()).instantiate()
+func add_单个卡牌设计区() -> 卡牌创建工具_单个设计区:
+	var node:卡牌创建工具_单个设计区 = load(文件路径.tscn卡牌创建工具_单个卡牌设计区()).instantiate()
 	卡牌设计区容器.add_child(node)
 	卡牌设计区容器.current_tab = 卡牌设计区容器.get_tab_idx_from_control(node)
 	node.请求关闭该卡牌.connect(_请求删除卡牌设计区的信号)
@@ -424,10 +429,10 @@ func add_单个卡牌设计区() -> 卡牌创建工具_单个卡牌设计区:
 	node.name = "[空]"
 	return node
 
-func load_card(card_data:Dictionary) -> 卡牌创建工具_单个卡牌设计区:
+func load_card(card_data:Dictionary) -> 卡牌创建工具_单个设计区:
 	读取中 = true
 	card_data = card_data.duplicate(true)
-	var node:卡牌创建工具_单个卡牌设计区 = add_单个卡牌设计区()
+	var node:卡牌创建工具_单个设计区 = add_单个卡牌设计区()
 	node.卡名.text = card_data["卡名"]
 	node.name = card_data["卡名"]
 	if "种类":
@@ -561,7 +566,7 @@ func _存入储存区(node:Control) -> void:
 
 #粘贴
 func stackup_node() -> void:
-	var node:卡牌创建工具_单个卡牌设计区 = 卡牌设计区容器.get_current_tab_control()
+	var node:卡牌创建工具_单个设计区 = 卡牌设计区容器.get_current_tab_control()
 	if !copy_node_data :
 		return
 	#
@@ -651,7 +656,7 @@ func _选择器的请求显示简介的信号(choose:String) -> void:
 func _请求保存历史记录的信号() -> void:
 	if 读取中:
 		return
-	var node:卡牌创建工具_单个卡牌设计区 = 卡牌设计区容器.get_current_tab_control()
+	var node:卡牌创建工具_单个设计区 = 卡牌设计区容器.get_current_tab_control()
 	var data:Dictionary = save_card(node)
 	if len(node.history) == 0:
 		node.history.append(data)
@@ -677,7 +682,7 @@ func _请求保存历史记录的信号() -> void:
 		
 
 func _请求读取历史记录的信号(data:Dictionary) -> void:
-	var old_node:卡牌创建工具_单个卡牌设计区 = 卡牌设计区容器.get_current_tab_control()
+	var old_node:卡牌创建工具_单个设计区 = 卡牌设计区容器.get_current_tab_control()
 	var index:int = 卡牌设计区容器.current_tab
 	var new_node:= load_card(data)
 	new_node.history = old_node.history

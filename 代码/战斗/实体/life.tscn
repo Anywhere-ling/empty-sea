@@ -1,0 +1,33 @@
+[gd_scene load_steps=4 format=3 uid="uid://b3xe8qv0x0aw8"]
+
+[ext_resource type="Script" uid="uid://ch7d1r1yyjnhq" path="res://代码/战斗/实体/life.gd" id="1_kwcnn"]
+[ext_resource type="PackedScene" uid="uid://bhgo6q8vq5rwi" path="res://代码/战斗/ui/卡牌四区.tscn" id="2_rmi3u"]
+[ext_resource type="PackedScene" uid="uid://dvagx7t1mjq5k" path="res://代码/战斗/ui/场地.tscn" id="3_47lix"]
+
+[node name="life" type="Node2D"]
+position = Vector2(567, 526)
+script = ExtResource("1_kwcnn")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -86.0
+offset_top = -52.0
+offset_right = 86.0
+offset_bottom = 52.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="life图" type="TextureRect" parent="PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="卡牌四区" parent="." instance=ExtResource("2_rmi3u")]
+position = Vector2(483, 54)
+scale = Vector2(0.7, 0.7)
+
+[node name="场地" parent="." instance=ExtResource("3_47lix")]
+position = Vector2(-380, -215)

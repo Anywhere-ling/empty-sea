@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 DataManager="*res://addons/GDDataForge/source/data_manager.gd"
 CoreSystem="*res://addons/godot_core_system/source/core_system.gd"
 DatatableLoader="*res://代码/自动加载/datatable_loader.gd"
+"文件路径"="*res://代码/自动加载/文件路径.gd"
 
 [display]
 

@@ -1,28 +1,114 @@
-[gd_scene load_steps=2 format=3 uid="uid://i0xiia3q8acd"]
+[gd_scene load_steps=18 format=3 uid="uid://i0xiia3q8acd"]
 
 [ext_resource type="Script" uid="uid://ch4hpnlwt5pu2" path="res://代码/战斗/实体/card.gd" id="1_jra1o"]
+[ext_resource type="Texture2D" uid="uid://6nl3w86fteae" path="res://资产/图片/卡牌/卡牌种类/攻击.png" id="2_ivvf7"]
+[ext_resource type="Texture2D" uid="uid://defurr1yw2byd" path="res://资产/图片/test.png" id="3_aa1r2"]
 
-[node name="card" type="PanelContainer"]
-offset_right = 124.0
-offset_bottom = 224.0
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g3urb"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_srjko"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ivvf7"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_aa1r2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vsfjr"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_i2264"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lk5l5"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0iwff"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_d8up4"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_phch2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_obwl6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lr5vv"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ex3vj"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7p5ic"]
+
+[node name="card" type="Node2D"]
 script = ExtResource("1_jra1o")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 2
+[node name="PanelContainer" type="PanelContainer" parent="."]
+offset_right = 141.0
+offset_bottom = 233.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_g3urb")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="种类" type="TextureRect" parent="VBoxContainer/HBoxContainer"]
+[node name="检测" type="PanelContainer" parent="PanelContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_srjko")
 
-[node name="卡名" type="Label" parent="VBoxContainer/HBoxContainer"]
+[node name="主要区域" type="PanelContainer" parent="PanelContainer/检测"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 
-[node name="卡图" type="TextureRect" parent="VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/检测/主要区域"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/检测/主要区域/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="种类" type="TextureRect" parent="PanelContainer/检测/主要区域/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("2_ivvf7")
+expand_mode = 3
+stretch_mode = 6
+
+[node name="卡名" type="Label" parent="PanelContainer/检测/主要区域/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "test"
+
+[node name="卡图" type="TextureRect" parent="PanelContainer/检测/主要区域/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+texture = ExtResource("3_aa1r2")
 expand_mode = 5
 stretch_mode = 6
+
+[node name="左键" type="Button" parent="PanelContainer/检测/主要区域"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ivvf7")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_aa1r2")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_vsfjr")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_i2264")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_lk5l5")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_0iwff")
+
+[node name="右键" type="Button" parent="PanelContainer/检测/主要区域/左键"]
+layout_mode = 2
+offset_right = 56.0
+offset_bottom = 88.0
+mouse_filter = 1
+theme_override_styles/focus = SubResource("StyleBoxEmpty_d8up4")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_phch2")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_obwl6")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_lr5vv")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ex3vj")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_7p5ic")
+button_mask = 2
+
+[node name="里侧" type="Panel" parent="PanelContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[connection signal="mouse_entered" from="PanelContainer/检测" to="." method="_on_检测_mouse_entered"]
+[connection signal="button_up" from="PanelContainer/检测/主要区域/左键" to="." method="_on_左键_button_up"]
+[connection signal="button_up" from="PanelContainer/检测/主要区域/左键/右键" to="." method="_on_右键_button_up"]

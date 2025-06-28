@@ -1,0 +1,216 @@
+[gd_scene load_steps=10 format=3 uid="uid://b246dhsyllj11"]
+
+[ext_resource type="Theme" uid="uid://cr5es1wy1227s" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/字体大小.tres" id="1_c3an7"]
+[ext_resource type="Script" uid="uid://bef0tphhh1cqc" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/单位_单个卡牌设计区.gd" id="2_wt64c"]
+[ext_resource type="PackedScene" uid="uid://iegorx0n1tjw" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/不定数量的数据节点容器_h.tscn" id="3_beq2o"]
+[ext_resource type="PackedScene" uid="uid://dp46167mmhfua" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/效果设计区.tscn" id="4_mp6al"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ji6gn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_l32e3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5eigx"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ogok6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ekktd"]
+
+[node name="角色_单个卡牌设计区" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("1_c3an7")
+script = ExtResource("2_wt64c")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="主要区域" type="ScrollContainer" parent="PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/主要区域"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="0" type="HFlowContainer" parent="PanelContainer/主要区域/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/主要区域/VBoxContainer/0"]
+layout_mode = 2
+text = "卡名 "
+
+[node name="卡名" type="LineEdit" parent="PanelContainer/主要区域/VBoxContainer/0"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+expand_to_text_length = true
+
+[node name="Control" type="Control" parent="PanelContainer/主要区域/VBoxContainer/0"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
+
+[node name="Label2" type="Label" parent="PanelContainer/主要区域/VBoxContainer/0"]
+layout_mode = 2
+text = "前进"
+
+[node name="前进" type="Button" parent="PanelContainer/主要区域/VBoxContainer/0/Label2"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+disabled = true
+
+[node name="VSeparator" type="VSeparator" parent="PanelContainer/主要区域/VBoxContainer/0"]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="PanelContainer/主要区域/VBoxContainer/0"]
+layout_mode = 2
+text = "后退"
+
+[node name="后退" type="Button" parent="PanelContainer/主要区域/VBoxContainer/0/Label3"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+disabled = true
+
+[node name="VSeparator2" type="VSeparator" parent="PanelContainer/主要区域/VBoxContainer/0"]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="PanelContainer/主要区域/VBoxContainer/0"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+bbcode_enabled = true
+text = "[color=red]X[/color]"
+fit_content = true
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="关闭" type="Button" parent="PanelContainer/主要区域/VBoxContainer/0/RichTextLabel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="1" type="HFlowContainer" parent="PanelContainer/主要区域/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/主要区域/VBoxContainer/1"]
+layout_mode = 2
+text = "种类 "
+
+[node name="种类" type="OptionButton" parent="PanelContainer/主要区域/VBoxContainer/1"]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 2
+popup/item_0/text = "nocard"
+popup/item_0/id = 0
+popup/item_1/text = "character"
+popup/item_1/id = 1
+
+[node name="2" type="HFlowContainer" parent="PanelContainer/主要区域/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="PanelContainer/主要区域/VBoxContainer/2"]
+layout_mode = 2
+text = "大小 "
+
+[node name="大小" type="SpinBox" parent="PanelContainer/主要区域/VBoxContainer/2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="3" type="HFlowContainer" parent="PanelContainer/主要区域/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="PanelContainer/主要区域/VBoxContainer/3"]
+layout_mode = 2
+tooltip_text = "基础数据节点容器的名字"
+tooltip_auto_translate_mode = 2
+mouse_filter = 1
+text = "组     "
+
+[node name="提供焦点" type="Button" parent="PanelContainer/主要区域/VBoxContainer/3/Label4"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_ji6gn")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_l32e3")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_5eigx")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ogok6")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ekktd")
+
+[node name="组" parent="PanelContainer/主要区域/VBoxContainer/3" instance=ExtResource("3_beq2o")]
+layout_mode = 2
+tooltip_text = "组"
+tooltip_auto_translate_mode = 2
+
+[node name="4" type="HFlowContainer" parent="PanelContainer/主要区域/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="PanelContainer/主要区域/VBoxContainer/4"]
+layout_mode = 2
+tooltip_text = "基础数据节点容器的名字"
+tooltip_auto_translate_mode = 2
+mouse_filter = 1
+text = "装备 "
+
+[node name="提供焦点" type="Button" parent="PanelContainer/主要区域/VBoxContainer/4/Label4"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_ji6gn")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_l32e3")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_5eigx")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ogok6")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ekktd")
+
+[node name="装备" parent="PanelContainer/主要区域/VBoxContainer/4" instance=ExtResource("3_beq2o")]
+layout_mode = 2
+tooltip_text = "特征"
+tooltip_auto_translate_mode = 2
+
+[node name="效果" type="VBoxContainer" parent="PanelContainer/主要区域/VBoxContainer"]
+layout_mode = 2
+
+[node name="效果设计区" parent="PanelContainer/主要区域/VBoxContainer/效果" instance=ExtResource("4_mp6al")]
+layout_mode = 2
+
+[connection signal="editing_toggled" from="PanelContainer/主要区域/VBoxContainer/0/卡名" to="." method="_on_卡名_editing_toggled"]
+[connection signal="text_changed" from="PanelContainer/主要区域/VBoxContainer/0/卡名" to="." method="_on_卡名_text_changed"]
+[connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/0/Label2/前进" to="." method="_on_前进_button_up"]
+[connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/0/Label3/后退" to="." method="_on_后退_button_up"]
+[connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/0/RichTextLabel/关闭" to="." method="_on_关闭_button_up"]
+[connection signal="item_selected" from="PanelContainer/主要区域/VBoxContainer/1/种类" to="." method="_on_种类_item_selected"]
+[connection signal="value_changed" from="PanelContainer/主要区域/VBoxContainer/2/大小" to="." method="_on_大小_value_changed"]
