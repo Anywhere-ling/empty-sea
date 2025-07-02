@@ -2,75 +2,108 @@ extends Node
 
 @onready var 单位管理系统: 战斗_单位管理系统 = %单位管理系统
 @onready var buff系统: Node = $"../../单位管理系统/buff系统"
+@onready var 回合系统: Node = %回合系统
+@onready var 卡牌打出与发动系统: Node = $"../../单位管理系统/卡牌打出与发动系统"
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
-func 单位发动判断(life:战斗_单位管理系统.Life_sys) -> Array:
+func 单位主要阶段发动和打出判断(life:战斗_单位管理系统.Life_sys, speed:int = 9) -> Array:
 	var ret可发动的卡牌:Array = []
 	var ret可打出的卡牌:Array = []
 	#发动
-	for pos:String in life.cards_pos:
-		if pos != "场上":
-			for card:战斗_单位管理系统.Card_sys in life.cards_pos[pos].cards:
-				if 卡牌发动与消耗判断(card):
-					ret可发动的卡牌.append(card)
-		else :
-			for card_pos:战斗_单位管理系统.Card_pos_sys in life.cards_pos[pos].cards:
-				var card:战斗_单位管理系统.Card_sys = card_pos.cards[0]
-				if 卡牌发动与消耗判断(card):
-					ret可发动的卡牌.append(card)
+	var cards:Array[战斗_单位管理系统.Card_sys] = 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards(), 3)
+	for card:战斗_单位管理系统.Card_sys in cards:
+		if 卡牌发动与消耗判断(card, speed):
+			ret可发动的卡牌.append(card)
 
 	
 	#打出
 	for card:战斗_单位管理系统.Card_sys in life.cards_pos["手牌"].cards:
 		if _打出消耗判断(life, card):
-			var pos:String
-			if card.data["种类"] in ["攻击", "防御"]:
-				pos = "行动"
-			elif card.data["种类"] in ["法术", "仪式"]:
-				pos = "场上"
-			assert(pos, "未识别的种类")
-			if 卡牌发动判断(card, pos):
+			if card.data["种类"] in ["仪式"]:
+				if !卡牌打出与发动系统.get_可用的格子(life.cards_pos["场上"], ["纵向"]):
+					continue
 				ret可打出的卡牌.append(card)
+			elif card.data["种类"] in ["法术"]:
+				if !卡牌打出与发动系统.get_可用的格子(life.cards_pos["场上"], ["纵向"]):
+					continue
+				var pos = "场上"
+				if 卡牌发动判断(card, speed):
+					ret可打出的卡牌.append(card)
 
+	
+	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life, speed], [ret可发动的卡牌, ret可打出的卡牌]])
+	return [ret可发动的卡牌, ret可打出的卡牌]
+
+
+func 单位非主要阶段发动判断(life:战斗_单位管理系统.Life_sys, speed:int) -> Array:
+	var ret可发动的卡牌:Array = []
+	var ret可打出的卡牌:Array = []
+	#发动
+	var cards:Array[战斗_单位管理系统.Card_sys]
+	if life.state.has("防御"):
+		cards = 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards(), 3)
+	else :
+		cards = 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards(), 4)
+	for card:战斗_单位管理系统.Card_sys in cards:
+		if 卡牌发动与消耗判断(card, speed):
+			ret可发动的卡牌.append(card)
+	
+	
+	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life, speed], [ret可发动的卡牌, ret可打出的卡牌]])
+	return [ret可发动的卡牌, ret可打出的卡牌]
+
+
+func 单位行动阶段打出判断(life:战斗_单位管理系统.Life_sys) -> Array:
+	var ret可发动的卡牌:Array = []
+	var ret可打出的卡牌:Array = []
+	
+	#打出
+	for card:战斗_单位管理系统.Card_sys in life.cards_pos["手牌"].cards:
+		var 种类:String = card.get_value("种类")
+		var state:Array[String] = life.get_value("state")
+		if 种类 in ["攻击", "防御"] and (state == [] or state.has(种类)):
+			if _打出消耗判断(life, card):
+				ret可打出的卡牌.append(card)
+	
 	
 	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life], [ret可发动的卡牌, ret可打出的卡牌]])
 	return [ret可发动的卡牌, ret可打出的卡牌]
 
 
 ##不在场上
-func 卡牌发动与消耗判断(card:战斗_单位管理系统.Card_sys) -> bool:
+func 卡牌发动与消耗判断(card:战斗_单位管理系统.Card_sys, speed:int) -> bool:
 	var pos:String = card.get_parent().name
 	var life:战斗_单位管理系统.Life_sys = card.get_parent().get_parent()
 	if _发动消耗判断(life, card):
-		if 卡牌发动判断(card):
+		if 卡牌发动判断(card, speed):
 			
-			event_bus.push_event("战斗_日志记录", [name, "卡牌发动与消耗判断", [card], true])
+			event_bus.push_event("战斗_日志记录", [name, "卡牌发动与消耗判断", [card, speed], true])
 			return true
 	
-	event_bus.push_event("战斗_日志记录", [name, "卡牌发动与消耗判断", [card], true])
+	event_bus.push_event("战斗_日志记录", [name, "卡牌发动与消耗判断", [card, speed], true])
 	return false
 
 
 ##在场上
-func 卡牌发动判断(card:战斗_单位管理系统.Card_sys, pos:String = "") -> Array:
+func 卡牌发动判断(card:战斗_单位管理系统.Card_sys, speed:int) -> Array:
 	if !card.is_face_up:
 		
-		event_bus.push_event("战斗_日志记录", [name, "卡牌发动判断", [card, pos], []])
+		event_bus.push_event("战斗_日志记录", [name, "卡牌发动判断", [card, speed], []])
 		return []
 	
-	if pos == "":
-		pos = card.get_parent().name
+	
+	var pos = card.get_parent().name
 	
 	var life:战斗_单位管理系统.Life_sys = card.get_parent().get_parent()
 	
 	var ret可发动的效果:Array = []
 	
 	for effect:战斗_单位管理系统.Effect_sys in card.effects:
-		if _卡牌发动判断_单个效果(life, card, pos, effect):
+		if 卡牌发动判断_单个效果(life, card, pos, effect, speed):
 			ret可发动的效果.append(ret可发动的效果)
 	
-	event_bus.push_event("战斗_日志记录", [name, "卡牌发动判断", [card, pos], ret可发动的效果])
+	event_bus.push_event("战斗_日志记录", [name, "卡牌发动判断", [card, speed], ret可发动的效果])
 	return ret可发动的效果
 
 
@@ -139,60 +172,74 @@ func _打出消耗判断(life:战斗_单位管理系统.Life_sys, card:战斗_�
 
 
 
-func _卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:String, effect:战斗_单位管理系统.Effect_sys) -> bool:
+func 卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:String, effect:战斗_单位管理系统.Effect_sys, speed:int) -> bool:
 	#位置
-	if !_位置判断(effect, pos):
+	if pos != "":
+		if !_位置判断(effect, pos):
+			
+			event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+			return false
+	
+	
+	#状态
+	if !_状态判断(effect, life.get_value("state")):
 		
-		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect], false])
+		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
 		return false
-	#记录
+	
+	
+	#时差
+	if !_时差判断(card, speed):
+		
+		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+		return false
 	
 	
 	if !buff系统.单位与全部buff判断("发动判断", [null, life, effect]):
 		
-		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect], false])
+		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
 		return false
 	
 	
 	#cost
-	if !_效果发动判断(effect.cost_effect, effect.features, [card, life]):
+	if !_效果发动判断(effect.cost_effect, effect.get_value("features"), [card, life]):
 		
-		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect], false])
+		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
 		return false
 	
 	
 	#main
-	if !_效果发动判断(effect.main_effect, effect.features, [card, life]):
+	if !_效果发动判断(effect.main_effect, effect.get_value("features"), [card, life]):
 		
-		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect], false])
+		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
 		return false
 	
 	
-	event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect], true])
+	event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], true])
 	return true
 
 
 
 func _位置判断(effect:战斗_单位管理系统.Effect_sys, pos:String) -> bool:
-	if effect.features.has("任意"):
+	if effect.get_value("features").has("任意"):
 		
 		event_bus.push_event("战斗_日志记录", [name, "_位置判断", [effect, pos], true])
 		return true
 	
-	if effect.features.has("场上"):
+	if effect.get_value("features").has("场上"):
 		if pos in ["场上"]:
 			
 			event_bus.push_event("战斗_日志记录", [name, "_位置判断", [effect, pos], true])
 			return true
 	
-	if effect.features.has("行动"):
+	if effect.get_value("features").has("行动"):
 		if pos in ["行动"]:
 			
 			event_bus.push_event("战斗_日志记录", [name, "_位置判断", [effect, pos], true])
 			return true
 	
 	for i:String in ["手牌", "白区", "绿区", "蓝区", "红区"]:
-		if effect.features.has(i):
+		if effect.get_value("features").has(i):
 			if pos == i:
 				
 				event_bus.push_event("战斗_日志记录", [name, "_位置判断", [effect, pos], true])
@@ -203,6 +250,36 @@ func _位置判断(effect:战斗_单位管理系统.Effect_sys, pos:String) -> b
 	
 	event_bus.push_event("战斗_日志记录", [name, "_位置判断", [effect, pos], true])
 	return true
+
+
+
+func _状态判断(effect:战斗_单位管理系统.Effect_sys, state:Array[String]) -> bool:
+	if effect.get_value("features").has("攻击"):
+		if !state.has("攻击"):
+			
+			event_bus.push_event("战斗_日志记录", [name, "_状态判断", [effect, state], false])
+			return false
+	
+	if effect.get_value("features").has("防御"):
+		if !state.has("防御"):
+			
+			event_bus.push_event("战斗_日志记录", [name, "_状态判断", [effect, state], false])
+			return false
+	
+	event_bus.push_event("战斗_日志记录", [name, "_状态判断", [effect, state], true])
+	return true
+
+
+
+func _时差判断(card:战斗_单位管理系统.Card_sys, speed:int) -> bool:
+	var ret:bool
+	if card.get_value("种类") in ["攻击", "防御"]:
+		ret = card.get_value("sp") >= speed
+	if card.get_value("种类") in ["法术", "仪式"]:
+		ret = card.get_value("mp") >= speed
+	
+	event_bus.push_event("战斗_日志记录", [name, "_时差判断", [card, speed], ret])
+	return ret
 
 
 

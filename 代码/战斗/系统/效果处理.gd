@@ -4,6 +4,7 @@ class_name 战斗_效果处理系统
 signal 行动处理完成
 signal 数据返回
 
+
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
 
@@ -86,6 +87,13 @@ func _get_sub_index(sub:String) -> int:
 		return -1
 	return int(sub.erase(0, 2))
 
+func _get_cards(sub:String) -> Array[战斗_单位管理系统.Card_sys]:
+	var data0 = targets[_get_sub_index(sub)].duplicate(true)
+	data0 = _get_array(data0)
+	if !data0[0] is 战斗_单位管理系统.Card_sys:
+		return []
+	return data0
+
 func has_element(arr, target) -> bool:
 	for item in arr:
 		if item == target:  # 找到目标元素
@@ -103,6 +111,7 @@ func _初始对象(data:Array) -> bool:
 	#目标单位
 	var lifes:Array[战斗_单位管理系统.Life_sys] = []
 	match data[1] :
+		"攻击目标":lifes = [targets[1].att_life]
 		"自己":lifes = [targets[1]]
 		"敌人":lifes = all_lifes[int(all_lifes[0].has(targets[1]))]
 		"友方":lifes = all_lifes[int(!all_lifes[0].has(targets[1]))]
@@ -110,7 +119,13 @@ func _初始对象(data:Array) -> bool:
 		
 	for life:战斗_单位管理系统.Life_sys in lifes:
 		for pos:String in data[0]:
-			cards.append_array(life.cards_pos[pos].cards)
+			if pos == "场上":
+				for i:int in 6:
+					cards.append_array(life.cards_pos[pos][i].cards)
+			elif pos.is_valid_int():
+				cards.append_array(life.cards_pos["场上"][pos].cards)
+			else :
+				cards.append_array(life.cards_pos[pos].cards)
 	
 	#对象
 	targets[_get_sub_index(data[2])] = cards
@@ -151,16 +166,42 @@ func _以一种运算处理对象(data:Array) -> bool:
 	
 	return true
 
-func _以一个对象的第一张卡的某个数据为对象(data:Array) -> bool:
-	var data0 = targets[_get_sub_index(data[0])].duplicate(true)
-	data0 = _get_array(data0)
+func 以数据为对象(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	if data0 == []:
+		return false
 	data0 = data0[0]
-	if !data0 is 战斗_单位管理系统.Card_sys:
+	if !data0.is_face_up:
 		return false
 	
-	var ret = data0.get_value(data[1])
-	if data[1] in ["sp", "mp"]:
-		ret = int(ret)
+	var ret
+	if data[1] == "位置":
+		ret = data0.get_parent().name
+	else :
+		ret = data0.get_value(data[1])
+		if data[1] in ["sp", "mp"]:
+			ret = int(ret)
+		
+	targets[_get_sub_index(data[2])] = ret
+	
+	return true
+
+func _以格为对象(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	if data0 == []:
+		return false
+	data0 = data0[0]
+	
+	var pos:战斗_单位管理系统.Card_pos_sys = data0.get_parent()
+	if pos.name != "场上":
+		return false
+	
+	var ret:int = targets[1].cards_pos["场上"].find(pos)
+	
+	if ret == -1:
+		return false
 	
 	targets[_get_sub_index(data[2])] = ret
 	
@@ -232,17 +273,20 @@ func _对象条件判断(data:Array) -> bool:
 
 func _取卡牌对象(data:Array) -> bool:
 	#提取数据
-	var data0 = targets[_get_sub_index(data[0])].duplicate(true)
-	data0 = _get_array(data0)
-	if !data0[0] is 战斗_单位管理系统.Card_sys:
-		return false
+	var data0 = _get_cards(data[0])
 	
-	event_bus.push_event("战斗_请求选择", [targets[1], data0, int(data[2]), bool(int(data[3]))])
+	var ret 
 	event_bus.subscribe("战斗_请求选择返回", func(a):
 		emit_signal("数据返回")
-		targets[_get_sub_index(data[0])] = a
+		ret = a
 		, 1, true)
+	event_bus.push_event("战斗_请求选择", [targets[1], data0, int(data[2]), bool(int(data[3]))])
+	
 	await 数据返回
+	
+	if ret == []:
+		return false
+	targets[_get_sub_index(data[0])] = ret
 	
 	return true
 
@@ -282,3 +326,22 @@ func _效果判断(data:Array) -> bool:
 		return false
 	
 	return true
+
+
+
+func _加入(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	
+	var pos:战斗_单位管理系统.Card_pos_sys = targets[1].cards_pos[data[1]]
+	
+	var ret:bool = true
+	for i:战斗_单位管理系统.Card_sys in data0:
+		event_bus.subscribe("战斗_行动处理完成", func(a):
+			emit_signal("行动处理完成")
+			ret = a
+			, 1, true)
+		event_bus.push_event("战斗_行动_加入", [targets[1], i, pos])
+		await 行动处理完成
+	
+	return ret

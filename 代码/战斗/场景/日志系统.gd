@@ -34,7 +34,7 @@ func 转化成编号(arr:Array) -> void:
 			arr[i] = Data_sys_index.new(arr[i].index)
 		elif arr[i] is Array:
 			转化成编号(arr[i])
-			
+
 
 class Data_sys_index extends Object:
 	var index:int

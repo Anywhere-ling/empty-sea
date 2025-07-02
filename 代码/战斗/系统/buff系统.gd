@@ -12,7 +12,9 @@ var 全部单位buffs:Dictionary[战斗_单位管理系统.Buff_sys, 战斗_单�
 #按时间结束的buff
 var start_buffs:Dictionary[战斗_单位管理系统.Life_sys, Dictionary]
 var end_buffs:Dictionary[战斗_单位管理系统.Life_sys, Dictionary]
-
+var chain_start_buffs:Dictionary[战斗_单位管理系统.Life_sys, Dictionary]
+var chain_end_buffs:Dictionary[战斗_单位管理系统.Life_sys, Dictionary]
+#{life:{buff:{次数}
 
 func _ready() -> void:
 	event_bus.subscribe("战斗_单位添加了buff", func(life, buff):
@@ -22,6 +24,8 @@ func _ready() -> void:
 	event_bus.subscribe("战斗_录入按时间结束的buff", _战斗_录入按时间结束的buff的信号)
 	event_bus.subscribe("战斗_回合进入开始阶段", _战斗_回合进入开始阶段的信号)
 	event_bus.subscribe("战斗_回合进入结束阶段", _战斗_回合进入结束阶段的信号)
+	event_bus.subscribe("战斗_连锁处理开始", _战斗_连锁处理开始的信号)
+	event_bus.subscribe("战斗_连锁处理结束", _战斗_连锁处理结束的信号)
 	
 	
 
@@ -29,7 +33,9 @@ func _战斗_录入按时间结束的buff的信号(buff:战斗_单位管理系�
 	match 结束时间:
 		"开始":start_buffs[回合系统.current_life][buff] = 结束次数
 		"结束":end_buffs[回合系统.current_life][buff] = 结束次数
-
+		"连锁处理开始":chain_start_buffs[回合系统.current_life][buff] = 结束次数
+		"连锁处理结束":chain_end_buffs[回合系统.current_life][buff] = 结束次数
+	
 func _战斗_回合进入开始阶段的信号(life:战斗_单位管理系统.Life_sys) -> void:
 	for i:战斗_单位管理系统.Buff_sys in life.buffs:
 		_buff判断(i, "开始阶段", [null, life, null])
@@ -47,6 +53,21 @@ func _战斗_回合进入结束阶段的信号(life:战斗_单位管理系统.Li
 		end_buffs[life][i] -= 1
 		if end_buffs[life][i] == 0:
 			i.free_self()
+	
+func _战斗_连锁处理开始的信号() -> void:
+	for life:战斗_单位管理系统.Life_sys in chain_start_buffs:
+		for i:战斗_单位管理系统.Buff_sys in chain_start_buffs[life]:
+			chain_start_buffs[life][i] -= 1
+			if chain_start_buffs[life][i] == 0:
+				i.free_self()
+	
+func _战斗_连锁处理结束的信号() -> void:
+	for life:战斗_单位管理系统.Life_sys in chain_start_buffs:
+		for i:战斗_单位管理系统.Buff_sys in chain_end_buffs[life]:
+			chain_end_buffs[life][i] -= 1
+			if chain_end_buffs[life][i] == 0:
+				i.free_self()
+	
 
 
 

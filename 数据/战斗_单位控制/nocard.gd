@@ -140,6 +140,7 @@ func 第一次弃牌() -> Array:
 	
 	return ret
 
+
 func 整理手牌() -> Array:
 	var 手牌:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards.duplicate(true)
 	var ret:Array[战斗_单位管理系统.Card_sys]
@@ -153,9 +154,39 @@ func 整理手牌() -> Array:
 	
 	return ret
 
+
 func 对象选择(arr:Array, count:int = 1, is_all:bool = true):
 	var ret:Array = []
 	arr.shuffle()
 	for i:int in count:
 		ret.append(arr[i])
 	return ret
+
+
+func 打出或发动(可发动:Array[战斗_单位管理系统.Card_sys], 可打出:Array[战斗_单位管理系统.Card_sys]) -> 战斗_单位管理系统.Card_sys:
+	var ret:战斗_单位管理系统.Card_sys
+	#打出
+	if 可打出 != []:
+		var cards:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards
+		可打出.sort_custom(func(a,b):
+			assert(cards.find(a) != -1 or cards.find(b) != -1, "不在手牌中")
+			return cards.find(a) < cards.find(b))
+		ret = 可打出[0]
+	#发动
+	elif 可发动 != []:
+		ret = 可发动[0]
+	
+	if !ret:
+		emit_signal("结束")
+		
+	return ret
+
+
+func 选择一格(arr:Array[战斗_单位管理系统.Card_pos_sys]) -> 战斗_单位管理系统.Card_pos_sys:
+	if arr == []:
+		return
+	return arr.pick_random()
+
+
+func 选择效果发动(card:战斗_单位管理系统.Card_sys, arr_int:Array[int]) -> int:
+	return arr_int[0]
