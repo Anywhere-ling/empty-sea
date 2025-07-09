@@ -7,9 +7,8 @@ extends Node
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
-func 单位主要阶段发动和打出判断(life:战斗_单位管理系统.Life_sys, speed:int = 9) -> Array:
+func 单位主要阶段发动判断(life:战斗_单位管理系统.Life_sys, speed:int) -> Array[战斗_单位管理系统.Card_sys]:
 	var ret可发动的卡牌:Array = []
-	var ret可打出的卡牌:Array = []
 	#发动
 	var cards:Array[战斗_单位管理系统.Card_sys] = 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards(), 3)
 	for card:战斗_单位管理系统.Card_sys in cards:
@@ -17,6 +16,14 @@ func 单位主要阶段发动和打出判断(life:战斗_单位管理系统.Life
 			ret可发动的卡牌.append(card)
 
 	
+
+	
+	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life, speed], ret可发动的卡牌])
+	return ret可发动的卡牌
+
+
+func 单位主要阶段打出判断(life:战斗_单位管理系统.Life_sys, speed:int) -> Array[战斗_单位管理系统.Card_sys]:
+	var ret可打出的卡牌:Array = []
 	#打出
 	for card:战斗_单位管理系统.Card_sys in life.cards_pos["手牌"].cards:
 		if _打出消耗判断(life, card):
@@ -32,13 +39,12 @@ func 单位主要阶段发动和打出判断(life:战斗_单位管理系统.Life
 					ret可打出的卡牌.append(card)
 
 	
-	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life, speed], [ret可发动的卡牌, ret可打出的卡牌]])
-	return [ret可发动的卡牌, ret可打出的卡牌]
+	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life, speed], ret可打出的卡牌])
+	return ret可打出的卡牌
 
 
-func 单位非主要阶段发动判断(life:战斗_单位管理系统.Life_sys, speed:int) -> Array:
+func 单位非主要阶段发动判断(life:战斗_单位管理系统.Life_sys, speed:int) -> Array[战斗_单位管理系统.Card_sys]:
 	var ret可发动的卡牌:Array = []
-	var ret可打出的卡牌:Array = []
 	#发动
 	var cards:Array[战斗_单位管理系统.Card_sys]
 	if life.state.has("防御"):
@@ -50,25 +56,30 @@ func 单位非主要阶段发动判断(life:战斗_单位管理系统.Life_sys, 
 			ret可发动的卡牌.append(card)
 	
 	
-	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life, speed], [ret可发动的卡牌, ret可打出的卡牌]])
-	return [ret可发动的卡牌, ret可打出的卡牌]
+	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life, speed], ret可发动的卡牌])
+	return ret可发动的卡牌
 
 
-func 单位行动阶段打出判断(life:战斗_单位管理系统.Life_sys) -> Array:
-	var ret可发动的卡牌:Array = []
+func 单位行动阶段打出判断(life:战斗_单位管理系统.Life_sys) -> Array[战斗_单位管理系统.Card_sys]:
 	var ret可打出的卡牌:Array = []
 	
 	#打出
+	var mp:int 
+	if life.att_life:
+		mp = 单位管理系统.get_life场上第一张是纵向的格子数量(life.att_life)
+	else :
+		mp = 单位管理系统.get_life场上第一张是纵向的格子数量(life.face_life)
 	for card:战斗_单位管理系统.Card_sys in life.cards_pos["手牌"].cards:
-		var 种类:String = card.get_value("种类")
-		var state:Array[String] = life.get_value("state")
-		if 种类 in ["攻击", "防御"] and (state == [] or state.has(种类)):
-			if _打出消耗判断(life, card):
-				ret可打出的卡牌.append(card)
+		if card.get_value("mp") >= mp:
+			var 种类:String = card.get_value("种类")
+			var state:Array[String] = life.get_value("state")
+			if 种类 in ["攻击", "防御"] and (state == [] or state.has(种类)):
+				if _打出消耗判断(life, card):
+					ret可打出的卡牌.append(card)
 	
 	
-	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life], [ret可发动的卡牌, ret可打出的卡牌]])
-	return [ret可发动的卡牌, ret可打出的卡牌]
+	event_bus.push_event("战斗_日志记录", [name, "单位发动判断", [life], ret可打出的卡牌])
+	return ret可打出的卡牌
 
 
 ##不在场上
@@ -202,14 +213,15 @@ func 卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, ca
 	
 	
 	#cost
-	if !_效果发动判断(effect.cost_effect, effect.get_value("features"), [card, life]):
+	var targets:Array = _效果发动判断(effect.cost_effect, effect.get_value("features"), [card, life])
+	if !targets:
 		
 		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
 		return false
 	
 	
 	#main
-	if !_效果发动判断(effect.main_effect, effect.get_value("features"), [card, life]):
+	if !_效果发动判断(effect.main_effect, effect.get_value("features"), targets):
 		
 		event_bus.push_event("战斗_日志记录", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
 		return false
@@ -283,9 +295,9 @@ func _时差判断(card:战斗_单位管理系统.Card_sys, speed:int) -> bool:
 
 
 
-func _效果发动判断(eff:Array, fea:Array = [], tar:Array = []) -> bool:
+func _效果发动判断(eff:Array, fea:Array = [], tar:Array = []) -> Array:
 	var effect_processing:= 战斗_发动判断系统.new(eff, [单位管理系统.lifes, 单位管理系统.efils], fea, tar)
-	var ret:bool = effect_processing.start()
+	var ret:Array = effect_processing.start()
 	
 	event_bus.push_event("战斗_日志记录", [name, "_效果发动判断", [eff, fea, tar], ret])
 	return ret

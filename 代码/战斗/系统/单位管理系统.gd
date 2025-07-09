@@ -24,6 +24,9 @@ func create_life(life_name:String, is_positive:bool) -> Life_sys:
 	
 	return life
 
+func create_card(card_name:String) -> Card_sys:
+	return Card_sys.new(card_name, buff系统)
+
 
 func 创造牌库(life:Life_sys, cards:Array[String]) -> void:
 	for i:String in cards:
@@ -35,6 +38,16 @@ func get_给定显示以上的卡牌(cards:Array[Card_sys], appear:int = 1) -> A
 	for card:Card_sys in cards:
 		if card.appear >= appear:
 			ret.append(card)
+	return ret
+
+
+func get_life场上第一张是纵向的格子数量(life:Life_sys) -> int:
+	var pos_arr:Array[战斗_单位管理系统.Card_pos_sys] = life.cards_pos["场上"]
+	var ret:int = 0
+	for pos:战斗_单位管理系统.Card_pos_sys in pos_arr:
+		if pos.cards != [] and pos.cards[0].direction:
+			ret += 1
+	
 	return ret
 
 
@@ -133,7 +146,8 @@ class Life_sys extends Data_sys:
 	var speed:int = 10
 	var cards_pos:Dictionary ={}
 	var state:Array[String] =[]
-	var att_life:Life_sys
+	var att_life:Life_sys#攻击目标
+	var face_life:Life_sys#面对目标
 	
 	func _init(life_name, def) -> void:
 		buff系统 = def
@@ -190,6 +204,10 @@ class Life_sys extends Data_sys:
 		buff系统.单位与全部buff判断(key, [self, null, value])
 		return value
 
+	func set_state(sta:String) -> void:
+		state = [sta]
+		event_bus.push_event("战斗_请求检查行动冲突", [self])
+
 
 class Card_pos_sys extends Data_sys:
 	var cards:Array[Card_sys]
@@ -220,6 +238,8 @@ class Card_sys extends Data_sys:
 	
 	func _init(card_name:String, def) -> void:
 		name = card_name
+		if card_name:
+			data = DatatableLoader.get_data_model("card_data", card_name)
 		buff系统 = def
 		event_bus.push_event("战斗_datasys被创建", [self])
 		

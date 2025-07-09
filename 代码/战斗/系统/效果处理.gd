@@ -31,11 +31,11 @@ func _init(eff:Array, lifes:Array, fea:Array = [],  tar:Array = []) -> void:
 	targets.resize(10)
 
 
-func start() -> bool:
+func start() -> Array:
 	if _effect_process():
-		return true
+		return targets
 	else :
-		return false
+		return []
 
 
 func _effect_process() -> bool:

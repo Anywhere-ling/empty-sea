@@ -5,6 +5,8 @@ class_name 战斗_单位控制_nocard
 var 最后手牌:Array[String]
 var 最后手牌中的绿牌:Array[String]
 
+var 已经打出过牌:bool = false
+
 func 创造牌库() -> Array:
 	var cards原数据:Array = life_sys.data["效果"].duplicate(true)
 	
@@ -131,11 +133,11 @@ func _simulate_draw(b: float, y: int, deck_size: int) -> int:
 
 func 第一次弃牌() -> Array:
 	var 手牌:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards
-	var ret:Array[战斗_单位管理系统.Card_sys]
+	var ret:Array[战斗_单位管理系统.Card_sys] = 手牌.duplicate(true)
 	for i:战斗_单位管理系统.Card_sys in 手牌:
 		var card_name:String = i.name
 		if 最后手牌中的绿牌.has(card_name):
-			ret.append(i)
+			ret.erase(i)
 			最后手牌中的绿牌.erase(card_name)
 	
 	return ret
@@ -163,23 +165,79 @@ func 对象选择(arr:Array, count:int = 1, is_all:bool = true):
 	return ret
 
 
-func 打出或发动(可发动:Array[战斗_单位管理系统.Card_sys], 可打出:Array[战斗_单位管理系统.Card_sys]) -> 战斗_单位管理系统.Card_sys:
+func 发动(可发动:Array[战斗_单位管理系统.Card_sys]) -> 战斗_单位管理系统.Card_sys:
 	var ret:战斗_单位管理系统.Card_sys
-	#打出
-	if 可打出 != []:
-		var cards:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards
-		可打出.sort_custom(func(a,b):
-			assert(cards.find(a) != -1 or cards.find(b) != -1, "不在手牌中")
-			return cards.find(a) < cards.find(b))
-		ret = 可打出[0]
 	#发动
-	elif 可发动 != []:
+	if 可发动 != []:
 		ret = 可发动[0]
 	
 	if !ret:
 		emit_signal("结束")
 		
 	return ret
+
+func 打出(可打出:Array[战斗_单位管理系统.Card_sys]) -> 战斗_单位管理系统.Card_sys:
+	var ret:战斗_单位管理系统.Card_sys
+	#打出
+	if 可打出 != [] and !已经打出过牌:
+		var cards:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards
+		可打出.sort_custom(func(a,b):
+			assert(cards.find(a) != -1 or cards.find(b) != -1, "不在手牌中")
+			return cards.find(a) < cards.find(b))
+		ret = 可打出[0]
+		已经打出过牌 = true
+	
+	if !ret:
+		emit_signal("结束")
+		
+	return ret
+
+
+func 主要阶段():
+	主要阶段打出()
+	
+	var count:float = 0
+	while count <= 3:
+		count += RandomNumberGenerator.new().randf()
+		主要阶段发动()
+	
+	emit_signal("结束")
+	
+func 主要阶段打出() -> void:
+	var ret:战斗_单位管理系统.Card_sys
+	#打出
+	if 打出cards != [] and !已经打出过牌:
+		var cards:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards
+		打出cards.sort_custom(func(a,b):
+			assert(cards.find(a) != -1 or cards.find(b) != -1, "不在手牌中")
+			return cards.find(a) < cards.find(b))
+		ret = 打出cards[0]
+		已经打出过牌 = true
+	
+	if ret:
+		emit_signal("主要阶段打出的信号", ret)
+
+func 主要阶段发动() -> void:
+	var ret:战斗_单位管理系统.Card_sys
+	#发动
+	if 发动cards != []:
+		ret = 发动cards[0]
+	
+	if ret:
+		emit_signal("主要阶段发动的信号", ret)
+
+func 主要阶段判断(cards1:Array[战斗_单位管理系统.Card_sys], cards2:Array[战斗_单位管理系统.Card_sys]) -> void:
+	super(cards1, cards2)
+
+
+func 结束阶段弃牌() -> Array[战斗_单位管理系统.Card_sys]:
+	var ret:Array[战斗_单位管理系统.Card_sys]
+	var cards:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards.duplicate(true)
+	while len(cards) > max(life_sys.speed, 1):
+		ret.append(cards[-1])
+		cards.remove_at(-1)
+	return ret
+	
 
 
 func 选择一格(arr:Array[战斗_单位管理系统.Card_pos_sys]) -> 战斗_单位管理系统.Card_pos_sys:
@@ -190,3 +248,8 @@ func 选择一格(arr:Array[战斗_单位管理系统.Card_pos_sys]) -> 战斗_�
 
 func 选择效果发动(card:战斗_单位管理系统.Card_sys, arr_int:Array[int]) -> int:
 	return arr_int[0]
+
+
+func 选择单位(arr:Array[战斗_单位管理系统.Life_sys]) -> 战斗_单位管理系统.Life_sys:
+	arr.shuffle()
+	return arr[0]
