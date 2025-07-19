@@ -30,14 +30,34 @@ class_name 创建工具
 
 #规范文件的加载数据
 var specification_效果组件:Dictionary
-var specification_效果特征:Dictionary
+var specification_效果特征:Dictionary = {
+	"触发":"当满足效果时，下一连锁可以发动",
+	"任意":"在任意位置可以发动",
+	"场上":"在场上可以发动",
+	"行动":"在行动可以发动",
+	"手牌":"在手牌可以发动",
+	"白区":"在白区可以发动",
+	"绿区":"在绿区可以发动",
+	"蓝区":"在蓝区可以发动",
+	"红区":"在红区可以发动",
+}
 var specification_效果标点:Dictionary = {
 	"特征":["效果的特征，用于检测", "括号"],
+	"条件":["效果的发动前条件", "括号"],
+	"buff":["触发效果的发动检测", "括号"],
+	"逐一":["在括号内将对象拆分", "括号输入"],
+	
 }
 
-var specification_特征:Dictionary
-var specification_媒介:Array
-var specification_组:Array
+var specification_特征:Dictionary = {
+	"闪耀":"不能变为里侧",
+}
+var specification_媒介:Array = [
+	"潮汐",
+]
+var specification_组:Array = [
+	"基本动作",
+]
 
 var cards_data:Dictionary
 var buffs_data:Dictionary
@@ -49,7 +69,11 @@ var copy_node_data:#储存复制数据
 	set(value):
 		copy_node_data = value
 		存储区数据.text = str(copy_node_data)
-var 读取中:bool = false
+var 读取中:bool = false:
+	set(value):
+		读取中 = value
+		if !读取中:
+			_请求保存历史记录的信号()
 var save_不可为空:bool = false
 
 
@@ -78,37 +102,7 @@ func _加载卡牌数据() -> void:
 
 
 func _加载规范文件并处理数据() -> void:
-	var file_效果特征:= FileAccess.open(文件路径.csv效果特征规范(), FileAccess.READ)
 	var file_效果组件:= FileAccess.open(文件路径.csv效果组件规范(), FileAccess.READ)
-	var file_特征_媒介_组:= FileAccess.open(文件路径.csv特征_媒介_组规范(), FileAccess.READ)
-	
-	#特征_媒介_组
-	file_特征_媒介_组.get_csv_line()
-	while not file_特征_媒介_组.eof_reached():
-		var arr:Array = file_特征_媒介_组.get_csv_line()
-		# 跳过空行或无效行
-		if arr.size() == 0 or (arr.size() == 1 and arr[0] == ""):
-			continue
-		
-		if arr[0] != "":
-			specification_特征[arr[0]] = arr[1]
-		if arr[2] != "":
-			specification_媒介.append(arr[2])
-		if arr[3] != "":
-			specification_组.append(arr[3])
-	
-	
-	#效果特征
-	file_效果特征.get_csv_line()
-	while not file_效果特征.eof_reached():
-		var arr:Array = file_效果特征.get_csv_line()
-		# 跳过空行或无效行
-		if arr.size() == 0 or (arr.size() == 1 and arr[0] == ""):
-			continue
-		#去掉空格
-		arr.filter(func(a):return !a is String and !a == [])
-
-		specification_效果特征[arr[0]] = arr[1]
 	
 	#效果组件
 	file_效果组件.get_csv_line()
@@ -175,7 +169,9 @@ func _add_node(node:BoxContainer, s:String) -> Control:
 		return _add_node_组件(node, s)
 	return 
 
-func _add_node_括号(node:卡牌创建工具_不定数量的数据节点容器, s:String) -> Label:
+func _add_node_括号(node:卡牌创建工具_不定数量的数据节点容器, s:String , 添加任意输入:String = "") -> Label:
+	读取中 = true
+	
 	var node1:= Label.new()
 	node1.text = s + "["
 	var node2:= Label.new()
@@ -185,10 +181,26 @@ func _add_node_括号(node:卡牌创建工具_不定数量的数据节点容器,
 	var a := 提供焦点.duplicate(12)
 	a.visible = true
 	node1.add_child(a)
+	
+	var node3
+	if 添加任意输入:
+		if 添加任意输入 == "等待输入":
+			node3 = _add_node_任意输入(node)
+		else :
+			node3 = _add_node_任意输入(node, "" , 添加任意输入)
+	
 	node.add_child_node(node2)
 	var a2 := 提供焦点.duplicate(12)
 	a2.visible = true
 	node2.add_child(a2)
+	
+	if node3:
+		卡牌设计区容器.get_current_tab_control().需要一起删除.append([node1, node3, node2])
+	else :
+		卡牌设计区容器.get_current_tab_control().需要一起删除.append([node1, node2])
+	
+	读取中 = false
+	
 	return node2
 
 func _add_node_文本(node:Container, 简介:String) -> Label:
@@ -365,11 +377,12 @@ func _翻译效果data(node:卡牌创建工具_不定数量的数据节点容器
 			assert(temp_string == data , "没有正括号，或者顺序错误")
 			if len(temp_dic.keys()) > 1:
 				temp_dic[temp_dic.keys()[-2]].append(temp_dic[temp_dic.keys()[-1]])
-				temp_string = temp_dic.keys()[-2]
+				temp_dic.erase(temp_string)
+				temp_string = temp_dic.keys()[-1]
 			else:
 				arr.append(temp_dic[temp_dic.keys()[-1]])
+				temp_dic.erase(temp_string)
 				temp_string = ""
-			temp_dic.erase(temp_string)
 		else:
 			if temp_string:
 				temp_dic[temp_string].append(data)
@@ -453,7 +466,13 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个设计区:
 		_add_node(node.组, i)
 	
 	for i:Array in card_data["效果"]:
-		var node1:卡牌创建工具_效果设计区 = node.效果.get_child(-1)
+		var node1:卡牌创建工具_效果设计区
+		var arr:Array = node.效果.get_children()
+		arr.reverse()
+		for i1:Control in arr:
+			if i1 is 卡牌创建工具_效果设计区:
+				node1 = i1
+				break
 		for i1 in i:
 			_翻译效果node(i1, node1.get_child(-1), node1.名字.get_child(-1))
 	读取中 = false
@@ -464,9 +483,13 @@ func _翻译效果node(data, node:卡牌创建工具_不定数量的数据节点
 		return
 	focus.grab_focus()
 	if data is String:
-		if specification_效果标点.keys().has(data) or specification_效果特征.keys().has(data):
+		if specification_效果标点.has(data):
 			_add_node_文本(node, data)
-	if data is Array:
+		elif specification_效果特征.has(data):
+			_add_node_文本(node, data)
+		elif buffs_data.has(data):
+			_add_node_文本(node, data)
+	elif data is Array:
 		#效果
 		if specification_效果组件.keys().has(data[0]):
 			var node1:= _add_node_组件(node, data[0])
@@ -478,12 +501,23 @@ func _翻译效果node(data, node:卡牌创建工具_不定数量的数据节点
 				_write_data_to_node(data[i], arr[i])
 		#括号标点
 		elif specification_效果标点.keys().has(data[0]):
-			if specification_效果标点[data[0]][1] == "括号":
+			if specification_效果标点[data[0]][1] in ["括号"]:
 				var focus2:Control = _add_node_括号(node, data[0])
+				focus2 = focus2.get_child(0)
 				data.remove_at(0)
 				for i in data:
 					_翻译效果node(i, node, focus2)
 				focus.grab_focus()
+			elif specification_效果标点[data[0]][1] in ["括号输入"]:
+				var focus2:Control = _add_node_括号(node, data[0], data[1])
+				focus2 = focus2.get_child(0)
+				data.remove_at(0)
+				data.remove_at(0)
+				for i in data:
+					_翻译效果node(i, node, focus2)
+				focus.grab_focus()
+		else:
+			assert(false, "未识别")
 
 
 #写入数据到单个节点
@@ -492,8 +526,8 @@ func _write_data_to_node(data, node:Control) -> void:
 		assert(data is String, "数据类型错误")
 		node.text = data
 	elif node is SpinBox:
-		assert(data is int or data is String, "数据类型错误")
-		node.value = int(data)
+		assert(data is float or data is String, "数据类型错误")
+		node.value = float(data)
 	elif node is OptionButton:
 		assert(data is String, "数据类型错误")
 		for i:int in node.item_count:
@@ -677,9 +711,6 @@ func _请求保存历史记录的信号() -> void:
 				node.history.append(data)
 				node.history_index = len(node.history) - 1
 
-		
-		
-		
 
 func _请求读取历史记录的信号(data:Dictionary) -> void:
 	var old_node:卡牌创建工具_单个设计区 = 卡牌设计区容器.get_current_tab_control()
@@ -699,8 +730,11 @@ func _请求删除卡牌设计区的信号(node:卡牌创建工具_单个设计�
 
 
 func _on_删除_button_up() -> void:
+	读取中 = true
+	
 	var focus:Control = get_viewport().gui_get_focus_owner()
 	var node:Control = focus.get_parent()
+	
 	#多选
 	if node is Label and node.get_parent() is 卡牌创建工具_不定数量的数据节点容器_h:
 		node.get_parent().remove_child_node(node)
@@ -709,18 +743,32 @@ func _on_删除_button_up() -> void:
 	if focus and node.tooltip_text == "基础数据节点容器的名字":
 		for i in node.get_parent().get_child(1).get_children():
 			i.get_parent().remove_child_node(i)
+		return
 	
 	node = _find_parent(focus)
+	#一起删除
+	var 卡片设计区:卡牌创建工具_单个设计区 = 卡牌设计区容器.get_current_tab_control()
+	var arr:Array = 卡片设计区.get_需要一起删除_array(node)
+	if arr != []:
+		for i in arr:
+			if i:
+				i.get_parent().remove_child_node(i)
+		return
+	
+	
 	if node:
 		node.get_parent().remove_child_node(node)
+	
+	读取中 = false
 
 
 func _on_加载_button_up() -> void:
 	if 文件.choose_index != -1:
 		load_card(cards_data[文件.choose_data[文件.choose_index]])
-
+	
 
 func _on_保存_button_up() -> void:
+	
 	save_不可为空 = true
 	读取中 = true#阻止保存历史记录
 	

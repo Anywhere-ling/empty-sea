@@ -2,12 +2,12 @@ extends Node
 
 @onready var 单位管理系统: 战斗_单位管理系统 = %单位管理系统
 @onready var 回合系统: Node = %回合系统
-@onready var 最终行动系统: Node = $最终行动系统
-@onready var 卡牌打出与发动系统: Node = $单位管理系统/卡牌打出与发动系统
-@onready var 连锁系统: Node = $连锁系统
-@onready var 释放与源: Node = $释放与源
+@onready var 最终行动系统: Node = %最终行动系统
+@onready var 释放与源: Node = %释放与源
+@onready var 卡牌打出与发动系统: Node = %卡牌打出与发动系统
+@onready var 连锁系统: Node = %连锁系统
 @onready var 发动判断系统: Node = %发动判断系统
-@onready var buff系统: Node = $单位管理系统/buff系统
+@onready var buff系统: Node = %buff系统
 
 signal 下一阶段
 
@@ -21,11 +21,13 @@ var 没有第一次抽牌的单位:Array[战斗_单位管理系统.Life_sys]
 
 func _ready() -> void:
 	_绑定信号()
+	
+	最终行动系统.临时pos = 战斗_单位管理系统.Card_pos_sys.new("临时")
 
 
 
 func add_life(life, is_positive:bool) -> void:
-	event_bus.push_event("战斗_日志记录", [name, "加入连锁的动画", [life, is_positive], null])
+	event_bus.push_event("战斗_日志记录", [name, "add_life", [life, is_positive], null])
 	
 	#生成life
 	if life is String:
@@ -42,15 +44,28 @@ func add_life(life, is_positive:bool) -> void:
 	#创造牌库
 	单位管理系统.创造牌库(life, control[life].创造牌库())
 
+func start() -> void:
+	event_bus.push_event("战斗_日志记录", [name, "start", [], null])
+	
+	回合系统.start()
+
 
 func _下一阶段的信号(state:String = "") -> void:
+	assert(连锁系统.chain_state == 0,"连锁未处理")
 	event_bus.push_event("战斗_日志记录", [name, "_下一阶段的信号", [state], null])
 	
-	回合系统.swicth_state(state)
+	回合系统.call_deferred("swicth_state", state)
+	
 
 
 func _开始阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_开始阶段", [life], null])
+	
+	for card:战斗_单位管理系统.Card_sys in life.get_all_cards():
+		for effect:战斗_单位管理系统.Effect_sys in card.effects:
+			if effect.count <= 0:
+				effect.count += 1
+	
 	
 	await 释放与源.添加源(life)
 	
@@ -59,13 +74,14 @@ func _开始阶段(life:战斗_单位管理系统.Life_sys) -> void:
 
 
 
+
 func _战斗阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_战斗阶段", [life], null])
 	
-	for card:战斗_单位管理系统.Card_sys in life.cards_pos["行动"]:
+	for card:战斗_单位管理系统.Card_sys in life.cards_pos["行动"].cards:
 		if card.get_value("种类") == "攻击":
-			await 卡牌打出与发动系统.发动场上的效果(card, "攻击前")
-			if card.get_parent().name == "行动":
+			await 卡牌打出与发动系统.发动场上的效果(life, card, "攻击前")
+			if card.get_parent().nam == "行动":
 				await _攻击判断(life, card)
 		卡牌打出与发动系统.自然下降的卡牌[card] = ["打出", life]
 	await 卡牌打出与发动系统.自动下降()
@@ -91,15 +107,15 @@ func _攻击判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位�
 	
 	
 	#处理
+	await 最终行动系统.攻击(life, card, mode)
 	if mode == "直接攻击":
-		await 最终行动系统.直接攻击(life, card)
 		for i:int in att_sp:
 			if len(att_life.cards_pos["白区"].cards) >= 1:
-				await 最终行动系统.加入(life, card, life.cards_pos["红区"])
+				await 最终行动系统.加入(att_life, att_life.cards_pos["白区"].cards[0], att_life.cards_pos["红区"])
 			elif len(att_life.cards_pos["手牌"].cards) >= 1:
-				await 最终行动系统.加入(life, card, life.cards_pos["手牌"])
+				await 最终行动系统.加入(att_life, att_life.cards_pos["手牌"].cards[0], att_life.cards_pos["红区"])
 			else :
-				_死亡(att_life)
+				await 最终行动系统.死亡(att_life)
 	
 	await buff系统.单位与全部buff判断("被攻击", [null, att_life, card])
 
@@ -109,17 +125,25 @@ func _抽牌阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	
 	if 没有第一次抽牌的单位.has(life):
 		没有第一次抽牌的单位.erase(life)
+		await _确认face_life(life)
 		await _第一次抽牌(life)
 		await _第一次弃牌(life)
+		await _整理手牌(life)
+		if 回合系统.turn == 0:
+			emit_signal("下一阶段", "结束")
+			return
 	else :
-		await 最终行动系统.抽牌(life)
+		if life.cards_pos["白区"].cards == [] and life.cards_pos["手牌"].cards == []:
+			await 最终行动系统.死亡(life)
+		else:
+			await 最终行动系统.抽牌(life)
 	emit_signal("下一阶段")
 
 func _第一次抽牌(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_第一次抽牌", [life], null])
 	
 	var hand_cadrs:int = 0
-	var speed:int = life.get_value("speed")
+	var speed:int = await life.get_value("speed")
 	while hand_cadrs < max(speed, 1):
 		if life.cards_pos["白区"].cards == []:
 			return
@@ -137,6 +161,19 @@ func _第一次弃牌(life:战斗_单位管理系统.Life_sys) -> void:
 	var cards:Array[战斗_单位管理系统.Card_sys] = control[life].第一次弃牌()
 	for card:战斗_单位管理系统.Card_sys in cards:
 		await 最终行动系统.加入(life, card, life.cards_pos["绿区"])
+		await 最终行动系统.抽牌(life)
+
+func _整理手牌(life:战斗_单位管理系统.Life_sys) -> void:
+	event_bus.push_event("战斗_日志记录", [name, "_整理手牌", [life], null])
+	
+	var cards:Array = await control[life].整理手牌()
+	life.cards_pos["手牌"].cards.sort_custom(func(a,b):return cards.find(a) < cards.find(b))
+
+
+func _确认face_life(life:战斗_单位管理系统.Life_sys) -> void:
+	event_bus.push_event("战斗_日志记录", [name, "_确认face_life", [life], null])
+	
+	await control[life].确认目标(单位管理系统.lifes, 单位管理系统.efils)
 
 
 
@@ -147,7 +184,8 @@ func _行动阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	var cards:Array[战斗_单位管理系统.Card_sys] = 发动判断系统.单位行动阶段打出判断(life)
 	var card:战斗_单位管理系统.Card_sys = await control[life].打出(cards)
 	if card:
-		await 卡牌打出与发动系统.打出(life, card)
+		var effect_mode = await 卡牌打出与发动系统.打出(life, card)
+		卡牌打出与发动系统.发动场上的效果(life, card, effect_mode)
 	emit_signal("下一阶段")
 
 
@@ -159,20 +197,29 @@ func _主要阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	_主要阶段判断(life)
 	control[life].主要阶段发动的信号.connect(_主要阶段发动)
 	control[life].主要阶段打出的信号.connect(_主要阶段打出)
-	control[life].结束.connect(func():emit_signal("下一阶段"))
+	control[life].结束.connect(func():emit_signal("下一阶段"), 4)
 	control[life].主要阶段()
 
 func _主要阶段打出(card:战斗_单位管理系统.Card_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_主要阶段打出", [card], null])
 	
 	var life:战斗_单位管理系统.Life_sys = 回合系统.current_life
-	await 卡牌打出与发动系统.打出(life, card)
+	var effect_mode = await 卡牌打出与发动系统.打出(life, card)
+	卡牌打出与发动系统.发动场上的效果(life, card, effect_mode)
+	
+	if 连锁系统.chain_state:
+		await 连锁系统.连锁处理结束
+	_主要阶段判断(life)
 
 func _主要阶段发动(card:战斗_单位管理系统.Card_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_主要阶段发动", [card], null])
 	
 	var life:战斗_单位管理系统.Life_sys = 回合系统.current_life
 	await 卡牌打出与发动系统.发动(life, card)
+	
+	if 连锁系统.chain_state:
+		await 连锁系统.连锁处理结束
+	_主要阶段判断(life)
 
 func _主要阶段判断(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_主要阶段判断", [life], null])
@@ -186,8 +233,9 @@ func _主要阶段判断(life:战斗_单位管理系统.Life_sys) -> void:
 func _结束阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_结束阶段", [life], null])
 	
-	control[life].主要阶段发动的信号.disconnect(_主要阶段发动)
-	control[life].主要阶段打出的信号.disconnect(_主要阶段打出)
+	if 回合系统.turn != 0:
+		control[life].主要阶段发动的信号.disconnect(_主要阶段发动)
+		control[life].主要阶段打出的信号.disconnect(_主要阶段打出)
 	
 	await buff系统.结束阶段结算buff(life)
 	
@@ -195,10 +243,19 @@ func _结束阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	for card:战斗_单位管理系统.Card_sys in cards:
 		await 最终行动系统.加入(life, card, life.cards_pos["绿区"])
 	
+	_恢复绿区(life)
 	释放与源.释放卡牌()
 	
 	emit_signal("下一阶段")
 
+func _恢复绿区(life:战斗_单位管理系统.Life_sys) -> void:
+	event_bus.push_event("战斗_日志记录", [name, "_恢复绿区", [life], null])
+	
+	var cards:Array[战斗_单位管理系统.Card_sys] = life.cards_pos["绿区"].cards
+	var 表侧的卡:Array[战斗_单位管理系统.Card_sys] = 单位管理系统.get_给定显示以上的卡牌(cards)
+	for card:战斗_单位管理系统.Card_sys in cards:
+		if !card in 表侧的卡:
+			await 最终行动系统.反转(life, card)
 
 
 
@@ -207,13 +264,10 @@ func _发动询问(life:战斗_单位管理系统.Life_sys) -> bool:
 	var card:战斗_单位管理系统.Card_sys
 	if 回合系统.period == "主要" and 回合系统.current_life == life:
 		cards = 发动判断系统.单位主要阶段发动判断(life)
-		card = await control[life].发动(cards)
 	else :
-		if life == 回合系统.current_life:
-			cards = 发动判断系统.单位主要阶段发动判断(life)
-		else :
-			cards = 发动判断系统.单位非主要阶段发动判断(life)
-		card = await control[life].发动(cards)
+		cards = 发动判断系统.单位非主要阶段发动判断(life)
+	
+	card = await control[life].发动(cards)
 	
 	if !card:
 		
@@ -221,6 +275,8 @@ func _发动询问(life:战斗_单位管理系统.Life_sys) -> bool:
 		return false
 	
 	卡牌打出与发动系统.发动(life, card)
+	if 连锁系统.chain_state:
+		await 连锁系统.连锁处理结束
 	
 	event_bus.push_event("战斗_日志记录", [name, "_发动询问", [life], true])
 	return true
@@ -229,8 +285,7 @@ func _发动询问(life:战斗_单位管理系统.Life_sys) -> bool:
 func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, cost_mode:String) -> int:
 	var life:战斗_单位管理系统.Life_sys = card.get_parent().get_parent()
 	var ret:int = 0
-	
-	if cost_mode == "":
+	if cost_mode == "直接":
 		pass
 	
 	elif cost_mode == "打出":
@@ -262,12 +317,12 @@ func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, cost_mode:Stri
 			var mp:int = card.get_value("mp")
 			if mp > len(cards):
 				for i:战斗_单位管理系统.Card_sys in cards:
-					最终行动系统.释放(life, i)
+					释放与源.添加释放卡牌(life, i)
 					mp -= 1
 					ret += 1
 			else :
 				for i:int in mp:
-					最终行动系统.释放(life, cards[i])
+					释放与源.添加释放卡牌(life, cards[i])
 					ret += 1
 			
 			#其他
@@ -278,11 +333,11 @@ func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, cost_mode:Stri
 			cards.shuffle()
 			if mp >= len(cards):
 				for i:战斗_单位管理系统.Card_sys in cards:
-					最终行动系统.释放(life, i)
+					释放与源.添加释放卡牌(life, i)
 					ret += 1
 			else :
 				for i:int in mp:
-					最终行动系统.释放(life, cards[i])
+					释放与源.添加释放卡牌(life, cards[i])
 					ret += 1
 	
 	elif cost_mode == "非打出":
@@ -314,12 +369,12 @@ func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, cost_mode:Stri
 			var mp:int = card.get_value("mp")
 			if mp > len(cards):
 				for i:战斗_单位管理系统.Card_sys in cards:
-					最终行动系统.释放(life, i)
+					释放与源.添加释放卡牌(life, i)
 					mp -= 1
 					ret += 1
 			else :
 				for i:int in mp:
-					最终行动系统.释放(life, cards[i])
+					释放与源.添加释放卡牌(life, cards[i])
 					ret += 1
 			
 			#其他
@@ -330,20 +385,19 @@ func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, cost_mode:Stri
 			cards.shuffle()
 			if mp >= len(cards):
 				for i:战斗_单位管理系统.Card_sys in cards:
-					最终行动系统.释放(life, i)
+					释放与源.添加释放卡牌(life, i)
 					ret += 1
 			else :
 				for i:int in mp:
-					最终行动系统.释放(life, cards[i])
+					释放与源.添加释放卡牌(life, cards[i])
 					ret += 1
-		
-	event_bus.push_event("战斗_日志记录", [name, "_处理卡牌消耗", [life], ret])
+	
+	event_bus.push_event("战斗_日志记录", [name, "_处理卡牌消耗", [card, cost_mode], ret])
 	return ret
 
 
 
-func _死亡(life:战斗_单位管理系统.Life_sys) -> void:
-	return 
+
 
 
 
@@ -366,14 +420,13 @@ func _绑定信号() -> void:
 	event_bus.subscribe("战斗_请求检查行动冲突", _战斗_请求检查行动冲突的信号)
 
 
-
 func _战斗_请求选择的信号(life:战斗_单位管理系统.Life_sys, arr:Array, count:int = 1, is_all:bool = true) -> void:
 	var ret:Array = await control[life].对象选择(arr, count, is_all)
 	
 	event_bus.push_event("战斗_日志记录", [name, "_战斗_请求选择的信号", [life, arr, count, is_all], ret])
 	event_bus.push_event("战斗_请求选择返回", [ret])
 
-func _战斗_请求选择一格的信号(life:战斗_单位管理系统.Life_sys, arr:Array[战斗_单位管理系统.Card_pos_sys], condition:String) -> void:
+func _战斗_请求选择一格的信号(life:战斗_单位管理系统.Life_sys, arr:Array, condition:Array) -> void:
 	arr = 卡牌打出与发动系统.get_可用的格子(arr, condition)
 	var ret:战斗_单位管理系统.Card_pos_sys = await control[life].选择一格(arr)
 	
@@ -384,12 +437,12 @@ func _战斗_请求选择单位的信号(life:战斗_单位管理系统.Life_sys
 	var arr:Array[战斗_单位管理系统.Life_sys]
 	if 单位管理系统.lifes.has(life):
 		for i:战斗_单位管理系统.Life_sys in 单位管理系统.efils:
-			if mp >= 卡牌打出与发动系统.get_可用的格子(i.cards_pos["场上"], "纵向"):
+			if mp >= 6 - len(卡牌打出与发动系统.get_可用的格子(i.cards_pos["场上"], ["卡牌"])):
 				arr.append(i)
 		
 	else :
-		for i:战斗_单位管理系统.Life_sys in 单位管理系统.efils:
-			if mp >= 卡牌打出与发动系统.get_可用的格子(i.cards_pos["场上"], "纵向"):
+		for i:战斗_单位管理系统.Life_sys in 单位管理系统.lifes:
+			if mp >= 6 - len(卡牌打出与发动系统.get_可用的格子(i.cards_pos["场上"], ["卡牌"])):
 				arr.append(i)
 	
 	var ret:战斗_单位管理系统.Life_sys = await control[life].选择单位(arr)
@@ -397,33 +450,32 @@ func _战斗_请求选择单位的信号(life:战斗_单位管理系统.Life_sys
 	event_bus.push_event("战斗_日志记录", [name, "_战斗_请求选择单位的信号", [life, mp], ret])
 	event_bus.push_event("战斗_请求选择单位返回", [ret])
 
-func _战斗_选择效果并发动的信号(card:战斗_单位管理系统.Card_sys, arr_int:Array[int], cost_mode:String) -> void:
+func _战斗_选择效果并发动的信号(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, arr_int:Array[int], cost_mode:String) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_战斗_选择效果并发动的信号", [card, arr_int, cost_mode], null])
 	
-	var life:战斗_单位管理系统.Life_sys = card.get_parent().get_parent()
-	var effect_int:int = control[life].选择效果发动(card, arr_int)
+	var effect_int:int = -1
+	if arr_int != []:
+		effect_int = control[life].选择效果发动(card, arr_int)
 	if effect_int != -1 and 连锁系统.add_chain(card.effects[effect_int]):
-		连锁系统.set_now_speed([card.effects[effect_int]], _处理卡牌消耗(card, cost_mode))
+		连锁系统.set_now_speed(card.effects[effect_int], _处理卡牌消耗(card, cost_mode))
+		life.add_history("发动", 回合系统.turn, 回合系统.period, card)
+		card.add_history("发动", 回合系统.turn, 回合系统.period)
+		#buff判断
+		await buff系统.单位与全部buff判断("发动", [null, life, card])
+		await 请求进行下一连锁()
 	#没有发动效果
 	else :
 		if cost_mode == "启动":
 			await _处理卡牌消耗(card, cost_mode)
-		连锁系统.start()
+		if 连锁系统.chain_state == 1:
+			await 连锁系统.start()
 		await 卡牌打出与发动系统.自动下降()
+	event_bus.push_event("战斗_选择效果并发动返回")
 
-func _战斗_请求检查行动冲突的信号(life:战斗_单位管理系统.Life_sys) -> void:
-	event_bus.push_event("战斗_日志记录", [name, "_战斗_请求检查行动冲突的信号", [life], null])
+func 请求进行下一连锁() -> void:
+	event_bus.push_event("战斗_日志记录", [name, "请求进行下一连锁", [], null])
 	
-	for card:战斗_单位管理系统.Card_sys in life.cards_pos["行动"]:
-		if !card.get_value("种类") in life.state:
-			最终行动系统.加入(life, card, life.cards_pos["绿区"])
-
-func 战斗_请求进行下一连锁的信号() -> void:
-	event_bus.push_event("战斗_日志记录", [name, "战斗_请求进行下一连锁的信号", [], null])
-	
-	var life:战斗_单位管理系统.Life_sys
-	var card:战斗_单位管理系统.Card_sys
-	var cur_life:战斗_单位管理系统.Life_sys = 连锁系统.current_life
+	var life:战斗_单位管理系统.Life_sys = 连锁系统.current_life
 	var arr_life:Array[战斗_单位管理系统.Life_sys]
 	
 	if 单位管理系统.lifes.has(life):
@@ -441,8 +493,9 @@ func 战斗_请求进行下一连锁的信号() -> void:
 			if await _发动询问(i):
 				return
 	#攻击目标
-	if await _发动询问(life.att_life):
-		return
+	if life.att_life:
+		if await _发动询问(life.att_life):
+			return
 	#全部
 	for i:战斗_单位管理系统.Life_sys in arr_life:
 		if await _发动询问(i):
@@ -455,3 +508,12 @@ func 战斗_请求进行下一连锁的信号() -> void:
 		for i:战斗_单位管理系统.Life_sys in 单位管理系统.efils:
 			if await _发动询问(i):
 				return
+	
+	await 连锁系统.start()
+
+func _战斗_请求检查行动冲突的信号(life:战斗_单位管理系统.Life_sys) -> void:
+	event_bus.push_event("战斗_日志记录", [name, "_战斗_请求检查行动冲突的信号", [life], null])
+	
+	for card:战斗_单位管理系统.Card_sys in life.cards_pos["行动"]:
+		if !card.get_value("种类") in life.state:
+			最终行动系统.加入(life, card, life.cards_pos["绿区"])

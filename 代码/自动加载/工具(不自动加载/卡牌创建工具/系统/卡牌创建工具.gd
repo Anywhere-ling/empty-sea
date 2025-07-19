@@ -1,20 +1,7 @@
 extends 创建工具
 class_name 卡牌创建工具
 
-'''
-用于创建卡牌的gui工具
-希望实现功能：
-	1.读取所有已创建的卡牌文件（csv）：
-		有一个总目录以便读取
-		为读取的每一张卡创建一个选项
-		当点击选项时显示卡牌信息
-	2.创建的卡牌文件（csv）：
-		规范卡牌，以规范文件（csv）为基础创建选项
-		通过选项创建卡牌
-		保存
-	3.修改规范文件（csv）
 
-'''
 
 
 @onready var 组件: 卡牌创建工具_带搜索的选择器 = %组件
@@ -23,6 +10,7 @@ class_name 卡牌创建工具
 @onready var 特: 卡牌创建工具_带搜索的选择器 = %特
 @onready var 媒: 卡牌创建工具_带搜索的选择器 = %媒
 @onready var 组: 卡牌创建工具_带搜索的选择器 = %组
+@onready var buff: 卡牌创建工具_带搜索的选择器 = %buff
 
 
 
@@ -37,8 +25,6 @@ func _ready() -> void:
 	await DatatableLoader.加载完成
 	_加载卡牌数据()
 	_加载规范文件并处理数据()
-	print(specification_效果组件)
-	print(specification_效果特征)
 	_将数据写入选择器()
 	组件.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	特征.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
@@ -46,88 +32,17 @@ func _ready() -> void:
 	特.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	媒.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	组.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
+	buff.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	组件.请求显示简介.connect(_选择器的请求显示简介的信号)
 	特征.请求显示简介.connect(_选择器的请求显示简介的信号)
 	标点.请求显示简介.connect(_选择器的请求显示简介的信号)
 	特.请求显示简介.connect(_选择器的请求显示简介的信号)
 	
+	
 	add_单个卡牌设计区()
 
 
-func _加载卡牌数据() -> void:
-	var names:Array = DatatableLoader.other_data["卡名总表"]
-	for i:String in names:
-		cards_data[i] = DatatableLoader.get_dic_data("card_data", i)
 
-
-func _加载规范文件并处理数据() -> void:
-	var file_效果特征:= FileAccess.open(文件路径.csv效果特征规范(), FileAccess.READ)
-	var file_效果组件:= FileAccess.open(文件路径.csv效果组件规范(), FileAccess.READ)
-	var file_特征_媒介_组:= FileAccess.open(文件路径.csv特征_媒介_组规范(), FileAccess.READ)
-	
-	#特征_媒介_组
-	file_特征_媒介_组.get_csv_line()
-	while not file_特征_媒介_组.eof_reached():
-		var arr:Array = file_特征_媒介_组.get_csv_line()
-		# 跳过空行或无效行
-		if arr.size() == 0 or (arr.size() == 1 and arr[0] == ""):
-			continue
-		
-		if arr[0] != "":
-			specification_特征[arr[0]] = arr[1]
-		if arr[2] != "":
-			specification_媒介.append(arr[2])
-		if arr[3] != "":
-			specification_组.append(arr[3])
-	
-	
-	#效果特征
-	file_效果特征.get_csv_line()
-	while not file_效果特征.eof_reached():
-		var arr:Array = file_效果特征.get_csv_line()
-		# 跳过空行或无效行
-		if arr.size() == 0 or (arr.size() == 1 and arr[0] == ""):
-			continue
-		#去掉空格
-		arr.filter(func(a):return !a is String and !a == [])
-
-		specification_效果特征[arr[0]] = arr[1]
-	
-	#效果组件
-	file_效果组件.get_csv_line()
-	while not file_效果组件.eof_reached():
-		var arr:Array = file_效果组件.get_csv_line()
-	
-		#去掉空格
-		arr = arr.filter(func(a):return !a == "")
-		
-		# 跳过空行或无效行
-		if arr.size() == 0 or (arr.size() == 1 and arr[0] == ""):
-			continue
-
-		#开始处理
-		var new_arr:Array
-		for index1:int in len(arr):
-			#第一次分割
-			var i1:PackedStringArray = arr[index1].split("/" , false)
-			#如果无法分割
-			if len(i1) == 1:
-				new_arr.append(i1[0])
-				continue
-			
-			var new_i1:Array
-			for index2:int in len(i1):
-				#第二次分割
-				var i2:Array = i1[index2].split("_" , false)
-				#如果无法分割
-				if len(i2) == 1:
-					new_i1.append(i2[0])
-					continue
-				
-				new_i1.append(i2)
-			new_arr.append(new_i1)
-		
-		specification_效果组件[new_arr[0]] = new_arr
 
 func _将数据写入选择器() -> void:
 	标点.choose_data = specification_效果标点.keys()
@@ -144,6 +59,8 @@ func _将数据写入选择器() -> void:
 	组.start_build()
 	文件.choose_data = cards_data.keys()
 	文件.start_build()
+	buff.choose_data = buffs_data.keys()
+	buff.start_build()
 
 
 
@@ -155,6 +72,8 @@ func _add_node(node:BoxContainer, s:String) -> Control:
 	if specification_效果标点.has(s):
 		if specification_效果标点[s][1] == "括号":
 			return _add_node_括号(node, s)
+		if specification_效果标点[s][1] == "括号输入":
+			return _add_node_括号(node, s, "等待输入")
 	elif node.tooltip_text == "特征":
 		if specification_特征.has(s):
 			return _add_node_文本(node, s)
@@ -168,152 +87,9 @@ func _add_node(node:BoxContainer, s:String) -> Control:
 		return _add_node_文本(node, s)
 	elif specification_效果组件.has(s):
 		return _add_node_组件(node, s)
+	elif buffs_data.has(s):
+		return _add_node_文本(node, s)
 	return 
-
-func _add_node_括号(node:卡牌创建工具_不定数量的数据节点容器, s:String) -> Label:
-	var node1:= Label.new()
-	node1.text = s + "["
-	var node2:= Label.new()
-	node2.text = "]" + s
-	
-	node.add_child_node(node1)
-	var a := 提供焦点.duplicate(12)
-	a.visible = true
-	node1.add_child(a)
-	node.add_child_node(node2)
-	var a2 := 提供焦点.duplicate(12)
-	a2.visible = true
-	node2.add_child(a2)
-	return node2
-
-func _add_node_文本(node:Container, 简介:String) -> Label:
-	var node1:= Label.new()
-	node1.text = 简介
-	if node is 卡牌创建工具_不定数量的数据节点容器:
-		node.add_child_node(node1)
-	if node is 卡牌创建工具_不定数量的数据节点容器_h:
-		node.add_child_node(node1)
-	if node is HBoxContainer:
-		node.add_child(node1)
-	var a := 提供焦点.duplicate(12)
-	a.visible = true
-	node1.add_child(a)
-	return node1
-
-func _add_node_任意输入(node:Container, 简介:String = "", default:String = "") -> LineEdit:
-	var node1:= LineEdit.new()
-	node1.placeholder_text = 简介
-	node1.text = default
-	if node is 卡牌创建工具_不定数量的数据节点容器:
-		node.add_child_node(node1)
-	if node is HBoxContainer:
-		node.add_child(node1)
-	node1.size_flags_horizontal = SIZE_EXPAND_FILL
-	return node1
-
-func _add_node_数字输入(node:Container, 简介:String = "", default:String = "") -> SpinBox:
-	var node1:= SpinBox.new()
-	node1.prefix = 简介
-	if default != "":
-		node1.value = int(default)
-	if node is 卡牌创建工具_不定数量的数据节点容器:
-		node.add_child_node(node1)
-	if node is HBoxContainer:
-		node.add_child(node1)
-	return node1
-
-func _add_node_单选(node:Container, 简介:String = "", default:String = "", 选项:Array = []) -> OptionButton:
-	var node1:= OptionButton.new()
-	if 简介 != "":
-		node1.add_separator(简介)
-	if default != "":
-		node1.add_item(default)
-		node1.select(0)
-	for i:String in 选项:
-		node1.add_item(i)
-	if node is 卡牌创建工具_不定数量的数据节点容器:
-		node.add_child_node(node1)
-	if node is HBoxContainer:
-		node.add_child(node1)
-	return node1
-
-func _add_node_多选(node:Container, 简介:String = "", default:String = "", 选项:Array = []) -> 卡牌创建工具_不定数量的数据节点容器_h:
-	var node1 := load(文件路径.tscn卡牌创建工具_不定数量的数据节点容器_h()).instantiate() as 卡牌创建工具_不定数量的数据节点容器_h
-	node1.tooltip_auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	node1.tooltip_text = "多选"
-	if node is 卡牌创建工具_不定数量的数据节点容器:
-		node.add_child_node(node1)
-	if node is HBoxContainer:
-		node.add_child(node1)
-	node1.size_flags_horizontal = SIZE_EXPAND_FILL
-	#node1.size_flags_vertical = SIZE_SHRINK_BEGIN
-	node1.选项卡.visible = true
-	node1.加.visible = true
-	if 简介 != "":
-		node1.选项卡.add_separator(简介)
-	for i:String in 选项:
-		node1.选项卡.add_item(i)
-	return node1
-
-func _add_node_组件(node:卡牌创建工具_不定数量的数据节点容器, s:String) -> HBoxContainer:
-	var node1:= HBoxContainer.new()
-	add_child(node1)#临时储存
-	node1.size_flags_horizontal = SIZE_EXPAND_FILL
-	
-	var arr: = specification_效果组件[s].duplicate(true) as Array
-	for i:int in len(arr):
-		if i == 0:
-			#效果名
-			_add_node_文本(node1, s)
-		elif i == 1:
-			#简介
-			pass
-		else:
-			if !arr[i] is Array:
-				#只有简介
-				_add_node_任意输入(node1, arr[i])
-			else :
-				var arr2:Array = arr[i]
-				var 简介:String = arr2[0]
-				var default:String = ""
-				arr2.remove_at(0)
-				if arr2.has("可为空"):
-					default = "-1"
-				for i2 in arr2:
-					if !i2 is Array:
-						if i2 == "数字":
-							_add_node_数字输入(node1, 简介, default)
-					else:
-						if i2[0] == "选项":
-							i2.remove_at(0)
-							_add_node_单选(node1, 简介, default, _将带波浪线的选项展开(i2))
-						if i2[0] == "多选项":
-							i2.remove_at(0)
-							_add_node_多选(node1, 简介, default, _将带波浪线的选项展开(i2))
-	remove_child(node1)
-	node.add_child_node(node1)
-	return node1
-
-func _将带波浪线的选项展开(arr:Array) -> Array:
-	var arr1:Array = arr.duplicate(true)
-	var new_arr:Array
-	for i:String in arr1:
-		if i.find("~") != -1:
-			var has_文字:String = ""
-			for i2:String in ["对象"]:
-				if i.begins_with(i2):
-					has_文字 = i2
-					i = i.erase(0 , len(i2))
-					continue
-			var arr2:Array = i.split("~" , true)
-			arr2[0] = int(arr2[0])
-			arr2[1] = int(arr2[1])
-			arr2 = range(arr2[0] , arr2[1] + 1)
-			arr2 = arr2.map(func(a): return has_文字 + str(a))
-			new_arr.append_array(arr2)
-		else :
-			new_arr.append(i)
-	return new_arr
 
 
 
@@ -329,10 +105,11 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 	card_data["文本"] = _tran_node_to_data(card_node.文本)
 	#效果
 	var arr:Array = []
-	for i:卡牌创建工具_效果设计区 in card_node.效果.get_children():
-		var i1:卡牌创建工具_不定数量的数据节点容器 = i.get_child(1)
-		if len(i1.get_children()) > 2:
-			arr.append(_翻译效果data(i1))
+	for i:Control in card_node.效果.get_children():
+		if i is 卡牌创建工具_效果设计区:
+			var i1:卡牌创建工具_不定数量的数据节点容器 = i.get_child(1)
+			if len(i1.get_children()) > 2:
+				arr.append(_翻译效果data(i1))
 	card_data["效果"] = arr
 	
 	
@@ -340,38 +117,7 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 	
 	return card_data
 
-#处理符号
-func _翻译效果data(node:卡牌创建工具_不定数量的数据节点容器) -> Array:
-	var arr:Array = []#返回值
-	var temp_string:String = ""#正在处理的符号
-	var temp_dic:Dictionary = {}#处理符号时使用
-	for ind:int in len(node.get_children()) - 2:
-		var node1:Control = node.get_children()[ind]
-		var data:Variant = _tran_node_to_data(node1)
-		
-		if data.find("[") != -1:
-			data = data.replace("[", "")
-			assert(!temp_dic.keys().has(data) , "已经有该括号")
-			temp_string = data
-			temp_dic[data] = [data]
-		
-		elif data.find("]") != -1:
-			data = data.replace("]", "")
-			assert(temp_string == data , "没有正括号，或者顺序错误")
-			if len(temp_dic.keys()) > 1:
-				temp_dic[temp_dic.keys()[-2]].append(temp_dic[temp_dic.keys()[-1]])
-				temp_string = temp_dic.keys()[-2]
-			else:
-				arr.append(temp_dic[temp_dic.keys()[-1]])
-				temp_string = ""
-			temp_dic.erase(temp_string)
-		else:
-			if temp_string:
-				temp_dic[temp_string].append(data)
-			else :
-				arr.append(data)
-			
-	return arr
+
 
 #将节点翻译成数据
 func _tran_node_to_data(node:Control) -> Variant:
@@ -436,8 +182,8 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个卡牌设计区
 			if node.种类.get_item_text(i) == card_data["种类"]:
 				index = i
 		node.种类.select(index)
-	node.sp.value = card_data["sp"]
-	node.mp.value = card_data["mp"]
+	node.sp.value = int(card_data["sp"])
+	node.mp.value = int(card_data["mp"])
 	node.文本.text = card_data["文本"]
 	
 	for i:String in card_data["特征"]:
@@ -448,37 +194,19 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个卡牌设计区
 		_add_node(node.组, i)
 	
 	for i:Array in card_data["效果"]:
-		var node1:卡牌创建工具_效果设计区 = node.效果.get_child(-1)
+		var node1:卡牌创建工具_效果设计区
+		var arr:Array = node.效果.get_children()
+		arr.reverse()
+		for i1:Control in arr:
+			if i1 is 卡牌创建工具_效果设计区:
+				node1 = i1
+				break
 		for i1 in i:
 			_翻译效果node(i1, node1.get_child(-1), node1.名字.get_child(-1))
 	读取中 = false
 	return node
 
-func _翻译效果node(data, node:卡牌创建工具_不定数量的数据节点容器, focus:Control) -> void:
-	if !data:
-		return
-	focus.grab_focus()
-	if data is String:
-		if specification_效果标点.keys().has(data) or specification_效果特征.keys().has(data):
-			_add_node_文本(node, data)
-	if data is Array:
-		#效果
-		if specification_效果组件.keys().has(data[0]):
-			var node1:= _add_node_组件(node, data[0])
-			#写入数据
-			var arr:Array = node1.get_children()
-			for i:int in len(data):
-				if i == 0:
-					continue
-				_write_data_to_node(data[i], arr[i])
-		#括号标点
-		elif specification_效果标点.keys().has(data[0]):
-			if specification_效果标点[data[0]][1] == "括号":
-				var focus2:Control = _add_node_括号(node, data[0])
-				data.remove_at(0)
-				for i in data:
-					_翻译效果node(i, node, focus2)
-				focus.grab_focus()
+
 
 
 #写入数据到单个节点
@@ -556,7 +284,6 @@ func _存入储存区(node:Control) -> void:
 	else :
 		data = _tran_node_to_data(node)
 	copy_node_data = data
-	print(copy_node_data)
 		
 
 #粘贴
@@ -579,7 +306,7 @@ func stackup_node() -> void:
 				_add_node(node.组, i)
 		
 		elif path_arr[1] == "效果":
-			var node1:卡牌创建工具_效果设计区 = node.效果.get_child(-1)
+			var node1:卡牌创建工具_效果设计区 = node.效果.get_child(-2)
 			for i1 in copy_node_data:
 				_翻译效果node(i1, node1.get_child(-1), node1.名字.get_child(-1))
 		else:
@@ -592,11 +319,7 @@ func stackup_node() -> void:
 			if i == 0:
 				continue
 			_write_data_to_node(copy_node_data[i], arr[i])
-		
 	
-	
-	
-
 
 func _将选项翻译并添加到指定的地方(choose:String) -> Control:
 	var focus:Control = get_viewport().gui_get_focus_owner()
@@ -672,9 +395,6 @@ func _请求保存历史记录的信号() -> void:
 				node.history.append(data)
 				node.history_index = len(node.history) - 1
 
-		
-		
-		
 
 func _请求读取历史记录的信号(data:Dictionary) -> void:
 	var old_node:卡牌创建工具_单个卡牌设计区 = 卡牌设计区容器.get_current_tab_control()
@@ -693,36 +413,23 @@ func _请求删除卡牌设计区的信号(node:卡牌创建工具_单个设计�
 		add_单个卡牌设计区()
 
 
-func _on_删除_button_up() -> void:
-	var focus:Control = get_viewport().gui_get_focus_owner()
-	var node:Control = focus.get_parent()
-	#多选
-	if node is Label and node.get_parent() is 卡牌创建工具_不定数量的数据节点容器_h:
-		node.get_parent().remove_child_node(node)
-		return
-	#焦点在最左边的label
-	if focus and node.tooltip_text == "基础数据节点容器的名字":
-		for i in node.get_parent().get_child(1).get_children():
-			i.get_parent().remove_child_node(i)
-	
-	node = _find_parent(focus)
-	if node:
-		node.get_parent().remove_child_node(node)
 
 
 func _on_加载_button_up() -> void:
 	if 文件.choose_index != -1:
 		load_card(cards_data[文件.choose_data[文件.choose_index]])
-
+	
+	_请求保存历史记录的信号()
 
 func _on_保存_button_up() -> void:
 	save_不可为空 = true
 	读取中 = true#阻止保存历史记录
 	
 	var data:Dictionary = save_card(卡牌设计区容器.get_current_tab_control())
-	var file = FileAccess.open(文件路径.folder卡牌() + data["卡名"] + ".json", FileAccess.WRITE)
-	file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
-	file.close()
+	if  data["卡名"]:
+		var file = FileAccess.open(文件路径.folder卡牌() + data["卡名"] + ".json", FileAccess.WRITE)
+		file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
+		file.close()
 	
 	save_不可为空 = false
 	读取中 = false

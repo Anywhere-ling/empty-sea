@@ -3,6 +3,7 @@ extends Node
 @onready var 效果系统: Node = %效果系统
 @onready var 回合系统: Node = %回合系统
 @onready var 日志系统: Node = %日志系统
+@onready var 连锁系统: Node = %连锁系统
 
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
@@ -42,10 +43,11 @@ func 开始阶段结算buff(life:战斗_单位管理系统.Life_sys) -> void:
 	for i:战斗_单位管理系统.Buff_sys in life.buffs:
 		await _buff判断(i, "开始阶段", [null, life, null])
 	
-	for i:战斗_单位管理系统.Buff_sys in start_buffs[life]:
-		start_buffs[life][i] -= 1
-		if start_buffs[life][i] == 0:
-			i.free_self()
+	if start_buffs.has(life):
+		for i:战斗_单位管理系统.Buff_sys in start_buffs[life]:
+			start_buffs[life][i] -= 1
+			if start_buffs[life][i] == 0:
+				i.free_self()
 
 func 结束阶段结算buff(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "结束阶段结算buff", [life], null])
@@ -53,10 +55,11 @@ func 结束阶段结算buff(life:战斗_单位管理系统.Life_sys) -> void:
 	for i:战斗_单位管理系统.Buff_sys in life.buffs:
 		await _buff判断(i, "结束阶段", [null, life, null])
 	
-	for i:战斗_单位管理系统.Buff_sys in end_buffs[life]:
-		end_buffs[life][i] -= 1
-		if end_buffs[life][i] == 0:
-			i.free_self()
+	if start_buffs.has(life):
+		for i:战斗_单位管理系统.Buff_sys in end_buffs[life]:
+			end_buffs[life][i] -= 1
+			if end_buffs[life][i] == 0:
+				i.free_self()
 
 func _战斗_连锁处理开始的信号() -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_战斗_连锁处理开始的信号", [], null])
@@ -85,13 +88,14 @@ func _战斗_连锁处理结束的信号() -> void:
 func 单位与全部buff判断(影响:String, targets:Array = [null, null, null]) -> int :
 	var ret:int = -1
 	#对发动单位的buff
-	for buff:战斗_单位管理系统.Buff_sys in targets[1].buffs:
-		var i:int = _buff判断(buff, 影响, targets)
-		if i == 0:
-			event_bus.push_event("战斗_日志记录", [name, "单位与全部buff判断", [影响, targets], 0])
-			return 0
-		elif i == 1:
-			ret = 1
+	if targets[1]:
+		for buff:战斗_单位管理系统.Buff_sys in targets[1].buffs:
+			var i:int = _buff判断(buff, 影响, targets)
+			if i == 0:
+				event_bus.push_event("战斗_日志记录", [name, "单位与全部buff判断", [影响, targets], 0])
+				return 0
+			elif i == 1:
+				ret = 1
 	#"全部"buff
 	for buff:战斗_单位管理系统.Buff_sys in 全部单位buffs:
 		var targets2:Array = targets.duplicate(true)
@@ -111,10 +115,22 @@ func 单位与全部buff判断(影响:String, targets:Array = [null, null, null]
 ##1:受影响且通过,0:受影响且未通过，-1:未受影响
 func _buff判断(buff:战斗_单位管理系统.Buff_sys, 影响:String, targets:Array = [null, null, null]) -> int:
 	if buff.data["影响"].has(影响):
-		if 效果系统.效果处理(buff.effect.cost_effect, buff.effect.features, targets):
-			if !效果系统.效果处理(buff.effect.main_effect, buff.effect.features, targets):
+		if 影响 == "加入":
+			pass
+		var cost_tar:Array = 效果系统.效果处理(buff.effect.cost_effect, buff.effect.features, targets)
+		if cost_tar:
+			var main_tar:Array = 效果系统.效果处理(buff.effect.main_effect, buff.effect.features, cost_tar)
+			if !main_tar:
+				
 				event_bus.push_event("战斗_日志记录", [name, "_buff判断", [buff, 影响, targets], 0])
 				return 0
+				
+			else :
+				if buff.get_parent() is 战斗_单位管理系统.Effect_sys:
+					var effect:战斗_单位管理系统.Effect_sys = buff.get_parent()
+					if effect.features.has("触发"):
+						连锁系统.next_可发动的效果[effect] = main_tar
+			
 			event_bus.push_event("战斗_日志记录", [name, "_buff判断", [buff, 影响, targets], 1])
 			return 1
 	

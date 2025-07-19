@@ -69,29 +69,35 @@ visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 
-[node name="特" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
+[node name="buff" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 3
 
-[node name="媒" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
+[node name="特" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 4
 
-[node name="组" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
+[node name="媒" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 5
 
-[node name="文件" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
+[node name="组" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 6
+
+[node name="文件" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+metadata/_tab_index = 7
 
 [node name="简介" type="Label" parent="PanelContainer/HBoxContainer/文件控制区"]
 unique_name_in_owner = true

@@ -129,16 +129,18 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个装备设计区
 func _on_加载_button_up() -> void:
 	if 文件.choose_index != -1:
 		load_card(equips_data[文件.choose_data[文件.choose_index]])
-
+	
+	_请求保存历史记录的信号()
 
 func _on_保存_button_up() -> void:
 	save_不可为空 = true
 	读取中 = true#阻止保存历史记录
 	
 	var data:Dictionary = save_card(卡牌设计区容器.get_current_tab_control())
-	var file = FileAccess.open(文件路径.folder装备() + data["卡名"] + ".json", FileAccess.WRITE)
-	file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
-	file.close()
+	if  data["卡名"]:
+		var file = FileAccess.open(文件路径.folder装备() + data["卡名"] + ".json", FileAccess.WRITE)
+		file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
+		file.close()
 	
 	save_不可为空 = false
 	读取中 = false

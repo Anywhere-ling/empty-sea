@@ -70,10 +70,11 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 	life_data["组"] = _tran_node_to_data(card_node.组)
 	#效果
 	var arr:Array = []
-	for i:卡牌创建工具_效果设计区 in card_node.效果.get_children():
-		var i1:卡牌创建工具_不定数量的数据节点容器 = i.get_child(1)
-		if len(i1.get_children()) > 2:
-			arr.append(_翻译效果data(i1))
+	for i:Control in card_node.效果.get_children():
+		if i is 卡牌创建工具_效果设计区:
+			var i1:卡牌创建工具_不定数量的数据节点容器 = i.get_child(1)
+			if len(i1.get_children()) > 2:
+				arr.append(_翻译效果data(i1))
 	life_data["效果"] = arr
 	
 	
@@ -114,7 +115,13 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个单位设计区
 		_add_node(node.组, i)
 	
 	for i:Array in card_data["效果"]:
-		var node1:卡牌创建工具_效果设计区 = node.效果.get_child(-1)
+		var node1:卡牌创建工具_效果设计区
+		var arr:Array = node.效果.get_children()
+		arr.reverse()
+		for i1:Control in arr:
+			if i1 is 卡牌创建工具_效果设计区:
+				node1 = i1
+				break
 		for i1 in i:
 			_翻译效果node(i1, node1.get_child(-1), node1.名字.get_child(-1))
 	读取中 = false
@@ -124,8 +131,8 @@ func _翻译效果node(data, node:卡牌创建工具_不定数量的数据节点
 	if !data:
 		return
 	focus.grab_focus()
-	if data.is_valid_int():
-		_write_data_to_node(int(data), _add_node_数字输入(node))
+	if data.is_valid_float():
+		_write_data_to_node(float(data), _add_node_数字输入(node))
 	else :
 		_add_node_文本(node, data)
 	
@@ -142,16 +149,18 @@ func _翻译效果node(data, node:卡牌创建工具_不定数量的数据节点
 func _on_加载_button_up() -> void:
 	if 文件.choose_index != -1:
 		load_card(lifes_data[文件.choose_data[文件.choose_index]])
-
+	
+	_请求保存历史记录的信号()
 
 func _on_保存_button_up() -> void:
 	save_不可为空 = true
 	读取中 = true#阻止保存历史记录
 	
 	var data:Dictionary = save_card(卡牌设计区容器.get_current_tab_control())
-	var file = FileAccess.open(文件路径.folder单位() + data["卡名"] + ".json", FileAccess.WRITE)
-	file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
-	file.close()
+	if  data["卡名"]:
+		var file = FileAccess.open(文件路径.folder单位() + data["卡名"] + ".json", FileAccess.WRITE)
+		file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
+		file.close()
 	
 	save_不可为空 = false
 	读取中 = false

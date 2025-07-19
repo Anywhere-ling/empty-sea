@@ -8,7 +8,7 @@ class_name 卡牌创建工具_单个设计区
 @onready var 前进: Button = %前进
 @onready var 后退: Button = %后退
 
-
+var 需要一起删除:Array[Array]
 
 
 signal 请求关闭该卡牌
@@ -34,11 +34,17 @@ var history:Array = []
 
 
 
-	
 
 
 
 
+##一起删除的数组
+func get_需要一起删除_array(node:Control) -> Array:
+	var ret:Array = []
+	for arr:Array in 需要一起删除:
+		if arr.has(node):
+			ret.append_array(arr)
+	return ret
 
 
 ##添加下一条空效果
@@ -52,10 +58,15 @@ func _add_new_effect() -> void:
 ##清除空效果
 func _remove_empty_effects() -> void:
 	var arr:Array = 效果.get_children()
-	for effect:卡牌创建工具_效果设计区 in arr:
-		if effect.is_empty_effect():
-			effect.get_parent().remove_child(effect)
+	for effect:Control in arr:
+		if effect is 卡牌创建工具_效果设计区:
+			if effect.is_empty_effect():
+				effect.get_parent().remove_child(effect)
+				effect.queue_free()
+		else:
+			效果.remove_child(effect)
 			effect.queue_free()
+				
 	_add_new_effect()
 
 
@@ -64,8 +75,11 @@ func _remove_empty_effects() -> void:
 func _reset_effect_index() -> void:
 	var arr:Array = 效果.get_children()
 	for effect:卡牌创建工具_效果设计区 in arr:
-		effect.名字.text = "效果/" + str(arr.find(effect)+1)
-
+		var index:int = arr.find(effect)
+		effect.名字.text = "效果/" + str(index + 1)
+		var hse:= HSeparator.new()
+		效果.add_child(hse)
+		效果.move_child(hse, (index * 2) + 1)
 
 
 

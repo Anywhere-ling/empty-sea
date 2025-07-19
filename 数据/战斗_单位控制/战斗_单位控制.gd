@@ -15,6 +15,10 @@ func _init(life:战斗_单位管理系统.Life_sys) -> void:
 func 创造牌库() -> Array:
 	return []
 
+func 确认目标(lifes:Array[战斗_单位管理系统.Life_sys], efils:Array[战斗_单位管理系统.Life_sys]) -> void:
+	return
+
+
 func 第一次弃牌() -> Array:
 	return []
 

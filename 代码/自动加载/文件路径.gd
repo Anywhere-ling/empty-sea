@@ -6,13 +6,7 @@ extends Node
 
 static func csv效果组件规范() -> String:
 	return "res://数据/卡牌/效果组件规范.csv"
-	
-static func csv效果特征规范() -> String:
-	return "res://数据/卡牌/效果特征规范.csv"
-	
-static func csv特征_媒介_组规范() -> String:
-	return "res://数据/卡牌/特征_媒介_组规范.csv"
-	
+
 static func json卡牌文件(name:String) -> String:
 	return "res://数据/卡牌/卡牌/" + name + ".json"
 

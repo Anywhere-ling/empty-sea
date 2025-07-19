@@ -24,7 +24,9 @@ func _ready() -> void:
 
 
 
-
+func _请求检测空效果的信号(node:卡牌创建工具_效果设计区) -> void:
+	emit_signal("请求储存到历史记录")
+	
 
 
 func _on_优先_value_changed(value: float) -> void:

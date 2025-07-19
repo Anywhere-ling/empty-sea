@@ -28,7 +28,7 @@ func load_datatable(table_path: StringName) -> Dictionary:
 	while file_name != "":
 		if not card_folder.current_is_dir():  # 忽略子文件夹
 			file_data[file_name] = 文件路径.call(file_func) + file_name + ".json"
-		file_name = card_folder.get_next()
+		file_name = card_folder.get_next().get_basename()
 	
 	card_folder.list_dir_end()
 	

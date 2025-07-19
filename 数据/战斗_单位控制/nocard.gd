@@ -10,17 +10,24 @@ var 已经打出过牌:bool = false
 func 创造牌库() -> Array:
 	var cards原数据:Array = life_sys.data["效果"].duplicate(true)
 	
-	var int总概率:int = 0
+	var int总概率:float = 0
 	var cards概率:Dictionary = {}#{累加概率:card}
 	var card单个概率:Dictionary = {}
+	
+	var 牌库:Array[String]
 	
 	for i:Array in cards原数据:
 		var i1:float
 		if i[-1].is_valid_float():
-			i1 = i[-1]
-			i.remove_at(-1)
+			i1 = float(i[-1])
+			i.remove_at(i.size() - 1)
 		else :
 			i1 = 1
+		
+		if i1 == 0:
+			牌库.append_array(i)
+			continue
+		
 		
 		int总概率 += i1
 		cards概率[int总概率] = i
@@ -29,7 +36,7 @@ func 创造牌库() -> Array:
 			if card单个概率.has(i2):
 				card单个概率[i2] += i1
 			else :
-				card单个概率[i2] = 0
+				card单个概率[i2] = i1
 	
 	#转换成{累加概率:card}类型
 	var 总单个概率:float = 0
@@ -51,7 +58,7 @@ func 创造牌库() -> Array:
 	var 牌库的数量:int = life_sys.data.大小#包含手牌
 	
 	#牌库
-	var 牌库:Array[String]
+	
 	while len(牌库) < 牌库的数量:
 		var ram:int = RandomNumberGenerator.new().randf_range(0, int总概率)
 		for i:float in cards概率:
@@ -81,8 +88,14 @@ func 创造牌库() -> Array:
 	填充.append_array(最后手牌中的绿牌)
 	for i:int in 进入绿区的数量:
 		var card:String
+		var 概率太小的保险:int = 牌库的数量
+		var 次数:int = 0
 		while !card or !DatatableLoader.get_data_model("card_data", card).种类 in ["攻击", "防御"]:
-			var ram:int = RandomNumberGenerator.new().randf_range(0, 1)
+			次数 += 1
+			if 次数 > 概率太小的保险:
+				break
+			
+			var ram:float = RandomNumberGenerator.new().randf_range(0, 1)
 			for i1:float in card单个概率:
 				if ram <= i1:
 					card = card单个概率[i1]
@@ -91,17 +104,21 @@ func 创造牌库() -> Array:
 	for i:int in 进入蓝区的数量:
 		var card:String
 		while !card or !DatatableLoader.get_data_model("card_data", card).种类 in ["法术", "仪式"]:
-			var ram:int = RandomNumberGenerator.new().randf_range(0, 1)
+			var ram:float = RandomNumberGenerator.new().randf_range(0, 1)
 			for i1:float in card单个概率:
 				if ram <= i1:
 					card = card单个概率[i1]
 					break
 		填充.append(card)
 	
+	var 最后抽到的牌:String = 填充[0]
+	填充.remove_at(0)
+	填充.shuffle()
+	填充.append(最后抽到的牌)
+	
 	填充.append_array(牌库)
 	牌库 = 填充
 	牌库.resize(牌库的数量)
-	
 	
 	return 牌库
 
@@ -131,11 +148,18 @@ func _simulate_draw(b: float, y: int, deck_size: int) -> int:
 	return count_B
 
 
+func 确认目标(lifes:Array[战斗_单位管理系统.Life_sys], efils:Array[战斗_单位管理系统.Life_sys]) -> void:
+	if lifes.has(life_sys):
+		life_sys.face_life = efils[0]
+	else:
+		life_sys.face_life = lifes[0]
+
+
 func 第一次弃牌() -> Array:
 	var 手牌:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards
 	var ret:Array[战斗_单位管理系统.Card_sys] = 手牌.duplicate(true)
 	for i:战斗_单位管理系统.Card_sys in 手牌:
-		var card_name:String = i.name
+		var card_name:String = i.nam
 		if 最后手牌中的绿牌.has(card_name):
 			ret.erase(i)
 			最后手牌中的绿牌.erase(card_name)
@@ -148,7 +172,7 @@ func 整理手牌() -> Array:
 	var ret:Array[战斗_单位管理系统.Card_sys]
 	for i:String in 最后手牌:
 		for i1:战斗_单位管理系统.Card_sys in 手牌:
-			if i1.name == i:
+			if i1.nam == i:
 				ret.append(i1)
 				手牌.erase(i1)
 				break
@@ -160,6 +184,8 @@ func 整理手牌() -> Array:
 func 对象选择(arr:Array, count:int = 1, is_all:bool = true):
 	var ret:Array = []
 	arr.shuffle()
+	if !is_all and len(arr) <= count:
+		return arr
 	for i:int in count:
 		ret.append(arr[i])
 	return ret
@@ -171,8 +197,6 @@ func 发动(可发动:Array[战斗_单位管理系统.Card_sys]) -> 战斗_单�
 	if 可发动 != []:
 		ret = 可发动[0]
 	
-	if !ret:
-		emit_signal("结束")
 		
 	return ret
 
@@ -181,11 +205,9 @@ func 打出(可打出:Array[战斗_单位管理系统.Card_sys]) -> 战斗_单�
 	#打出
 	if 可打出 != [] and !已经打出过牌:
 		var cards:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards
-		可打出.sort_custom(func(a,b):
-			assert(cards.find(a) != -1 or cards.find(b) != -1, "不在手牌中")
-			return cards.find(a) < cards.find(b))
-		ret = 可打出[0]
-		已经打出过牌 = true
+		if 可打出.has(cards[0]):
+			ret = cards[0]
+			已经打出过牌 = true
 	
 	if !ret:
 		emit_signal("结束")
@@ -193,29 +215,35 @@ func 打出(可打出:Array[战斗_单位管理系统.Card_sys]) -> 战斗_单�
 	return ret
 
 
+signal 主要阶段的一次打出或发动完成
 func 主要阶段():
+	await 主要阶段的一次打出或发动完成
 	主要阶段打出()
+	await 主要阶段的一次打出或发动完成
 	
 	var count:float = 0
 	while count <= 3:
 		count += RandomNumberGenerator.new().randf()
 		主要阶段发动()
+		await 主要阶段的一次打出或发动完成
 	
+	已经打出过牌 = false
 	emit_signal("结束")
-	
+
 func 主要阶段打出() -> void:
 	var ret:战斗_单位管理系统.Card_sys
 	#打出
 	if 打出cards != [] and !已经打出过牌:
 		var cards:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards
-		打出cards.sort_custom(func(a,b):
-			assert(cards.find(a) != -1 or cards.find(b) != -1, "不在手牌中")
-			return cards.find(a) < cards.find(b))
-		ret = 打出cards[0]
-		已经打出过牌 = true
+		if 打出cards.has(cards[0]):
+			ret = cards[0]
+			已经打出过牌 = true
 	
 	if ret:
 		emit_signal("主要阶段打出的信号", ret)
+	else :
+		call_deferred("emit_signal", "主要阶段的一次打出或发动完成")
+
 
 func 主要阶段发动() -> void:
 	var ret:战斗_单位管理系统.Card_sys
@@ -225,9 +253,12 @@ func 主要阶段发动() -> void:
 	
 	if ret:
 		emit_signal("主要阶段发动的信号", ret)
+	else :
+		call_deferred("emit_signal", "主要阶段的一次打出或发动完成")
 
 func 主要阶段判断(cards1:Array[战斗_单位管理系统.Card_sys], cards2:Array[战斗_单位管理系统.Card_sys]) -> void:
 	super(cards1, cards2)
+	call_deferred("emit_signal", "主要阶段的一次打出或发动完成")
 
 
 func 结束阶段弃牌() -> Array[战斗_单位管理系统.Card_sys]:
@@ -235,15 +266,15 @@ func 结束阶段弃牌() -> Array[战斗_单位管理系统.Card_sys]:
 	var cards:Array[战斗_单位管理系统.Card_sys] = life_sys.cards_pos["手牌"].cards.duplicate(true)
 	while len(cards) > max(life_sys.speed, 1):
 		ret.append(cards[-1])
-		cards.remove_at(-1)
+		cards.remove_at(len(cards) - 1)
 	return ret
-	
 
 
-func 选择一格(arr:Array[战斗_单位管理系统.Card_pos_sys]) -> 战斗_单位管理系统.Card_pos_sys:
+
+func 选择一格(arr:Array) -> 战斗_单位管理系统.Card_pos_sys:
 	if arr == []:
 		return
-	return arr.pick_random()
+	return arr[0]
 
 
 func 选择效果发动(card:战斗_单位管理系统.Card_sys, arr_int:Array[int]) -> int:
@@ -251,5 +282,6 @@ func 选择效果发动(card:战斗_单位管理系统.Card_sys, arr_int:Array[i
 
 
 func 选择单位(arr:Array[战斗_单位管理系统.Life_sys]) -> 战斗_单位管理系统.Life_sys:
-	arr.shuffle()
-	return arr[0]
+	var arr1:Array = arr
+	arr1.shuffle()
+	return arr1[0]

@@ -33,30 +33,6 @@ func _ready() -> void:
 
 
 
-##添加下一条空效果
-func _add_new_effect() -> void:
-	var new_effect:卡牌创建工具_效果设计区 = load(文件路径.tscn卡牌创建工具_效果设计区()).instantiate()
-	效果.add_child(new_effect)
-	_reset_effect_index()
-	#绑定信号
-	new_effect.请求检测空效果.connect(_请求检测空效果的信号)
-
-##清除空效果
-func _remove_empty_effects() -> void:
-	var arr:Array = 效果.get_children()
-	for effect:卡牌创建工具_效果设计区 in arr:
-		if effect.is_empty_effect():
-			effect.get_parent().remove_child(effect)
-			effect.queue_free()
-	_add_new_effect()
-
-
-
-#重置效果的序号
-func _reset_effect_index() -> void:
-	var arr:Array = 效果.get_children()
-	for effect:卡牌创建工具_效果设计区 in arr:
-		effect.名字.text = "效果/" + str(arr.find(effect)+1)
 
 
 

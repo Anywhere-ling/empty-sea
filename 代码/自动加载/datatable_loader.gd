@@ -28,8 +28,8 @@ func _ready() -> void:
 	
 	
 	#信号
-	event_bus.debug_mode = true
-	event_bus.enable_history = true
+	#event_bus.debug_mode = true
+	#event_bus.enable_history = true
 	_data_manager.load_completed.connect(_on_load_completed)
 	
 	
