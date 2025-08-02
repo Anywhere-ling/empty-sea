@@ -7,8 +7,19 @@ var 最后手牌中的绿牌:Array[String]
 
 var 已经打出过牌:bool = false
 
+
+func _init(life_name:String) -> void:
+	life_nam = life_name
+	var data = DatatableLoader.get_data_model("life_data", life_name)
+	大小 = data.大小
+	组 = data.组
+	装备 = data.装备
+	效果 = data.效果
+	种类 = "nocard"
+
+
 func 创造牌库() -> Array:
-	var cards原数据:Array = life_sys.data["效果"].duplicate(true)
+	var cards原数据:Array = 效果.duplicate(true)
 	
 	var int总概率:float = 0
 	var cards概率:Dictionary = {}#{累加概率:card}
@@ -54,8 +65,9 @@ func 创造牌库() -> Array:
 	
 	#计算
 	var 手牌数量:int = life_sys.speed
-	var 进入蓝区的数量 = _simulate_draw(进入蓝区的概率, 手牌数量, life_sys.data.大小)
-	var 牌库的数量:int = life_sys.data.大小#包含手牌
+	var 牌库的数量:int = 大小#包含手牌
+	var 进入蓝区的数量 = _simulate_draw(进入蓝区的概率, 手牌数量, 牌库的数量)
+	
 	
 	#牌库
 	
@@ -181,12 +193,13 @@ func 整理手牌() -> Array:
 	return ret
 
 
-func 对象选择(arr:Array, count:int = 1, is_all:bool = true):
+func 对象选择(arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 1):
 	var ret:Array = []
 	arr.shuffle()
-	if !is_all and len(arr) <= count:
+	#尽量多选
+	if len(arr) <= count_max:
 		return arr
-	for i:int in count:
+	for i:int in count_max:
 		ret.append(arr[i])
 	return ret
 

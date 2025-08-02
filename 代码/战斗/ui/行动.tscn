@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://cfgqvoy1qxgwh"]
+
+[ext_resource type="Script" uid="uid://b58ft0q1mw0xk" path="res://代码/战斗/ui/手牌与行动.gd" id="1_m5xob"]
+
+[node name="行动" type="Node2D"]
+script = ExtResource("1_m5xob")
+
+[node name="卡牌容器容器" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+tooltip_text = "行动"
+tooltip_auto_translate_mode = 2
+
+[node name="p0" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="p2" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="rot" type="Node2D" parent="."]
+unique_name_in_owner = true
+visible = false

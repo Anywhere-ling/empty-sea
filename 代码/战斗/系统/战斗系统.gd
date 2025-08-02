@@ -11,7 +11,7 @@ extends Node
 
 signal 下一阶段
 
-var control:Dictionary[战斗_单位管理系统.Life_sys, 战斗_单位控制_nocard]
+var control:Dictionary[战斗_单位管理系统.Life_sys, 战斗_单位控制]
 
 var 没有第一次抽牌的单位:Array[战斗_单位管理系统.Life_sys]
 
@@ -29,20 +29,27 @@ func _ready() -> void:
 func add_life(life, is_positive:bool) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "add_life", [life, is_positive], null])
 	
-	#生成life
-	if life is String:
-		life = 单位管理系统.create_life(life, is_positive)
 	
 	#绑定控制
-	if life.data["种类"] == "nocard":
-		control[life] = 战斗_单位控制_nocard.new(life)
+	var 控制:战斗_单位控制
+	if life is String:
+		控制 = 战斗_单位控制_nocard.new(life)
+	if life is 战斗_单位控制:
+		控制 = life
+	
+	控制.is_positive = is_positive
+	
+	life = await 最终行动系统.加入战斗(控制, is_positive)
+	control[life] = 控制
 	
 	#加入回合
 	回合系统.join_life(life)
 	没有第一次抽牌的单位.append(life)
 	
 	#创造牌库
-	单位管理系统.创造牌库(life, control[life].创造牌库())
+	await 最终行动系统.创造牌库(life)
+	
+	
 
 func start() -> void:
 	event_bus.push_event("战斗_日志记录", [name, "start", [], null])
@@ -52,6 +59,9 @@ func start() -> void:
 
 func _下一阶段的信号(state:String = "") -> void:
 	assert(连锁系统.chain_state == 0,"连锁未处理")
+	if 最终行动系统.未完成的动画 != 0:
+		await 最终行动系统.全部动画完成
+	
 	event_bus.push_event("战斗_日志记录", [name, "_下一阶段的信号", [state], null])
 	
 	回合系统.call_deferred("swicth_state", state)
@@ -137,7 +147,7 @@ func _抽牌阶段(life:战斗_单位管理系统.Life_sys) -> void:
 			await 最终行动系统.死亡(life)
 		else:
 			await 最终行动系统.抽牌(life)
-	emit_signal("下一阶段")
+		emit_signal("下一阶段")
 
 func _第一次抽牌(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_第一次抽牌", [life], null])
@@ -158,7 +168,7 @@ func _第一次抽牌(life:战斗_单位管理系统.Life_sys) -> void:
 func _第一次弃牌(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_第一次弃牌", [life], null])
 	
-	var cards:Array[战斗_单位管理系统.Card_sys] = control[life].第一次弃牌()
+	var cards:Array = await control[life].第一次弃牌()
 	for card:战斗_单位管理系统.Card_sys in cards:
 		await 最终行动系统.加入(life, card, life.cards_pos["绿区"])
 		await 最终行动系统.抽牌(life)
@@ -167,7 +177,10 @@ func _整理手牌(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_整理手牌", [life], null])
 	
 	var cards:Array = await control[life].整理手牌()
-	life.cards_pos["手牌"].cards.sort_custom(func(a,b):return cards.find(a) < cards.find(b))
+	if cards:
+		life.cards_pos["手牌"].cards.sort_custom(func(a,b):return cards.find(a) < cards.find(b))
+
+	最终行动系统.整理手牌(life)
 
 
 func _确认face_life(life:战斗_单位管理系统.Life_sys) -> void:
@@ -224,8 +237,8 @@ func _主要阶段发动(card:战斗_单位管理系统.Card_sys) -> void:
 func _主要阶段判断(life:战斗_单位管理系统.Life_sys) -> void:
 	event_bus.push_event("战斗_日志记录", [name, "_主要阶段判断", [life], null])
 	
-	var 发动cards:Array[战斗_单位管理系统.Card_sys] = 发动判断系统.单位主要阶段发动判断(life)
-	var 打出cards:Array[战斗_单位管理系统.Card_sys] = 发动判断系统.单位主要阶段打出判断(life)
+	var 发动cards:Array[战斗_单位管理系统.Card_sys] = await 发动判断系统.单位主要阶段发动判断(life)
+	var 打出cards:Array[战斗_单位管理系统.Card_sys] = await 发动判断系统.单位主要阶段打出判断(life)
 	control[life].主要阶段判断(发动cards, 打出cards)
 
 
@@ -418,12 +431,13 @@ func _绑定信号() -> void:
 	event_bus.subscribe("战斗_选择效果并发动", _战斗_选择效果并发动的信号)
 	event_bus.subscribe("战斗_请求选择单位", _战斗_请求选择单位的信号)
 	event_bus.subscribe("战斗_请求检查行动冲突", _战斗_请求检查行动冲突的信号)
+	event_bus.subscribe("战斗_请求检查图形化数据的改变", _战斗_请求检查图形化数据的改变的信号)
 
 
-func _战斗_请求选择的信号(life:战斗_单位管理系统.Life_sys, arr:Array, count:int = 1, is_all:bool = true) -> void:
-	var ret:Array = await control[life].对象选择(arr, count, is_all)
+func _战斗_请求选择的信号(life:战斗_单位管理系统.Life_sys, arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 1) -> void:
+	var ret:Array = await control[life].对象选择(arr, 描述, count_max, count_min)
 	
-	event_bus.push_event("战斗_日志记录", [name, "_战斗_请求选择的信号", [life, arr, count, is_all], ret])
+	event_bus.push_event("战斗_日志记录", [name, "_战斗_请求选择的信号", [life, arr, 描述, count_max, count_min], ret])
 	event_bus.push_event("战斗_请求选择返回", [ret])
 
 func _战斗_请求选择一格的信号(life:战斗_单位管理系统.Life_sys, arr:Array, condition:Array) -> void:
@@ -517,3 +531,22 @@ func _战斗_请求检查行动冲突的信号(life:战斗_单位管理系统.Li
 	for card:战斗_单位管理系统.Card_sys in life.cards_pos["行动"]:
 		if !card.get_value("种类") in life.state:
 			最终行动系统.加入(life, card, life.cards_pos["绿区"])
+
+var 正在处理_战斗_请求检查图形化数据的改变的信号:bool = false
+func _战斗_请求检查图形化数据的改变的信号() -> void:
+	if 正在处理_战斗_请求检查图形化数据的改变的信号:
+		return
+	
+	正在处理_战斗_请求检查图形化数据的改变的信号 = true
+	event_bus.push_event("战斗_日志记录", [name, "_战斗_请求检查行动冲突的信号", [], null])
+	
+	for life in 单位管理系统.lifes + 单位管理系统.efils:
+		var cards := 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards())
+		for card in cards:
+			for i:String in ["种类", "卡名", "sp", "mp"]:
+				var data = card.get_value(i)
+				if card.图形化数据[i] != data:
+					card.图形化数据[i] =data
+					最终行动系统.图形化数据改变(card)
+	
+	正在处理_战斗_请求检查图形化数据的改变的信号 = false

@@ -1,42 +1,120 @@
 [gd_scene load_steps=2 format=3 uid="uid://dvagx7t1mjq5k"]
 
-[ext_resource type="PackedScene" uid="uid://ckberl2s6w1vu" path="res://代码/战斗/ui/场地格.tscn" id="1_3w08g"]
+[ext_resource type="Script" uid="uid://b0bj8pa5mvhuh" path="res://代码/战斗/ui/场地.gd" id="1_4wple"]
 
-[node name="场地" type="Node2D"]
+[node name="场地" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_4wple")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
-offset_right = 873.0
-offset_bottom = 142.0
-scale = Vector2(0.88, 1)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -375.0
+offset_top = -50.0
+offset_right = 375.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
 layout_mode = 2
 
-[node name="场地格" parent="PanelContainer/HBoxContainer" instance=ExtResource("1_3w08g")]
+[node name="panel0" type="Panel" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="场地格2" parent="PanelContainer/HBoxContainer" instance=ExtResource("1_3w08g")]
+[node name="0" type="Control" parent="PanelContainer/HBoxContainer/panel0"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="panel" type="Panel" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="场地格3" parent="PanelContainer/HBoxContainer" instance=ExtResource("1_3w08g")]
+[node name="1" type="Control" parent="PanelContainer/HBoxContainer/panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="panel2" type="Panel" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="2" type="Control" parent="PanelContainer/HBoxContainer/panel2"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Control" type="Control" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.86
+size_flags_stretch_ratio = 1.5
 
-[node name="场地格4" parent="PanelContainer/HBoxContainer" instance=ExtResource("1_3w08g")]
+[node name="panel3" type="Panel" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="场地格5" parent="PanelContainer/HBoxContainer" instance=ExtResource("1_3w08g")]
+[node name="3" type="Control" parent="PanelContainer/HBoxContainer/panel3"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="panel4" type="Panel" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="场地格6" parent="PanelContainer/HBoxContainer" instance=ExtResource("1_3w08g")]
+[node name="4" type="Control" parent="PanelContainer/HBoxContainer/panel4"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="panel5" type="Panel" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="5" type="Control" parent="PanelContainer/HBoxContainer/panel5"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2

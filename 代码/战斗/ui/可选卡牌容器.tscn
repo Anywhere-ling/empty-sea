@@ -1,0 +1,88 @@
+[gd_scene load_steps=2 format=3 uid="uid://wu7xh8ykmm0o"]
+
+[ext_resource type="Script" uid="uid://bph76uriiyfyy" path="res://代码/战斗/ui/可选卡牌容器.gd" id="1_451fl"]
+
+[node name="可选卡牌容器" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_451fl")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="描述" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="数量" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="展开" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+text = "展开"
+
+[node name="单位" type="PanelContainer" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="卡牌" type="ScrollContainer" parent="PanelContainer/VBoxContainer/单位"]
+visible = false
+layout_mode = 2
+
+[node name="容器" type="GridContainer" parent="PanelContainer/VBoxContainer/单位/卡牌"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="按钮" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Control" type="Control" parent="PanelContainer/VBoxContainer/按钮"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="确认" type="Button" parent="PanelContainer/VBoxContainer/按钮"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "确认"
+
+[node name="Control2" type="Control" parent="PanelContainer/VBoxContainer/按钮"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="取消" type="Button" parent="PanelContainer/VBoxContainer/按钮"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "取消"
+
+[node name="Control3" type="Control" parent="PanelContainer/VBoxContainer/按钮"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[connection signal="toggled" from="PanelContainer/VBoxContainer/HBoxContainer/展开" to="." method="_on_展开_toggled"]
+[connection signal="button_up" from="PanelContainer/VBoxContainer/按钮/确认" to="." method="_on_确认_button_up"]
+[connection signal="button_up" from="PanelContainer/VBoxContainer/按钮/取消" to="." method="_on_取消_button_up"]

@@ -131,7 +131,10 @@ func _tran_node_to_data(node:Control) -> Variant:
 	elif node is SpinBox :
 		ret = str(node.value)
 	elif node is OptionButton :
-		ret = node.get_item_text(node.selected)
+		if node.selected == -1:
+			ret = ""
+		else:
+			ret = node.get_item_text(node.selected)
 	elif node is 卡牌创建工具_不定数量的数据节点容器 or node is 卡牌创建工具_不定数量的数据节点容器_h :
 		var arr:Array = []
 		for index:int in len(node.get_children()) - 2:

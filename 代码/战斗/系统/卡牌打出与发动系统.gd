@@ -19,16 +19,17 @@ var 自然下降的卡牌:Dictionary[战斗_单位管理系统.Card_sys, Array]
 func 打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> String:
 	var ret:String = ""
 	if card.get_value("种类") in ["攻击"]:
-		var 返回:Array = [false]
-		event_bus.subscribe("战斗_请求选择单位返回", func(a):
-			返回[0] = true
-			返回.append(a)
-			emit_signal("数据返回")
-			, 1, true)
-		event_bus.push_event("战斗_请求选择单位", [life, card.get_value("mp")])
-		if !返回[0]:
-			await 数据返回
-		var tar_life:战斗_单位管理系统.Life_sys = 返回[1]
+		#var 返回:Array = [false]
+		#event_bus.subscribe("战斗_请求选择单位返回", func(a):
+			#返回[0] = true
+			#返回.append(a)
+			#emit_signal("数据返回")
+			#, 1, true)
+		#event_bus.push_event("战斗_请求选择单位", [life, card.get_value("mp")])
+		#if !返回[0]:
+			#await 数据返回
+		#var tar_life:战斗_单位管理系统.Life_sys = 返回[1]
+		var tar_life:战斗_单位管理系统.Life_sys = life.face_life
 		if tar_life :
 			life.state = ["攻击"]
 			life.att_life = tar_life

@@ -12,19 +12,32 @@ var 临时pos:战斗_单位管理系统.Card_pos_sys
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
 signal 可以继续
+signal 动画完成
+signal 全部动画完成
+var 未完成的动画:int = 0:
+	set(value):
+		未完成的动画 = value
+		if 未完成的动画 == 0:
+			emit_signal("全部动画完成")
+
+
+func _ready() -> void:
+	可以继续.connect(_可以继续的信号)
+	动画完成.connect(_动画完成的信号)
 
 
 func _add_history(data_sys:战斗_单位管理系统.Data_sys, tapy:String, data = null) -> void:
 	data_sys.add_history(tapy, 回合系统.turn, 回合系统.period, data)
 
+func _可以继续的信号() -> void:
+	未完成的动画 += 1
 
-func 加入连锁的动画(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, effect_ind:int, speed:int) -> bool:
-	#动画
-	#await 可以继续
-	
-	event_bus.push_event("战斗_日志记录", [name, "加入连锁的动画", [life, card, effect_ind, speed], true])
-	
-	return true
+func _动画完成的信号() -> void:
+	未完成的动画 -= 1
+
+func _请求动画(nam:String, data:Dictionary) -> void:
+	event_bus.push_event("战斗_请求动画", [nam, data])
+
 
 
 func 行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
@@ -32,7 +45,8 @@ func 行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管
 	card.get_parent().remove_card(card)
 	
 	#动画
-	#await 可以继续
+	_请求动画("行动打出", {"life":life, "card":card})
+	await 可以继续
 	#后续
 	
 	
@@ -56,7 +70,8 @@ func 非行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 	card.get_parent().remove_card(card)
 	
 	#动画
-	#await 可以继续
+	_请求动画("非行动打出", {"life":life, "card":card, "pos":pos})
+	await 可以继续
 	#后续
 	pos.add_card(card)
 	
@@ -74,7 +89,8 @@ func 构造(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	#悬置
 	card.get_parent().remove_card(card)
 	#动画
-	#await 可以继续
+	_请求动画("构造", {"life":life, "card":card, "pos":pos})
+	await 可以继续
 	#后续
 	pos.add_card(card)
 	
@@ -97,7 +113,8 @@ func 非场上发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 	card.get_parent().remove_card(card)
 	
 	#动画
-	#await 可以继续
+	_请求动画("非场上发动", {"life":life, "card":card, "pos":pos})
+	await 可以继续
 	#后续
 	pos.add_card(card)
 	
@@ -109,7 +126,8 @@ func 非场上发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 
 func 场上发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
 	#动画
-	#await 可以继续
+	_请求动画("场上发动", {"life":life, "card":card})
+	await 可以继续
 	#后续
 	
 	event_bus.push_event("战斗_日志记录", [name, "非场上发动", [life, card], true])
@@ -126,7 +144,8 @@ func 改变方向(life:战斗_单位管理系统.Life_sys, card:战斗_单位管
 		return false
 	
 	#动画
-	#await 可以继续
+	_请求动画("改变方向", {"life":life, "card":card})
+	await 可以继续
 	#后续
 	if card.direction == 1:
 		card.direction = 0
@@ -143,13 +162,16 @@ func 改变方向(life:战斗_单位管理系统.Life_sys, card:战斗_单位管
 
 
 func 反转(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
-	#动画
-	#await 可以继续
-	#后续
 	if card.appear == 0:
 		card.face_up()
 	else:
 		card.face_down()
+	
+	#动画
+	_请求动画("反转", {"life":life, "card":card})
+	await 可以继续
+	#后续
+	
 	
 	event_bus.push_event("战斗_日志记录", [name, "反转", [life, card], true])
 	_add_history(card, "反转")
@@ -174,7 +196,8 @@ func 加入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	#悬置
 	card.get_parent().remove_card(card)
 	#动画
-	#await 可以继续
+	_请求动画("加入", {"life":life, "card":card, "pos":pos})
+	await 可以继续
 	#后续
 	pos.add_card(card)
 	
@@ -194,7 +217,8 @@ func 创造(life:战斗_单位管理系统.Life_sys, card_name:String) -> 战斗
 	#悬置
 	var card:= 单位管理系统.create_card(card_name)
 	#动画
-	#await 可以继续
+	_请求动画("创造", {"life":life, "card_name":card_name})
+	await 可以继续
 	#后续
 	临时pos.add_card(card)
 	
@@ -221,8 +245,8 @@ func 抽牌(life:战斗_单位管理系统.Life_sys) -> bool:
 	card.get_parent().remove_card(card)
 	
 	#动画
-	
-	#await 可以继续
+	_请求动画("抽牌", {"life":life, "card":card})
+	await 可以继续
 	
 	#后续
 	life.cards_pos["手牌"].add_card(card)
@@ -240,7 +264,8 @@ func 释放(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	#悬置
 	card.get_parent().remove_card(card)
 	#动画
-	#await 可以继续
+	_请求动画("释放", {"life":life, "card":card})
+	await 可以继续
 	#后续
 	临时pos.add_card(card)
 	
@@ -256,7 +281,8 @@ func 释放(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 
 func 攻击(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, mode:String) -> bool:
 	#动画
-	#await 可以继续
+	_请求动画("攻击", {"life":life, "card":card, "mode":mode})
+	await 可以继续
 	#后续
 	
 	event_bus.push_event("战斗_日志记录", [name, "攻击", [life, card, mode], true])
@@ -270,9 +296,28 @@ func 攻击(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	return true
 
 
+func 加入战斗(控制, is_positive:bool) -> 战斗_单位管理系统.Life_sys:
+	#生成life
+	var life = 单位管理系统.create_life(控制, is_positive)
+	
+	
+	#动画
+	_请求动画("加入战斗", {"life":life, "is_positive":is_positive})
+	await 可以继续
+	
+	控制.life_sys = life
+	单位管理系统.创造牌库(life, 控制.创造牌库())
+	
+	
+	event_bus.push_event("战斗_日志记录", [name, "加入战斗", [life, is_positive], life])
+	return life
+	
+
+
 func 死亡(life:战斗_单位管理系统.Life_sys) -> bool:
 	#动画
-	#await 可以继续
+	_请求动画("死亡", {"life":life})
+	await 可以继续
 	#后续
 	
 	event_bus.push_event("战斗_日志记录", [name, "死亡", [life], true])
@@ -281,6 +326,45 @@ func 死亡(life:战斗_单位管理系统.Life_sys) -> bool:
 	
 	return true
 
+
+
+
+#纯动画
+func 加入连锁的动画(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, effect_ind:int, speed:int) -> bool:
+	#动画
+	_请求动画("加入连锁的动画", {"life":life, "card":card, "effect_ind":effect_ind, "speed":speed})
+	await 可以继续
+	
+	event_bus.push_event("战斗_日志记录", [name, "加入连锁的动画", [life, card, effect_ind, speed], true])
+	
+	return true
+
+func 图形化数据改变(card:战斗_单位管理系统.Card_sys) -> bool:
+	#动画
+	_请求动画("图形化数据改变", {"card":card})
+	await 可以继续
+	
+	event_bus.push_event("战斗_日志记录", [name, "图形化数据改变", [card], true])
+	
+	return true
+
+func 创造牌库(life:战斗_单位管理系统.Life_sys) -> bool:
+	#动画
+	_请求动画("创造牌库", {"life":life})
+	await 可以继续
+	
+	event_bus.push_event("战斗_日志记录", [name, "创造牌库", [life], true])
+	
+	return true
+
+func 整理手牌(life:战斗_单位管理系统.Life_sys) -> bool:
+	#动画
+	_请求动画("整理手牌", {"life":life})
+	await 可以继续
+	
+	event_bus.push_event("战斗_日志记录", [name, "整理手牌", [life], true])
+	
+	return true
 
 
 #无动画

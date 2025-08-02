@@ -5,12 +5,29 @@ class_name 战斗_单位控制
 signal 结束
 
 var life_sys:战斗_单位管理系统.Life_sys
+var is_positive:bool
+
+var life_nam:String
+var 大小:int
+var 效果:Array
+var 装备:Array = []
+var 组:Array = []
+var 种类:String
 
 
-func _init(life:战斗_单位管理系统.Life_sys) -> void:
-	life_sys = life
 
 
+
+func 生成牌库(arr:Array) -> Array:
+	arr = arr.duplicate(true)
+	var cards:Array[String]
+	for i:Array in arr:
+		var count:int = i[-1]
+		i.remove_at(i.size() - 1)
+		for i1:int in count:
+			for card:String in i:
+				cards.append(card)
+	return cards
 
 func 创造牌库() -> Array:
 	return []
@@ -62,7 +79,7 @@ func 结束阶段弃牌() -> Array[战斗_单位管理系统.Card_sys]:
 func 选择效果发动(card:战斗_单位管理系统.Card_sys, arr_int:Array[int]) -> int:
 	return 0
 
-func 对象选择(arr:Array, count:int = 1, is_all:bool = true):
+func 对象选择(arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 1):
 	pass
 
 func 选择一格(arr:Array[战斗_单位管理系统.Card_pos_sys]) -> 战斗_单位管理系统.Card_pos_sys:

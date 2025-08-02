@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://b3jhuoclqxoef"]
+[gd_scene load_steps=18 format=3 uid="uid://b3jhuoclqxoef"]
 
 [ext_resource type="Script" uid="uid://c06wajmtprs4i" path="res://代码/战斗/场景/战斗场景.gd" id="1_ueb0u"]
 [ext_resource type="Script" uid="uid://poy0bjbsuknh" path="res://代码/战斗/系统/战斗系统.gd" id="2_2qwbv"]
@@ -12,6 +12,11 @@
 [ext_resource type="Script" uid="uid://b7hl31mfjfq1j" path="res://代码/战斗/系统/最终行动系统.gd" id="8_55ukw"]
 [ext_resource type="Script" uid="uid://bdrndk1gp0gqj" path="res://代码/战斗/系统/连锁系统.gd" id="9_wj7lg"]
 [ext_resource type="Script" uid="uid://b63v06x2klxew" path="res://代码/战斗/系统/释放与源.gd" id="11_o3jr5"]
+[ext_resource type="PackedScene" uid="uid://bh8hxq45s0awa" path="res://代码/战斗/ui/gui单位管理.tscn" id="13_ifacx"]
+[ext_resource type="Script" uid="uid://vnu2u3mp4ib3" path="res://代码/战斗/场景/gui系统.gd" id="13_yaon1"]
+[ext_resource type="Script" uid="uid://b3p43wo7lu6ma" path="res://代码/战斗/系统/动画系统.gd" id="15_6iqt4"]
+[ext_resource type="PackedScene" uid="uid://ni7vyv6w0g6x" path="res://代码/战斗/系统/gui控制.tscn" id="16_cdei4"]
+[ext_resource type="PackedScene" uid="uid://wu7xh8ykmm0o" path="res://代码/战斗/ui/可选卡牌容器.tscn" id="17_cdei4"]
 
 [node name="战斗场景" type="Control"]
 layout_mode = 3
@@ -65,3 +70,47 @@ script = ExtResource("11_o3jr5")
 [node name="最终行动系统" type="Node" parent="战斗系统"]
 unique_name_in_owner = true
 script = ExtResource("8_55ukw")
+
+[node name="gui系统" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("13_yaon1")
+
+[node name="gui单位管理" parent="gui系统" instance=ExtResource("13_ifacx")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="动画系统" type="Node" parent="gui系统"]
+unique_name_in_owner = true
+script = ExtResource("15_6iqt4")
+
+[node name="gui控制" parent="gui系统" instance=ExtResource("16_cdei4")]
+unique_name_in_owner = true
+
+[node name="左" type="Control" parent="gui系统"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+
+[node name="右" type="Control" parent="gui系统"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+grow_horizontal = 0
+
+[node name="可选卡牌容器" parent="gui系统" instance=ExtResource("17_cdei4")]
+unique_name_in_owner = true
+visible = false
+z_index = 2
+layout_mode = 1
+offset_left = 241.0
+offset_top = 402.0
+offset_right = -248.0
+offset_bottom = -54.0

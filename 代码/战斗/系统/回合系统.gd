@@ -1,5 +1,6 @@
 extends Node
 
+@onready var 单位管理系统: 战斗_单位管理系统 = %单位管理系统
 
 
 var state_machine_manager : CoreSystem.StateMachineManager = CoreSystem.state_machine_manager
@@ -19,7 +20,8 @@ func _ready() -> void:
 func join_life(life:战斗_单位管理系统.Life_sys) -> void:
 	turn_lifes.append(life)
 	turn_lifes.sort_custom(func(a,b):return a.speed >= b.speed)
-
+	单位管理系统.lifes.sort_custom(func(a,b):return turn_lifes.find(a) <= turn_lifes.find(b))
+	单位管理系统.efils.sort_custom(func(a,b):return turn_lifes.find(a) <= turn_lifes.find(b))
 
 
 

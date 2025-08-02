@@ -1,0 +1,74 @@
+[gd_scene load_steps=11 format=3 uid="uid://dh6nl1djeguae"]
+
+[ext_resource type="Script" uid="uid://bixs8w5t1cpjn" path="res://代码/战斗/ui/卡牌复制.gd" id="1_qt6uw"]
+[ext_resource type="Texture2D" uid="uid://defurr1yw2byd" path="res://资产/图片/test.png" id="2_xenl7"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xenl7"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_orkjd"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xenl7"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lbgh1"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0o54h"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cufxw"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0837n"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jwivg"]
+
+[node name="卡牌复制" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 311.0
+offset_top = -133.0
+offset_bottom = 133.182
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.2, 0.2)
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_xenl7")
+script = ExtResource("1_qt6uw")
+
+[node name="边距" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="图片" type="TextureRect" parent="边距"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("2_xenl7")
+expand_mode = 5
+stretch_mode = 5
+
+[node name="左" type="Button" parent="边距"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_orkjd")
+toggle_mode = true
+expand_icon = true
+
+[node name="Button" type="Button" parent="边距/左"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxEmpty_xenl7")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_lbgh1")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_0o54h")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_cufxw")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_0837n")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_jwivg")
+
+[node name="Label" type="Label" parent="边距"]
+layout_mode = 2
+text = "                  "
+
+[connection signal="button_up" from="边距/左/Button" to="." method="_on_button_button_up"]

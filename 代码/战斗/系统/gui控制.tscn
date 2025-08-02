@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3 uid="uid://ni7vyv6w0g6x"]
+
+[ext_resource type="Script" uid="uid://dac4ckywe7rkm" path="res://数据/战斗_单位控制/gui控制.gd" id="1_rlj3t"]
+
+[node name="gui控制" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_rlj3t")
+
+[node name="按钮" type="Control" parent="."]
+unique_name_in_owner = true
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="按钮"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="打出按钮" type="Button" parent="按钮/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "打出"
+
+[node name="发动按钮" type="Button" parent="按钮/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "发动"
+
+[connection signal="button_up" from="按钮/HBoxContainer/打出按钮" to="." method="_on_打出_button_up"]
+[connection signal="button_up" from="按钮/HBoxContainer/发动按钮" to="." method="_on_发动_button_up"]

@@ -12,15 +12,14 @@ var efils:Array[Life_sys]
 
 
 
-func create_life(life_name:String, is_positive:bool) -> Life_sys:
-	var life:Life_sys = Life_sys.new(life_name, buff系统)
+func create_life(life_cont:战斗_单位控制, is_positive:bool) -> Life_sys:
+	var life:Life_sys = Life_sys.new(life_cont, buff系统)
+	add_child(life)
 	#记录
 	if is_positive:
 		lifes.append(life)
 	else :
 		efils.append(life)
-		
-
 	
 	return life
 
@@ -28,7 +27,7 @@ func create_card(card_name:String) -> Card_sys:
 	return Card_sys.new(card_name, buff系统)
 
 
-func 创造牌库(life:Life_sys, cards:Array[String]) -> void:
+func 创造牌库(life:Life_sys, cards:Array) -> void:
 	for i:String in cards:
 		var card := Card_sys.new(i, buff系统)
 		life.cards_pos["白区"].add_card(card)
@@ -165,18 +164,20 @@ class Life_sys extends Data_sys:
 	var buff系统: Node
 	var buffs:Array[Buff_sys]
 	var equips:Array[Equip_sys]
+	var group:Array
+	var 种类:String
 	var speed:int = 10
 	var cards_pos:Dictionary ={}
 	var state:Array[String] =[]
 	var att_life:Life_sys#攻击目标
 	var face_life:Life_sys#面对目标
 	
-	func _init(life_name, def) -> void:
-		nam = life_name
+	func _init(life_cont:战斗_单位控制, def) -> void:
+		nam = life_cont.life_nam
+		group = life_cont.组
+		种类 = life_cont.种类
 		set_index()
 		buff系统 = def
-		if life_name:
-			data = DatatableLoader.get_data_model("life_data", life_name)
 		
 		for i:String in ["行动", "手牌", "白区", "绿区", "蓝区", "红区"]:
 			cards_pos[i] = Card_pos_sys.new(i)
@@ -184,9 +185,10 @@ class Life_sys extends Data_sys:
 		cards_pos["场上"] = []
 		for i:int in 6:
 			cards_pos["场上"].append(Card_pos_sys.new("场上"))
+			cards_pos["场上"][-1].场上index = i
 			add_child(cards_pos["场上"][-1])
 		
-		for i:String in data["装备"]:
+		for i:String in life_cont.装备:
 			var equip:Equip_sys = Equip_sys.new(i)
 			equips.append(equip)
 			for i1:String in equip.data["buff"]:
@@ -237,6 +239,7 @@ class Life_sys extends Data_sys:
 
 class Card_pos_sys extends Data_sys:
 	var cards:Array[Card_sys]
+	var 场上index:int
 	
 	func _init(pos:String) -> void:
 		nam = pos
@@ -277,14 +280,16 @@ class Card_sys extends Data_sys:
 	var appear:int = 0
 	var time_take:int
 	
+	var 图形化数据:Dictionary = {}
+	
 	var test_pos
 	
 	func _init(card_name:String, def) -> void:
 		nam = card_name
 		buff系统 = def
 		event_bus.push_event("战斗_datasys被创建", [self])
-		
-	
+
+
 	func face_up() -> void:
 		if appear:
 			return
@@ -292,13 +297,18 @@ class Card_sys extends Data_sys:
 		if nam:
 			data = DatatableLoader.get_data_model("card_data", nam)
 		
+		reset_emerde()
+		
 		for i:Array in data["效果"]:
 			var effect = Effect_sys.new(i, buff系统)
 			effects.append(effect)
 			add_child(effect)
 		
-		reset_emerde()
-	
+		for i:String in ["卡名", "种类", "sp", "mp"]:
+			图形化数据[i] = get_value(i)
+		
+		
+
 	func reset_emerde() -> int:
 		var pos:Card_pos_sys = get_parent()
 		if pos.nam == "场上":
@@ -315,20 +325,17 @@ class Card_sys extends Data_sys:
 		
 		
 		return appear
-	
-	
-	
+
 	func face_down() -> void:
 		if !appear:
 			return
 		
 		data = null
+		for i in effects:
+			i.free_self()
 		effects = []
-		direction = 1
 		
 		appear = 0
-		
-
 
 	func get_value(key:String):
 		if !appear:

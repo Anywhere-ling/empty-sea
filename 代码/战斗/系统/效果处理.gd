@@ -325,9 +325,14 @@ func _取卡牌对象(data:Array) -> bool:
 	if data0 == []:
 		return false
 	
-	var 是否需要选完:bool = _get_bool(data[3])
-	var 需要选择的数量:int = int(data[2])
-	if 是否需要选完 and len(data0) < 需要选择的数量:
+	var 最小数量:int = int(data[3])
+	var 最大数量:int = int(data[2])
+	var 描述:String = data[1]
+	if 最小数量 == -1:
+		最小数量 = 最大数量
+	assert(最大数量 > -1, "卡牌data数据错误")
+	
+	if len(data0) < 最小数量:
 		return false
 	
 	var 返回:Array = [false]
@@ -336,7 +341,7 @@ func _取卡牌对象(data:Array) -> bool:
 		返回.append(a)
 		emit_signal("数据返回")
 		, 1, true)
-	event_bus.push_event("战斗_请求选择", [targets[1], data0, 需要选择的数量, 是否需要选完])
+	event_bus.push_event("战斗_请求选择", [targets[1], 描述, data0, 最大数量, 最小数量])
 	if !返回[0]:
 		await 数据返回
 	var ret = 返回[1]

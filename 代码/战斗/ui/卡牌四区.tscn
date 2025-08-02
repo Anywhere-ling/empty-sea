@@ -27,6 +27,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_hover_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
+theme_override_colors/font_hover_color = Color(0.894118, 0.521569, 0.109804, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0.893121, 0.52165, 0.110778, 1)
+theme_override_colors/font_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_styles/focus = SubResource("StyleBoxEmpty_gcy4m")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_hj1ho")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
@@ -34,10 +39,10 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
 
 [node name="ColorRect2" type="ColorRect" parent="."]
-offset_left = 18.0
-offset_top = -65.0
-offset_right = 58.0
-offset_bottom = -25.0
+offset_left = -128.0
+offset_top = 34.0
+offset_right = -88.0
+offset_bottom = 74.0
 color = Color(0.25098, 0.8, 0.266667, 1)
 
 [node name="绿区" type="Button" parent="ColorRect2"]
@@ -48,6 +53,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_hover_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
+theme_override_colors/font_hover_color = Color(0.894118, 0.521569, 0.109804, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0.893121, 0.52165, 0.110778, 1)
+theme_override_colors/font_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_styles/focus = SubResource("StyleBoxEmpty_gcy4m")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_hj1ho")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
@@ -55,10 +65,10 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
 
 [node name="ColorRect3" type="ColorRect" parent="."]
-offset_left = -25.0
-offset_top = -133.0
-offset_right = 15.0
-offset_bottom = -93.0
+offset_left = -62.0
+offset_top = -56.0
+offset_right = -22.0
+offset_bottom = -16.0
 color = Color(0, 0.290196, 1, 1)
 
 [node name="蓝区" type="Button" parent="ColorRect3"]
@@ -69,6 +79,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_hover_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
+theme_override_colors/font_hover_color = Color(0.894118, 0.521569, 0.109804, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0.893121, 0.52165, 0.110778, 1)
+theme_override_colors/font_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_styles/focus = SubResource("StyleBoxEmpty_gcy4m")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_hj1ho")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
@@ -76,10 +91,10 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
 
 [node name="ColorRect4" type="ColorRect" parent="."]
-offset_left = 49.0
-offset_top = -167.0
-offset_right = 89.0
-offset_bottom = -127.0
+offset_left = 127.0
+offset_top = -9.0
+offset_right = 167.0
+offset_bottom = 31.0
 color = Color(0.791545, 0.166255, 4.67831e-05, 1)
 
 [node name="红区" type="Button" parent="ColorRect4"]
@@ -90,8 +105,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_hover_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
+theme_override_colors/font_hover_color = Color(0.894118, 0.521569, 0.109804, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0.893121, 0.52165, 0.110778, 1)
+theme_override_colors/font_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_styles/focus = SubResource("StyleBoxEmpty_gcy4m")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_hj1ho")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
+
+[connection signal="button_up" from="ColorRect/白区" to="." method="_on_白区_button_up"]
+[connection signal="button_up" from="ColorRect2/绿区" to="." method="_on_绿区_button_up"]
+[connection signal="button_up" from="ColorRect3/蓝区" to="." method="_on_蓝区_button_up"]
+[connection signal="button_up" from="ColorRect4/红区" to="." method="_on_红区_button_up"]

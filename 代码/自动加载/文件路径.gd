@@ -60,3 +60,30 @@ static func png_character(name:String) -> String:
 
 static func png_test() -> String:
 	return "res://资产/图片/test.png"
+
+static func tscn_gui单位管理_选项() -> String:
+	return "res://代码/战斗/ui/gui单位管理_选项.tscn"
+
+static func folder战斗动画() -> String:
+	return "res://数据/战斗动画/"
+
+static func tscn_gui战斗_life() -> String:
+	return "res://代码/战斗/实体/life.tscn"
+
+static func tscn_gui_card() -> String:
+	return "res://代码/战斗/实体/card.tscn"
+
+static func tscn_战斗_卡牌容器() -> String:
+	return "res://代码/战斗/ui/卡牌容器.tscn"
+
+static func res_动画表() -> String:
+	return "res://数据/战斗动画/动画表.gd"
+
+static func tscn_战斗_区卡牌显示() -> String:
+	return "res://代码/战斗/ui/区卡牌显示.tscn"
+
+static func tscn_战斗_卡牌复制() -> String:
+	return "res://代码/战斗/ui/卡牌复制.tscn"
+
+static func tscn_战斗_可选卡牌容器_子节点() -> String:
+	return "res://代码/战斗/ui/可选卡牌容器_子节点.tscn"
