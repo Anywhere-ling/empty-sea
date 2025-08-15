@@ -10,7 +10,7 @@ layout_mode = 3
 anchors_preset = 0
 tooltip_auto_translate_mode = 2
 script = ExtResource("1_16alr")
-"card_边距" = Vector2(12, 20)
+"card_边距" = Vector2(3, 5)
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1

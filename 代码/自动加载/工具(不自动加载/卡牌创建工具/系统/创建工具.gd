@@ -32,9 +32,9 @@ class_name 创建工具
 var specification_效果组件:Dictionary
 var specification_效果特征:Dictionary = {
 	"触发":"当满足效果时，下一连锁可以发动",
+	"固有":"在指定位置永远生效",
 	"任意":"在任意位置可以发动",
 	"场上":"在场上可以发动",
-	"行动":"在行动可以发动",
 	"手牌":"在手牌可以发动",
 	"白区":"在白区可以发动",
 	"绿区":"在绿区可以发动",
@@ -51,6 +51,8 @@ var specification_效果标点:Dictionary = {
 
 var specification_特征:Dictionary = {
 	"闪耀":"不能变为里侧",
+	"恒定":"不能改变方向",
+	"永恒":"不能被破坏",
 }
 var specification_媒介:Array = [
 	"潮汐",
@@ -208,9 +210,9 @@ func _add_node_文本(node:Container, 简介:String) -> Label:
 	node1.text = 简介
 	if node is 卡牌创建工具_不定数量的数据节点容器:
 		node.add_child_node(node1)
-	if node is 卡牌创建工具_不定数量的数据节点容器_h:
+	elif node is 卡牌创建工具_不定数量的数据节点容器_h:
 		node.add_child_node(node1)
-	if node is HBoxContainer:
+	elif node is HBoxContainer:
 		node.add_child(node1)
 	var a := 提供焦点.duplicate(12)
 	a.visible = true

@@ -1,7 +1,7 @@
 extends 卡牌创建工具_单个设计区
 class_name 卡牌创建工具_单个卡牌设计区
 
-
+@onready var 种类: OptionButton = %种类
 @onready var sp: SpinBox = %sp
 @onready var mp: SpinBox = %mp
 @onready var 特征: 卡牌创建工具_不定数量的数据节点容器_h = %特征
@@ -37,7 +37,7 @@ func _ready() -> void:
 
 
 
-func _请求检测空效果的信号(node:卡牌创建工具_效果设计区) -> void:
+func _请求检测空效果的信号(node:HBoxContainer) -> void:
 	_remove_empty_effects()
 	emit_signal("请求储存到历史记录")
 	

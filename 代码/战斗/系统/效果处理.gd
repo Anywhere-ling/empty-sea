@@ -8,24 +8,38 @@ var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
 
 var targets:Array = []
-#[0:这个效果/buff的依赖卡牌(如果有
+#[0:这个效果/buff的依赖卡牌
 #1:拥有这次效果/buff的单位
-#2:触发这次效果的卡牌/效果/事件(如果有
+#2:触发这次效果的卡牌/效果/事件
+#2:get_value的数据/
 #]
+
+var card_sys:战斗_单位管理系统.Card_sys
 
 var effect:Array
 var features:Array = []
 
 var all_lifes:Array
 
+var 最终行动系统: Node
+var 单位控制系统: Node
+var 发动判断系统: Node
+var 卡牌打出与发动系统: Node
+var 单位管理系统: 战斗_单位管理系统
+var 日志系统: 战斗_日志系统
 
-
-
-func _init(eff:Array, lifes:Array, fea:Array = [],  tar:Array = []) -> void:
+func _init(node:Node, eff:Array, lifes:Array, car:战斗_单位管理系统.Card_sys = null, fea:Array = [],  tar:Array = []) -> void:
+	最终行动系统 = node.最终行动系统
+	单位控制系统 = node.单位控制系统
+	发动判断系统 = node.发动判断系统
+	卡牌打出与发动系统 = node.卡牌打出与发动系统
+	单位管理系统 = node.单位管理系统
+	日志系统 = node.日志系统
 	effect = eff
 	all_lifes = lifes
+	card_sys = car
 	features = fea
-	targets = tar.duplicate(true)
+	targets = tar
 
 	targets.resize(10)
 
@@ -36,28 +50,27 @@ func start() -> Array:
 	else :
 		return []
 
-
 func _effect_process(p_effect:Array) -> bool:
 	for i:int in len(p_effect):
+		if card_sys:
+			var 特征:Array = await card_sys.get_value("特征")
+			if 特征.has("无效"):
+				await 最终行动系统.无效(card_sys.get_parent().get_parent(), card_sys)
+				return false
+		
 		var arr:Array = p_effect[i].duplicate(true)
 		if arr[0] in effect标点:
 			var eff_nam:String = arr.pop_at(0)
-			if await effect标点[eff_nam].call(arr):
+			if !await effect标点[eff_nam].call(arr):
 				
-				event_bus.push_event("战斗_日志记录", ["战斗_效果处理系统", eff_nam, [arr], true])
-			else :
-				
-				event_bus.push_event("战斗_日志记录", ["战斗_效果处理系统", eff_nam, [arr], false])
+				日志系统.callv("录入信息", ["战斗_效果处理系统", eff_nam, [arr], false])
 				return false
 		
 		elif arr[0] in effect组件:
 			var eff_nam:String = arr.pop_at(0)
-			if await effect组件[eff_nam].call(arr):
+			if !await effect组件[eff_nam].call(arr):
 				
-				event_bus.push_event("战斗_日志记录", ["战斗_效果处理系统", eff_nam, [arr], true])
-			else :
-				
-				event_bus.push_event("战斗_日志记录", ["战斗_效果处理系统", eff_nam, [arr], false])
+				日志系统.callv("录入信息", ["战斗_效果处理系统", eff_nam, [arr], false])
 				return false
 
 	
@@ -69,20 +82,36 @@ var effect标点:Dictionary ={
 	"逐一":_逐一,
 }
 
-
-
-
-
 var effect组件:Dictionary = {
 	"初始对象":_初始对象,
-	"对象处理":_对象处理,
+	"初始区":_初始区,
 	"以数据为对象":_以数据为对象,
-	"以格为对象":_以格为对象,
+	"以区为对象":_以区为对象,
+	"以序号为对象":_以序号为对象,
+	
+	"对象处理":_对象处理,
 	"数据判断":_数据判断,
-	"取卡牌对象":_取卡牌对象,
 	"计算相似度":_计算相似度,
 	"效果判断":_效果判断,
+	"非条件卡牌筛选":_非条件卡牌筛选,
+	"格筛选":_格筛选,
+	
+	"取卡牌对象":_取卡牌对象,
+	"取格对象":_取格对象,
+	
 	"加入":_加入,
+	"破坏":_破坏,
+	"反转":_反转,
+	"改变方向":_改变方向,
+	"盖放":_盖放,
+	"释放":_释放,
+	"创造":_创造,
+	"去掉":_去掉,
+	"插入":_插入,
+	"改变可视数据":_改变可视数据,
+	"删除可视数据改变":_删除可视数据改变,
+	
+	"添加buff":_添加buff,
 }
 
 
@@ -147,11 +176,17 @@ func _逐一(data:Array) -> bool:
 	return ret
 
 
-func _初始对象(data:Array) -> bool:
-	var cards:Array[战斗_单位管理系统.Card_sys] = []
-	
+
+func _初始区(data:Array) -> bool:
+	var poss:Array = []
+	var data0:Array
+	for i in data[0]:
+		if _get_sub_index(i) != -1:
+			i = targets[_get_sub_index(i)]
+		data0.append(i)
+		
 	#目标单位
-	var lifes:Array[战斗_单位管理系统.Life_sys] = []
+	var lifes:Array = []
 	match data[1] :
 		"攻击目标":lifes = [targets[1].att_life]
 		"自己":lifes = [targets[1]]
@@ -160,20 +195,117 @@ func _初始对象(data:Array) -> bool:
 		"全部":lifes = all_lifes[0] + all_lifes[1]
 		
 	for life:战斗_单位管理系统.Life_sys in lifes:
-		for pos:String in data[0]:
+		for pos:String in data0:
 			if pos == "场上":
 				for i:int in 6:
-					cards.append_array(life.cards_pos[pos][i].cards)
+					poss.append(life.cards_pos[pos][i])
 			elif pos.is_valid_int():
-				cards.append_array(life.cards_pos["场上"][int(pos)].cards)
+				poss.append(life.cards_pos["场上"][int(pos)])
 			else :
-				cards.append_array(life.cards_pos[pos].cards)
+				poss.append(life.cards_pos[pos])
+	
+	#对象
+	targets[_get_sub_index(data[2])] = poss
+	
+	return true
+
+func _初始对象(data:Array) -> bool:
+	var cards:Array = []
+	
+	#目标单位
+	var poss:Array = _get_array(targets[_get_sub_index(data[0])])
+	
+	
+	for pos:战斗_单位管理系统.Card_pos_sys in poss:
+		if pos.nam == "场上":
+			if pos.cards:
+				var cards1:Array = pos.cards.duplicate(true)
+				cards.append(cards1.pop_at(0))
+				cards.append_array(单位管理系统.get_给定显示以上的卡牌(cards1, 2))
+		else :
+			cards.append_array(pos.cards)
 	
 	#对象
 	
-	targets[_get_sub_index(data[2])] = cards
+	targets[_get_sub_index(data[1])] = cards
 	
 	return true
+
+func _以数据为对象(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	if data0 == []:
+		return false
+	data0 = data0[0]
+	
+	
+	var ret
+	if data[1] == "位置":
+		ret = data0.get_parent().nam
+	elif data[1] == "显现":
+		ret = data0.appear
+	elif data[1] == "方向":
+		ret = data0.direction
+	
+	if !data0.appear:
+		pass
+	elif data[1] == "构造状态":
+		ret = int(data0.state)
+	elif data[1] == "素材数量":
+		var pos:战斗_单位管理系统.Card_pos_sys = data0.get_parent()
+		if pos.nam != "场上":
+			return false
+		ret = []
+		for card in pos.cards:
+			if card.appear == 1:
+				ret.append(card)
+		ret = len(ret)
+	else :
+		ret = data0.get_value(data[1])
+		if data[1] in ["sp", "mp"]:
+			ret = int(ret)
+	
+	if ret == null:
+		return false
+	targets[_get_sub_index(data[2])] = ret
+		
+	
+	return true
+
+func _以区为对象(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	if data0 == []:
+		return false
+	data0 = data0[0]
+	
+	var pos:战斗_单位管理系统.Card_pos_sys = data0.get_parent()
+	if pos.name == "临时":
+		return false
+	
+	targets[_get_sub_index(data[1])] = pos
+	
+	return true
+
+func _以序号为对象(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_array(targets[_get_sub_index(data[0])])
+	if data0 == []:
+		return false
+	data0 = data0[0]
+	
+	
+	if data0.name != "场上":
+		return false
+	
+	var ret:int = data0.get_parent.cards_pos["场上"].find(data0)
+	
+	
+	targets[_get_sub_index(data[2])] = ret
+	
+	return true
+
+
 
 func _对象处理(data:Array) -> bool:
 	var data0 = targets[_get_sub_index(data[0])]
@@ -189,8 +321,16 @@ func _对象处理(data:Array) -> bool:
 		elif data[1] == "复制或乘算":
 			data0 = data2
 	
-	elif data[2].is_valied_float:
-		if !data0 is int:
+	elif data0 is Array:
+		if data[1] == "加":
+			data0.append(data[2])
+		elif data[1] == "减":
+			data0.erase(data[2])
+		elif data[1] == "复制或乘算":
+			data0 = [data[2]]
+	
+	elif data[2].is_valid_float():
+		if !data0 is int and !data0 is float:
 			return false
 		if data[1] == "加":
 			data0 += float(data[2])
@@ -198,6 +338,8 @@ func _对象处理(data:Array) -> bool:
 			data0 -= float(data[2])
 		elif data[1] == "复制或乘算":
 			data0 = data0 * float(data[2])
+	
+	
 	
 	else :
 		if !data0 is String:
@@ -213,55 +355,18 @@ func _对象处理(data:Array) -> bool:
 	targets[_get_sub_index(data[0])] = data0
 	return true
 
-func _以数据为对象(data:Array) -> bool:
-	#提取数据
-	var data0 = _get_cards(data[0])
-	if data0 == []:
-		return false
-	data0 = data0[0]
-	if !data0.appear:
-		return false
-	
-	var ret
-	if data[1] == "位置":
-		ret = data0.get_parent().nam
-	else :
-		ret = data0.get_value(data[1])
-		if data[1] in ["sp", "mp"]:
-			ret = int(ret)
-		
-	targets[_get_sub_index(data[2])] = ret
-	
-	return true
-
-func _以格为对象(data:Array) -> bool:
-	#提取数据
-	var data0 = _get_cards(data[0])
-	if data0 == []:
-		return false
-	data0 = data0[0]
-	
-	var pos:战斗_单位管理系统.Card_pos_sys = data0.get_parent()
-	if pos.name != "场上":
-		return false
-	
-	var ret:int = targets[1].cards_pos["场上"].find(pos)
-	
-	if ret == -1:
-		return false
-	
-	targets[_get_sub_index(data[2])] = ret
-	
-	return true
-
 func _数据判断(data:Array) -> bool:
 	#提取数据
 	var data0 = targets[_get_sub_index(data[0])]
 	var data2
-	if _get_sub_index(data[2]) != -1:
-		data2 = targets[_get_sub_index(data[2])]
+	if !data[2].is_valid_float() and _get_sub_index(data[2]) != -1:
+		data2 = _get_array(targets[_get_sub_index(data[2])])
 	else :
 		data2 = data[2]
+	
+	
+	
+	
 	#判断
 	if data0 is String:
 		if !data2 is String:
@@ -269,8 +374,8 @@ func _数据判断(data:Array) -> bool:
 	elif data0 is Array:
 		if !data2 is Array:
 			return false
-	elif data0 is int:
-		if !(data2 is float or (data2 is String and data2.is_valid_float)):
+	elif data0 is int or data0 is float:
+		if !(data2 is float or data2 is int or (data2 is String and data2.is_valid_float())):
 			return false
 		
 	if data[1] == "相等":
@@ -281,7 +386,7 @@ func _数据判断(data:Array) -> bool:
 		elif data0 is int:
 			return data0 == int(data2)
 	
-	elif data[1] == "包含":if data0 is String:
+	elif data[1] == "包含":
 		if data0 is String:
 			return !data0.find(data2) == -1
 		elif data0 is Array:
@@ -317,40 +422,6 @@ func _数据判断(data:Array) -> bool:
 		
 	
 	return false
-
-func _取卡牌对象(data:Array) -> bool:
-	#提取数据
-	var data0 = _get_cards(data[0])
-	
-	if data0 == []:
-		return false
-	
-	var 最小数量:int = int(data[3])
-	var 最大数量:int = int(data[2])
-	var 描述:String = data[1]
-	if 最小数量 == -1:
-		最小数量 = 最大数量
-	assert(最大数量 > -1, "卡牌data数据错误")
-	
-	if len(data0) < 最小数量:
-		return false
-	
-	var 返回:Array = [false]
-	event_bus.subscribe("战斗_请求选择返回", func(a):
-		返回[0] = true
-		返回.append(a)
-		emit_signal("数据返回")
-		, 1, true)
-	event_bus.push_event("战斗_请求选择", [targets[1], 描述, data0, 最大数量, 最小数量])
-	if !返回[0]:
-		await 数据返回
-	var ret = 返回[1]
-	
-	if ret == []:
-		return false
-	targets[_get_sub_index(data[0])] = ret
-	
-	return true
 
 func _计算相似度(data:Array) -> bool:
 	#提取
@@ -391,6 +462,96 @@ func _效果判断(data:Array) -> bool:
 	
 	return true
 
+func _非条件卡牌筛选(data:Array) -> bool:
+	#提取
+	var data0 = _get_cards(data[0])
+	if !data0:
+		return false
+	var data1:String = data[1]
+	var data2:int = int(data[2])
+	
+	if data2 > data0.size():
+		return false
+	
+	var ret:Array
+	if data1 == "随机":
+		data0.shuffle()
+	elif data1 == "倒序":
+		data0.reverse()
+	
+	for i in data2:
+		ret.append(data0[i])
+	
+	targets[_get_sub_index(data[0])] = ret
+	
+	return true
+
+func _格筛选(data:Array) -> bool:
+	#提取
+	var data0 = targets[_get_sub_index(data[0])].duplicate(true)
+	if !data0:
+		return false
+	var data1:Array = data[1]
+	
+	
+	var ret:Array = 卡牌打出与发动系统.get_可用的格子(data0, data1)
+	
+	
+	targets[_get_sub_index(data[0])] = ret
+	
+	return true
+
+
+
+func _取卡牌对象(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	
+	if data0 == []:
+		return false
+	
+	var 最小数量:int = int(data[3])
+	var 最大数量:int = int(data[2])
+	var 描述:String = data[1]
+	if 最小数量 == -1:
+		最小数量 = 最大数量
+	assert(最大数量 > -1, "卡牌data数据错误")
+	
+	if len(data0) < 最小数量:
+		return false
+	
+	var ret:Array = await 单位控制系统.请求选择(targets[1], 描述, data0, 最大数量, 最小数量)
+	
+	if !ret:
+		return false
+	targets[_get_sub_index(data[0])] = ret
+	
+	return true
+
+func _取格对象(data:Array) -> bool:
+	#提取数据
+	var data0 = targets[_get_sub_index(data[0])].duplicate(true)
+	
+	if data0 == []:
+		return false
+	
+	var 最小数量:int = int(data[3])
+	var 最大数量:int = int(data[2])
+	var 描述:String = data[1]
+	if 最小数量 == -1:
+		最小数量 = 最大数量
+	assert(最大数量 > -1, "卡牌data数据错误")
+	
+	if len(data0) < 最小数量:
+		return false
+	
+	var ret:Array = await 单位控制系统.请求选择多格(targets[1], 描述, data0, 最大数量, 最小数量)
+	
+	if ret == []:
+		return false
+	targets[_get_sub_index(data[0])] = ret
+	
+	return true
 
 
 
@@ -398,19 +559,260 @@ func _加入(data:Array) -> bool:
 	#提取数据
 	var data0 = _get_cards(data[0])
 	
-	var pos:战斗_单位管理系统.Card_pos_sys = targets[1].cards_pos[data[1]]
+	var pos:战斗_单位管理系统.Card_pos_sys = _get_array(targets[_get_sub_index(data[1])])[0]
 	
 	var ret:bool = true
 	for i:战斗_单位管理系统.Card_sys in data0:
-		var 返回:Array = [false]
-		event_bus.subscribe("战斗_效果的行动处理返回", func(a):
-			返回[0] = true
-			返回.append(a)
-			emit_signal("数据返回")
-			, 1, true)
-		event_bus.push_event("战斗_效果的行动_加入", [targets[1], i, pos])
-		if !返回[0]:
-			await 数据返回
-		ret = 返回[1]
+		if !await 最终行动系统.加入(targets[1], i, pos):
+			ret = false
 	
+	await 最终行动系统.等待动画完成()
 	return ret
+
+func _破坏(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	
+	
+	var ret:bool = true
+	for card:战斗_单位管理系统.Card_sys in data0:
+		var pos:战斗_单位管理系统.Card_pos_sys = card.get_parent()
+		if !await 最终行动系统.破坏(pos.get_parent(), card):
+			ret = false
+		if pos.nam == "场上":
+			var cards1:Array = []
+			for i in pos.cards:
+				if i.appear == 1:
+					cards1.append(i)
+			
+			for i:战斗_单位管理系统.Card_sys in cards1:
+				var life:战斗_单位管理系统.Life_sys = i.get_parent().get_parent()
+				await 最终行动系统.加入(life, i, life.cards_pos["绿区"])
+	
+	
+	await 最终行动系统.等待动画完成()
+	return ret
+
+func _反转(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	
+	
+	var ret:bool = true
+	for i:战斗_单位管理系统.Card_sys in data0:
+		if !await 最终行动系统.反转(i.get_parent().get_parent(), i):
+			ret = false
+	
+	await 最终行动系统.等待动画完成()
+	return ret
+
+func _改变方向(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	
+	
+	var ret:bool = true
+	for i:战斗_单位管理系统.Card_sys in data0:
+		if !await 最终行动系统.改变方向(i.get_parent().get_parent(), i):
+			ret = false
+	
+	await 最终行动系统.等待动画完成()
+	return ret
+
+func _盖放(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	var data1 = targets[_get_sub_index(data[1])][0]
+	if !data0:
+		return false
+	
+	if !data1:
+		return false
+	var pos:战斗_单位管理系统.Card_pos_sys = data1
+	
+	var ret:bool = true
+	
+	for card:战斗_单位管理系统.Card_sys in data0:
+		if card.appear:
+			if !await 最终行动系统.反转(card.get_parent().get_parent(), card):
+				ret = false
+				continue
+		
+		if !await 最终行动系统.加入(card.get_parent().get_parent(), card, pos):
+			ret = false
+			continue
+		
+		if card.direction:
+			if !await 最终行动系统.改变方向(card.get_parent().get_parent(), card):
+				ret = false
+				continue
+	
+	await 最终行动系统.等待动画完成()
+	return ret
+
+func _释放(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	
+	
+	var ret:bool = true
+	for i:战斗_单位管理系统.Card_sys in data0:
+		if !await 最终行动系统.释放(i.get_parent().get_parent(), i):
+			ret = false
+	
+	await 最终行动系统.等待动画完成()
+	return ret
+
+func _创造(data:Array) -> bool:
+	#提取数据
+	var data0
+	if _get_sub_index(data[0]) != -1:
+		data0 = targets[_get_sub_index(data[0])].duplicate(true)
+		data0 = _get_array(data0)
+		if data0:
+			data0 = data0[0]
+		else :
+			return false
+	else :
+		data0 = data[0]
+	
+	
+	var ret = await 最终行动系统.创造(data0)
+	
+	if !ret:
+		return false
+	
+	targets[_get_sub_index(data[1])] = [ret]
+	
+	await 最终行动系统.等待动画完成()
+	return true
+
+func _去掉(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	
+	var cards1:Array
+	for i in data0:
+		var pos:战斗_单位管理系统.Card_pos_sys = i.get_parent()
+		if pos.nam != "场上":
+			return false
+		
+		for card in pos.cards:
+			if card.appear == 1:
+				cards1.append(card)
+	
+	if len(cards1) < int(data[1]):
+		return false
+	
+	var cards2:Array
+	for i in int(data[1]):
+		cards2.append(cards1[i])
+	
+	var ret:bool = true
+	for i:战斗_单位管理系统.Card_sys in cards2:
+		var life:战斗_单位管理系统.Life_sys = i.get_parent().get_parent()
+		if !await 最终行动系统.加入(life, i, life.cards_pos["绿区"]):
+			ret = false
+	
+	if _get_sub_index(data[2]) != -1:
+		targets[_get_sub_index(data[2])] = cards2
+	
+	await 最终行动系统.等待动画完成()
+	return ret
+
+func _插入(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	
+	var pos:战斗_单位管理系统.Card_pos_sys = _get_array(targets[_get_sub_index(data[1])])[0]
+	
+	var ret:bool = true
+	for i:战斗_单位管理系统.Card_sys in data0:
+		if !await 最终行动系统.插入(targets[1], i, pos):
+			ret = false
+	
+	await 最终行动系统.等待动画完成()
+	return ret
+
+func _改变可视数据(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	var data1 = data[1]
+	var data2 = data[2]
+	var data3 = data[3]
+	if _get_sub_index(data[3]) != -1:
+		data3 = targets[_get_sub_index(data[3])]
+	
+	var ind:int = 单位管理系统.get_数据改变唯一标识()
+	if data1 in ["sp", "mp"]:
+		if data3 is Array:
+			data3 = data3[0]
+		if !data3.is_valid_float():
+			return false
+		
+		for i in data0:
+			i.add_value(data1, [data2, int(data3), ind])
+	
+	elif data1 in ["特征", "组"]:
+		data3 = _get_array(data3)
+		for i in len(data3):
+			data3[i] = str(data3[i])
+		
+		for i in data0:
+			i.add_value(data1, [data2, data3, ind])
+	
+	elif data1 in ["卡名"]:
+		if data3 is Array:
+			data3 = data3[0]
+		
+		for i in data0:
+			i.add_value(data1, [data2, data3.split(), ind])
+	
+	elif data1 in ["种类"]:
+		if data3 is Array:
+			data3 = data3[0]
+		
+		for i in data0:
+			i.add_value(data1, [data2, data3, ind])
+	
+	if _get_sub_index(data[2]) != -1:
+		targets[_get_sub_index(data[2])] = ind
+	
+	for i in data0:
+		await 最终行动系统.图形化数据改变(i, data1)
+	
+	await 最终行动系统.等待动画完成()
+	return true
+
+func _删除可视数据改变(data:Array) -> bool:
+	#提取数据
+	var data0 = _get_cards(data[0])
+	var data1 = targets[_get_sub_index(data[1])]
+	
+	var key:String
+	for i in data0:
+		key = i.remove_value(data1)
+	
+	if key:
+		for i in data0:
+			await 最终行动系统.图形化数据改变(i, key)
+	
+	return true
+
+
+
+func _添加buff(data:Array) -> bool:
+	#提取数据
+	var data1
+	if _get_sub_index(data[2]) != -1:
+		data1 = targets[_get_sub_index(data[1])]
+	
+	var buff: = 单位管理系统.create_buff(data[0], data1, data[2], int(data[3]))
+	
+	buff.targets = targets
+	targets[1].add_buff(buff)
+	
+	if _get_sub_index(data[4]) != -1:
+		targets[_get_sub_index(data[4])] = buff
+	
+	return true

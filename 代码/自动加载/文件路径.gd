@@ -87,3 +87,12 @@ static func tscn_战斗_卡牌复制() -> String:
 
 static func tscn_战斗_可选卡牌容器_子节点() -> String:
 	return "res://代码/战斗/ui/可选卡牌容器_子节点.tscn"
+
+static func tscn_战斗_gui连锁_子() -> String:
+	return "res://代码/战斗/ui/gui连锁_子.tscn"
+
+static func folder动画效果() -> String:
+	return "res://数据/战斗动画/动画效果/"
+
+static func folder动画效果_shader() -> String:
+	return "res://数据/战斗动画/动画效果/shader/"

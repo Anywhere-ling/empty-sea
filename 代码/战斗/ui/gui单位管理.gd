@@ -49,7 +49,7 @@ func _ind改变(ind:int, is_positive:bool) -> void:
 	if tween_ind改变:
 		tween_ind改变.kill()
 	tween_ind改变 = create_tween()
-	tween_ind改变.set_ease(Tween.EASE_IN_OUT)
+	tween_ind改变.set_ease(Tween.EASE_OUT)
 	tween_ind改变.set_trans(Tween.TRANS_QUAD)
 	if is_positive:
 		tween_ind改变.tween_property(self, "lifes_ind", ind, 0.3)
@@ -96,9 +96,10 @@ func _按钮被按下(life:战斗_life) -> void:
 		_ind改变(lifes.find(life), true)
 		event_bus.push_event("战斗_显示单位切换", [life, true])
 	else :
-		_ind改变(lifes.find(life), false)
+		_ind改变(efils.find(life), false)
 		event_bus.push_event("战斗_显示单位切换", [life, false])
 
 
 func _on_点击旁边_button_up() -> void:
 	event_bus.push_event("战斗_右边显示改变", 选项集节点)
+	event_bus.push_event("战斗_左键点击旁边")

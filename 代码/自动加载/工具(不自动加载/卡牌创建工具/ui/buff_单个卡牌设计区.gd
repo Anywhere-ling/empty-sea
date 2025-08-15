@@ -24,7 +24,7 @@ func _ready() -> void:
 
 
 
-func _请求检测空效果的信号(node:卡牌创建工具_效果设计区) -> void:
+func _请求检测空效果的信号(node:HBoxContainer) -> void:
 	emit_signal("请求储存到历史记录")
 	
 

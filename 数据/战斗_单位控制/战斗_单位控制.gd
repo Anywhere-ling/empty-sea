@@ -51,11 +51,13 @@ func 发动(cards:Array[战斗_单位管理系统.Card_sys]) -> 战斗_单位管
 
 var 发动cards:Array[战斗_单位管理系统.Card_sys]
 var 打出cards:Array[战斗_单位管理系统.Card_sys]
+var 合成cards:Dictionary
 
 signal 主要阶段打出的信号
 signal 主要阶段发动的信号
+signal 合成的信号
 
-func 主要阶段():
+func 主要阶段() -> void:
 	pass
 
 func 主要阶段打出() -> void:
@@ -64,9 +66,13 @@ func 主要阶段打出() -> void:
 func 主要阶段发动() -> void:
 	return
 
-func 主要阶段判断(cards1:Array[战斗_单位管理系统.Card_sys], cards2:Array[战斗_单位管理系统.Card_sys]) -> void:
+func 主要阶段合成() -> void:
+	return
+
+func 主要阶段判断(cards1:Array[战斗_单位管理系统.Card_sys], cards2:Array[战斗_单位管理系统.Card_sys], cards3:Dictionary) -> void:
 	发动cards = cards1
 	打出cards = cards2
+	合成cards = cards3
 
 
 func 结束阶段弃牌() -> Array[战斗_单位管理系统.Card_sys]:
@@ -79,14 +85,13 @@ func 结束阶段弃牌() -> Array[战斗_单位管理系统.Card_sys]:
 func 选择效果发动(card:战斗_单位管理系统.Card_sys, arr_int:Array[int]) -> int:
 	return 0
 
-func 对象选择(arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 1):
-	pass
 
-func 选择一格(arr:Array[战斗_单位管理系统.Card_pos_sys]) -> 战斗_单位管理系统.Card_pos_sys:
+
+func 对象选择(arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 1) -> Array:
+	return []
+
+func 选择一格(arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 1) -> Array:
+	return []
+
+func 选择单位(arr:Array) -> 战斗_单位管理系统.Life_sys:
 	return
-
-func 选择单位(arr:Array[战斗_单位管理系统.Life_sys]) -> 战斗_单位管理系统.Life_sys:
-	return
-
-func 效果选项():
-	pass

@@ -13,6 +13,26 @@ class_name buff创建工具
 
 var specification_影响:Dictionary = {
 	"加入":"加入卡牌时",
+	"发动":"卡牌发动时",
+	"打出":"打出卡牌时",
+	"构造":"构造卡牌时",
+	"改变方向":"改变卡牌方向时",
+	"反转":"反转卡牌时",
+	"破坏":"破坏卡牌时",
+	"创造":"创造卡牌时",
+	"抽牌":"抽牌时",
+	"释放":"卡牌释放时",
+	"攻击":"攻击时",
+	"直接攻击":"直接攻击时",
+	"斩击":"斩击时",
+	"重击":"重击时",
+	"刺击":"刺击时",
+	"格挡":"格挡时",
+	
+	"开始":"回合开始时",
+	"结束":"回合结束时",
+	"连锁处理开始":"连锁处理开始时",
+	"连锁处理结束":"连锁处理结束时",
 }
 
 
@@ -31,10 +51,13 @@ func _ready() -> void:
 	组件.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	特征.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	标点.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
+	文件.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
+	组件.请求显示简介.connect(_选择器的请求显示简介的信号)
+	特征.请求显示简介.connect(_选择器的请求显示简介的信号)
+	标点.请求显示简介.connect(_选择器的请求显示简介的信号)
+	影响.请求显示简介.connect(_选择器的请求显示简介的信号)
 	
 	add_单个角色设计区()
-
-
 
 
 
@@ -54,11 +77,8 @@ func _将数据写入选择器() -> void:
 
 
 
-
-
-
 func _add_node(node:BoxContainer, s:String) -> Control:
-	if specification_效果标点.has(s):
+	if specification_效果标点.has(s) and node is 卡牌创建工具_不定数量的数据节点容器:
 		if specification_效果标点[s][1] == "括号":
 			return _add_node_括号(node, s)
 	elif node.tooltip_text == "影响":
@@ -71,6 +91,11 @@ func _add_node(node:BoxContainer, s:String) -> Control:
 		return _add_node_文本(node, s)
 	elif specification_效果组件.has(s):
 		return _add_node_组件(node, s)
+	elif buffs_data.has(s):
+		var focus:Control = get_viewport().gui_get_focus_owner()
+		if focus is LineEdit:
+			focus.text = s
+			return
 	return 
 
 

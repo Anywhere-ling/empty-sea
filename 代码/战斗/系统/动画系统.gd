@@ -1,4 +1,4 @@
-extends Node
+extends Control
 
 signal 可以继续
 signal 动画完成
@@ -40,18 +40,30 @@ func create_动画(tapy:String, data:Dictionary) -> 战斗_动画:
 	add_child(符合动画)
 	return 符合动画
 
-func _data转换(data:Dictionary) -> Dictionary:
-	for i:String in data:
-		if data[i] is 战斗_单位管理系统.Life_sys:
-			data[i] = 对照表["life"][data[i]]
-		elif data[i] is 战斗_单位管理系统.Card_sys:
-			data[i] = 对照表["card"][data[i]]
-		elif data[i] is 战斗_单位管理系统.Card_pos_sys:
-			var nam:String = data[i].nam
-			if nam == "场上":
-				nam = nam + str(data[i].场上index)
-			data[i] = nam
-	return data
+func _data转换(data):
+	if data is Dictionary:
+		for i:String in data:
+			if data[i] is 战斗_单位管理系统.Life_sys:
+				data[i] = 对照表["life"][data[i]]
+			elif data[i] is 战斗_单位管理系统.Card_sys:
+				data[i] = 对照表["card"][data[i]]
+			elif data[i] is 战斗_单位管理系统.Card_pos_sys:
+				var life_gui:战斗_life = 对照表["life"][data[i].get_parent()]
+				var nam:String = data[i].nam
+				if nam == "场上":
+					nam = nam + str(data[i].场上index)
+				data[i] = [life_gui, nam]
+		return data
+	elif data is 战斗_单位管理系统.Life_sys:
+		return 对照表["life"][data]
+	elif data is 战斗_单位管理系统.Card_sys:
+		return 对照表["card"][data]
+	elif data is 战斗_单位管理系统.Card_pos_sys:
+		var life_gui:战斗_life = 对照表["life"][data.get_parent()]
+		var nam:String = data.nam
+		if nam == "场上":
+			nam = nam + str(data.场上index)
+		return [life_gui, nam]
 
 
 func start_动画(动画:战斗_动画) -> void:
@@ -60,8 +72,8 @@ func start_动画(动画:战斗_动画) -> void:
 	动画.start()
 
 func emit_可以继续() -> void:
-	最终行动系统.call_deferred("emit_signal", "可以继续")
+	最终行动系统.call("emit_signal", "可以继续")
 
 func emit_动画完成() -> void:
-	最终行动系统.call_deferred("emit_signal", "动画完成")
-	
+	#await get_tree().create_timer(0.2).timeout
+	最终行动系统.call("emit_signal", "动画完成")

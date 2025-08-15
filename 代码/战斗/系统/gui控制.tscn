@@ -2,23 +2,28 @@
 
 [ext_resource type="Script" uid="uid://dac4ckywe7rkm" path="res://数据/战斗_单位控制/gui控制.gd" id="1_rlj3t"]
 
-[node name="gui控制" type="Control"]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="gui控制" type="Node"]
 script = ExtResource("1_rlj3t")
 
 [node name="按钮" type="Control" parent="."]
 unique_name_in_owner = true
+visible = false
+layout_mode = 3
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="按钮"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = -20.0
+offset_right = 42.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="打出按钮" type="Button" parent="按钮/HBoxContainer"]
 unique_name_in_owner = true
@@ -30,5 +35,21 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "发动"
 
+[node name="合成按钮" type="Button" parent="按钮/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "合成"
+
+[node name="回合结束" type="Button" parent="."]
+unique_name_in_owner = true
+offset_left = 892.0
+offset_top = 313.0
+offset_right = 964.0
+offset_bottom = 344.0
+disabled = true
+text = "回合结束"
+
 [connection signal="button_up" from="按钮/HBoxContainer/打出按钮" to="." method="_on_打出_button_up"]
 [connection signal="button_up" from="按钮/HBoxContainer/发动按钮" to="." method="_on_发动_button_up"]
+[connection signal="button_up" from="按钮/HBoxContainer/合成按钮" to="." method="_on_合成按钮_button_up"]
+[connection signal="button_up" from="回合结束" to="." method="_on_回合结束_button_up"]

@@ -1,6 +1,35 @@
-[gd_scene load_steps=7 format=3 uid="uid://bhgo6q8vq5rwi"]
+[gd_scene load_steps=11 format=3 uid="uid://bhgo6q8vq5rwi"]
 
 [ext_resource type="Script" uid="uid://bh1c3kouy4j1e" path="res://代码/战斗/ui/卡牌四区.gd" id="1_hj1ho"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hj1ho"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.8, 0.8, 0.8, 0)
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5hvuo"]
+bg_color = Color(0.811765, 0.529412, 0.239216, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.811765, 0.529412, 0.239216, 0.313726)
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v0y2s"]
+bg_color = Color(0.219608, 0.576471, 0.980392, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.219608, 0.576471, 0.980392, 0.313726)
+border_blend = true
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0dwpt"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gcy4m"]
 
@@ -14,12 +43,25 @@
 
 [node name="卡牌四区" type="Node2D"]
 script = ExtResource("1_hj1ho")
+"光圈_arr" = Array[StyleBoxFlat]([SubResource("StyleBoxFlat_hj1ho"), SubResource("StyleBoxFlat_5hvuo"), SubResource("StyleBoxFlat_v0y2s")])
 
-[node name="ColorRect" type="ColorRect" parent="."]
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="光圈白区" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+offset_right = 50.0
+offset_bottom = 50.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_0dwpt")
 
-[node name="白区" type="Button" parent="ColorRect"]
+[node name="MarginContainer" type="MarginContainer" parent="光圈白区"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="ColorRect" type="ColorRect" parent="光圈白区/MarginContainer"]
+layout_mode = 2
+
+[node name="白区" type="Button" parent="光圈白区/MarginContainer/ColorRect"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -27,6 +69,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(20, 20)
 theme_override_colors/font_hover_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_colors/font_hover_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -37,15 +80,38 @@ theme_override_styles/disabled = SubResource("StyleBoxEmpty_hj1ho")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
+text = "0"
 
-[node name="ColorRect2" type="ColorRect" parent="."]
-offset_left = -128.0
-offset_top = 34.0
-offset_right = -88.0
-offset_bottom = 74.0
+[node name="Control" type="Control" parent="光圈白区/MarginContainer/ColorRect/白区"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="光圈绿区" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+offset_left = -41.0
+offset_top = -124.0
+offset_right = 9.0
+offset_bottom = -74.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_0dwpt")
+
+[node name="MarginContainer" type="MarginContainer" parent="光圈绿区"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="ColorRect2" type="ColorRect" parent="光圈绿区/MarginContainer"]
+layout_mode = 2
 color = Color(0.25098, 0.8, 0.266667, 1)
 
-[node name="绿区" type="Button" parent="ColorRect2"]
+[node name="绿区" type="Button" parent="光圈绿区/MarginContainer/ColorRect2"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -53,6 +119,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(20, 20)
 theme_override_colors/font_hover_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_colors/font_hover_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -63,15 +130,38 @@ theme_override_styles/disabled = SubResource("StyleBoxEmpty_hj1ho")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
+text = "0"
 
-[node name="ColorRect3" type="ColorRect" parent="."]
-offset_left = -62.0
-offset_top = -56.0
-offset_right = -22.0
-offset_bottom = -16.0
+[node name="Control2" type="Control" parent="光圈绿区/MarginContainer/ColorRect2/绿区"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="光圈蓝区" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+offset_left = 118.0
+offset_top = -80.0
+offset_right = 168.0
+offset_bottom = -30.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_0dwpt")
+
+[node name="MarginContainer" type="MarginContainer" parent="光圈蓝区"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="ColorRect3" type="ColorRect" parent="光圈蓝区/MarginContainer"]
+layout_mode = 2
 color = Color(0, 0.290196, 1, 1)
 
-[node name="蓝区" type="Button" parent="ColorRect3"]
+[node name="蓝区" type="Button" parent="光圈蓝区/MarginContainer/ColorRect3"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -79,6 +169,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(20, 20)
 theme_override_colors/font_hover_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_colors/font_hover_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -89,15 +180,38 @@ theme_override_styles/disabled = SubResource("StyleBoxEmpty_hj1ho")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
+text = "0"
 
-[node name="ColorRect4" type="ColorRect" parent="."]
-offset_left = 127.0
-offset_top = -9.0
-offset_right = 167.0
-offset_bottom = 31.0
+[node name="Control3" type="Control" parent="光圈蓝区/MarginContainer/ColorRect3/蓝区"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="光圈红区" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+offset_left = 158.0
+offset_top = 66.0
+offset_right = 208.0
+offset_bottom = 116.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_0dwpt")
+
+[node name="MarginContainer" type="MarginContainer" parent="光圈红区"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="ColorRect4" type="ColorRect" parent="光圈红区/MarginContainer"]
+layout_mode = 2
 color = Color(0.791545, 0.166255, 4.67831e-05, 1)
 
-[node name="红区" type="Button" parent="ColorRect4"]
+[node name="红区" type="Button" parent="光圈红区/MarginContainer/ColorRect4"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -105,6 +219,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(20, 20)
 theme_override_colors/font_hover_pressed_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_colors/font_hover_color = Color(0.894118, 0.521569, 0.109804, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -115,8 +230,19 @@ theme_override_styles/disabled = SubResource("StyleBoxEmpty_hj1ho")
 theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
+text = "0"
 
-[connection signal="button_up" from="ColorRect/白区" to="." method="_on_白区_button_up"]
-[connection signal="button_up" from="ColorRect2/绿区" to="." method="_on_绿区_button_up"]
-[connection signal="button_up" from="ColorRect3/蓝区" to="." method="_on_蓝区_button_up"]
-[connection signal="button_up" from="ColorRect4/红区" to="." method="_on_红区_button_up"]
+[node name="Control4" type="Control" parent="光圈红区/MarginContainer/ColorRect4/红区"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="button_up" from="光圈白区/MarginContainer/ColorRect/白区" to="." method="_on_白区_button_up"]
+[connection signal="button_up" from="光圈绿区/MarginContainer/ColorRect2/绿区" to="." method="_on_绿区_button_up"]
+[connection signal="button_up" from="光圈蓝区/MarginContainer/ColorRect3/蓝区" to="." method="_on_蓝区_button_up"]
+[connection signal="button_up" from="光圈红区/MarginContainer/ColorRect4/红区" to="." method="_on_红区_button_up"]

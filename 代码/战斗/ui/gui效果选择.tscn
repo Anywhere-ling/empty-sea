@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmkrkgj2frb7m"]
+
+[ext_resource type="Script" uid="uid://bkoo524cswm6" path="res://代码/战斗/ui/gui效果选择.gd" id="1_6w8th"]
+
+[node name="gui效果选择" type="PanelContainer"]
+offset_right = 496.0
+offset_bottom = 401.0
+script = ExtResource("1_6w8th")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="文本" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="按钮" type="ItemList" parent="HBoxContainer/VBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="确认" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "确定"
+
+[connection signal="button_up" from="HBoxContainer/VBoxContainer/确认" to="." method="_on_确认_button_up"]

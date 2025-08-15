@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3 uid="uid://hg4d4hdbudm7"]
+
+[ext_resource type="Script" uid="uid://dns12khq4fcsy" path="res://代码/战斗/ui/gui_格选择.gd" id="1_qjtiq"]
+
+[node name="gui_格选择" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_qjtiq")
+
+[node name="确认" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 214.0
+offset_top = 209.0
+offset_right = 309.0
+offset_bottom = 267.0
+disabled = true
+text = "确认"
+
+[node name="取消" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 216.0
+offset_top = 298.0
+offset_right = 308.0
+offset_bottom = 355.0
+text = "取消"
+
+[node name="描述" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 268.0
+offset_top = 291.0
+offset_right = 903.0
+offset_bottom = 336.0
+
+[connection signal="button_up" from="确认" to="." method="_on_确认_button_up"]
+[connection signal="button_up" from="取消" to="." method="_on_取消_button_up"]

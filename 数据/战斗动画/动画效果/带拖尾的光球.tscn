@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3 uid="uid://bfphouij3luri"]
+
+[ext_resource type="Script" uid="uid://bxry4gn25gpbu" path="res://数据/战斗动画/动画效果/带拖尾的光球.gd" id="1_uvawx"]
+
+[sub_resource type="Curve" id="Curve_8uh7m"]
+_data = [Vector2(0, 0.640449), 0.0, 0.359551, 0, 1, Vector2(1, 1), 0.359551, 0.0, 1, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_6uqi0"]
+colors = PackedColorArray(1, 1, 1, 0.376471, 1, 1, 1, 0.588235)
+
+[sub_resource type="Gradient" id="Gradient_8uh7m"]
+offsets = PackedFloat32Array(0, 0.582278, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.937255, 0.937255, 0.937255, 0.709804, 0.808998, 0.808998, 0.808998, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_6uqi0"]
+gradient = SubResource("Gradient_8uh7m")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[node name="带拖尾的光球" type="Node2D"]
+script = ExtResource("1_uvawx")
+
+[node name="Line2D" type="Line2D" parent="."]
+unique_name_in_owner = true
+top_level = true
+width = 20.0
+width_curve = SubResource("Curve_8uh7m")
+gradient = SubResource("Gradient_6uqi0")
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = SubResource("GradientTexture2D_6uqi0")

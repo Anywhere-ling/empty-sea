@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=3 uid="uid://3scy6djqx67a"]
+
+[ext_resource type="PackedScene" uid="uid://dh6nl1djeguae" path="res://代码/战斗/ui/卡牌复制.tscn" id="1_id1kb"]
+[ext_resource type="Script" uid="uid://ev45pwkap23d" path="res://代码/战斗/ui/gui连锁_子.gd" id="1_qnxgk"]
+
+[node name="gui连锁_子" type="VBoxContainer"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+script = ExtResource("1_qnxgk")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="正" type="Control" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="卡牌复制" parent="HBoxContainer" instance=ExtResource("1_id1kb")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="反" type="Control" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "
+"

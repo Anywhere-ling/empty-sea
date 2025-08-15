@@ -6,12 +6,12 @@ extends 战斗_动画
 func _start() -> void:
 	card = data["card"]
 	var life:战斗_life = data["life"]
-	var new_pos:String = data["pos"]
-	var new_pos_posi:Vector2 = life.get_posi(new_pos)
-	var pos:String = card.get_pos()
+	var pos_life:战斗_life = data["pos"][0]
+	var new_pos:String = data["pos"][1]
+	var new_pos_posi:Vector2 = pos_life.get_posi(new_pos)
+	var pos:String = card.get_his_pos()
 	var pos_posi:Vector2 = life.get_posi(pos)
 	
-	card.set_glo()
 	life.remove_card(card, pos)
 	
 	_add_card(card)
@@ -22,13 +22,13 @@ func _start() -> void:
 		card.rotation_degrees = -90
 		card.scale = Vector2()
 		card.modulate = Color(1,1,1,0)
-		card.tween_trans = Tween.TRANS_EXPO
+		card.tween_trans = Tween.TRANS_CUBIC
 		card.tween动画添加("浮现", "modulate", Color(1,1,1,1), 0.2)
 		card.tween动画添加("缩放", "scale", Vector2(0.7,0.7), 0.2)
 		
-		await get_tree().create_timer(0.2).timeout
+		await get_tree().create_timer(0.1).timeout
 	
-	
+	await get_tree().create_timer(0.1).timeout
 	emit_可以继续()
 	
 	
@@ -37,26 +37,31 @@ func _start() -> void:
 		card.tween_trans = Tween.TRANS_QUAD
 		card.tween动画添加("旋转", "rotation_degrees", -90, 0.4)
 		card.tween动画添加("位置", "global_position", new_pos_posi, 0.4)
+		card.tween动画添加("缩放", "scale", Vector2(0.7,0.7), 0.4)
 		await get_tree().create_timer(0.4).timeout
-		card.tween_trans = Tween.TRANS_EXPO
-		card.tween动画添加("浮现", "modulate", Color(1,1,1,1), 0.2)
+		card.tween_trans = Tween.TRANS_CUBIC
+		card.tween动画添加("浮现", "modulate", Color(1,1,1,0), 0.2)
 		card.tween动画添加("缩放", "scale", Vector2(), 0.2)
 		await get_tree().create_timer(0.2).timeout
-		life.add_card(card, new_pos)
+		pos_life.add_card(card, new_pos)
 		
 		
 	elif new_pos == "手牌":
-		life.add_card(card, new_pos)
+		pos_life.add_card(card, new_pos)
 		await get_tree().create_timer(0.4).timeout
 	
 	elif new_pos == "行动":
+		pos_life.add_card(card, new_pos)
 		card.tween_trans = Tween.TRANS_QUAD
-		life.add_card(card, new_pos)
+		card.tween动画添加("缩放", "scale", Vector2(0.7,0.7), 0.4)
+		card.tween动画添加("旋转", "rotation_degrees", 0, 0.4)
+		card.tween动画添加("位置", "global_position", new_pos_posi, 0.4)
 		await get_tree().create_timer(0.4).timeout
 	
-	elif new_pos in ["场地0", "场地1", "场地2", "场地3", "场地4", "场地5"]:
-		card.set_相对旋转中心(Vector2(0.5,0.5))
+	elif new_pos in ["场上0", "场上1", "场上2", "场上3", "场上4", "场上5"]:
+		pos_life.add_card(card, new_pos)
 		card.tween_trans = Tween.TRANS_QUAD
+		card.tween动画添加("缩放", "scale", Vector2(0.7,0.7), 0.4)
 		card.tween动画添加("旋转", "rotation_degrees", 0, 0.4)
 		card.tween动画添加("位置", "global_position", new_pos_posi, 0.4)
 		await get_tree().create_timer(0.4).timeout

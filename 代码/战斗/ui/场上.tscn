@@ -1,0 +1,194 @@
+[gd_scene load_steps=2 format=3 uid="uid://dvagx7t1mjq5k"]
+
+[ext_resource type="Script" uid="uid://b0bj8pa5mvhuh" path="res://代码/战斗/ui/场上.gd" id="1_4wple"]
+
+[node name="场上" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_4wple")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -60.0
+offset_right = 360.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="panel0" type="Panel" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="0" type="Control" parent="PanelContainer/HBoxContainer/panel0"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button0" type="Button" parent="PanelContainer/HBoxContainer/panel0"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+toggle_mode = true
+
+[node name="panel" type="Panel" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="1" type="Control" parent="PanelContainer/HBoxContainer/panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button1" type="Button" parent="PanelContainer/HBoxContainer/panel"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+toggle_mode = true
+
+[node name="panel2" type="Panel" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="2" type="Control" parent="PanelContainer/HBoxContainer/panel2"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button2" type="Button" parent="PanelContainer/HBoxContainer/panel2"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+toggle_mode = true
+
+[node name="Control" type="Control" parent="PanelContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+
+[node name="panel3" type="Panel" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="3" type="Control" parent="PanelContainer/HBoxContainer/panel3"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button3" type="Button" parent="PanelContainer/HBoxContainer/panel3"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+toggle_mode = true
+
+[node name="panel4" type="Panel" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="4" type="Control" parent="PanelContainer/HBoxContainer/panel4"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button4" type="Button" parent="PanelContainer/HBoxContainer/panel4"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+toggle_mode = true
+
+[node name="panel5" type="Panel" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="5" type="Control" parent="PanelContainer/HBoxContainer/panel5"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button5" type="Button" parent="PanelContainer/HBoxContainer/panel5"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+toggle_mode = true
+
+[connection signal="button_up" from="PanelContainer/HBoxContainer/panel0/Button0" to="." method="_on_button_0_button_up"]
+[connection signal="button_up" from="PanelContainer/HBoxContainer/panel/Button1" to="." method="_on_button_1_button_up"]
+[connection signal="button_up" from="PanelContainer/HBoxContainer/panel2/Button2" to="." method="_on_button_2_button_up"]
+[connection signal="button_up" from="PanelContainer/HBoxContainer/panel3/Button3" to="." method="_on_button_3_button_up"]
+[connection signal="button_up" from="PanelContainer/HBoxContainer/panel4/Button4" to="." method="_on_button_4_button_up"]
+[connection signal="button_up" from="PanelContainer/HBoxContainer/panel5/Button5" to="." method="_on_button_5_button_up"]

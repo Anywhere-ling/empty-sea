@@ -13,11 +13,7 @@ class_name 卡牌创建工具
 @onready var buff: 卡牌创建工具_带搜索的选择器 = %buff
 
 
-
-
-#规范文件的加载数据
-
-
+#①②③④⑤⑥⑦⑧⑨⑩•
 
 
 
@@ -33,6 +29,7 @@ func _ready() -> void:
 	媒.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	组.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	buff.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
+	文件.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	组件.请求显示简介.connect(_选择器的请求显示简介的信号)
 	特征.请求显示简介.connect(_选择器的请求显示简介的信号)
 	标点.请求显示简介.connect(_选择器的请求显示简介的信号)
@@ -88,7 +85,16 @@ func _add_node(node:BoxContainer, s:String) -> Control:
 	elif specification_效果组件.has(s):
 		return _add_node_组件(node, s)
 	elif buffs_data.has(s):
+		var focus:Control = get_viewport().gui_get_focus_owner()
+		if focus is LineEdit:
+			focus.text = s
+			return
 		return _add_node_文本(node, s)
+	elif cards_data.has(s):
+		var focus:Control = get_viewport().gui_get_focus_owner()
+		if focus is LineEdit:
+			focus.text = s
+		return
 	return 
 
 

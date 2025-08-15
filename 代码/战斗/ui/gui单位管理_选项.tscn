@@ -33,7 +33,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
-disabled = true
 expand_icon = true
 
 [node name="PanelContainer" type="PanelContainer" parent="HBoxContainer"]
@@ -63,7 +62,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
-disabled = true
 expand_icon = true
 
 [connection signal="button_down" from="HBoxContainer/PanelContainer2/TextureRect/正" to="." method="_on_正_button_down"]

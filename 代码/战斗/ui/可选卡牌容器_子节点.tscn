@@ -1,7 +1,27 @@
-[gd_scene load_steps=3 format=3 uid="uid://cid71lwcej01f"]
+[gd_scene load_steps=9 format=3 uid="uid://cid71lwcej01f"]
 
 [ext_resource type="Script" uid="uid://do8fxopv5mbl6" path="res://代码/战斗/ui/可选卡牌容器_子节点.gd" id="1_6srxg"]
-[ext_resource type="PackedScene" uid="uid://dh6nl1djeguae" path="res://代码/战斗/ui/卡牌复制.tscn" id="2_wyics"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k526n"]
+bg_color = Color(0.768362, 0.540399, 0.417585, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wavk2"]
+bg_color = Color(0.869998, 0.666198, 0.0854621, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bbrf3"]
+bg_color = Color(0.930572, 0.876071, 0.87872, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dphej"]
+bg_color = Color(0.97771, 0, 0.186523, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r3r48"]
+bg_color = Color(0.337872, 0.689878, 0.400305, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3ammn"]
+bg_color = Color(0.417727, 0.598197, 0.910783, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e4glp"]
+bg_color = Color(0.824218, 0.418381, 0.799948, 1)
 
 [node name="可选卡牌容器_子节点" type="PanelContainer"]
 anchors_preset = 15
@@ -12,6 +32,15 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_6srxg")
+colors = Dictionary[String, StyleBoxFlat]({
+"场上": SubResource("StyleBoxFlat_k526n"),
+"手牌": SubResource("StyleBoxFlat_wavk2"),
+"白区": SubResource("StyleBoxFlat_bbrf3"),
+"红区": SubResource("StyleBoxFlat_dphej"),
+"绿区": SubResource("StyleBoxFlat_r3r48"),
+"蓝区": SubResource("StyleBoxFlat_3ammn"),
+"行动": SubResource("StyleBoxFlat_e4glp")
+})
 
 [node name="s_gri" type="ScrollContainer" parent="."]
 unique_name_in_owner = true
@@ -24,87 +53,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-columns = 9
-
-[node name="卡牌复制" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制2" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制3" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制4" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制5" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制6" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制7" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制8" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制9" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制10" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制11" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制12" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制13" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制14" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制15" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制16" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制17" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制18" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制19" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制20" parent="s_gri/gri" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
+columns = 7
 
 [node name="s_hbo" type="ScrollContainer" parent="."]
 unique_name_in_owner = true
@@ -117,83 +66,3 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-
-[node name="卡牌复制" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制2" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制3" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制4" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制5" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制6" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制7" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制8" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制9" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制10" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制11" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制12" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制13" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制14" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制15" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制16" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制17" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制18" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制19" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2
-
-[node name="卡牌复制20" parent="s_hbo/hbo" instance=ExtResource("2_wyics")]
-visible = false
-layout_mode = 2

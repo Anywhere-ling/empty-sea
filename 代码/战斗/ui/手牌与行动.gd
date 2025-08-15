@@ -6,16 +6,68 @@ class_name 战斗_行动与手牌
 @onready var p_2: Node2D = %p2
 @onready var rot: Node2D = %rot
 
-
-
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
 var cards:Array = []
+var is_锁定:bool = false
+var 鼠标停留的卡牌:Card
 
 
 func _ready() -> void:
-	event_bus.subscribe("战斗_鼠标进入卡牌", func(a):_updata(0.2))
+	event_bus.subscribe("战斗_gui_手牌锁定", func(a):
+		is_锁定 = a
+		if !a:
+			_updata(0.1))
 	call_deferred("set_p2")
+
+func _process(delta: float) -> void:
+	var cards1:Array = cards.duplicate(true)
+	cards1.reverse()
+	var 鼠标停留的卡牌仍有鼠标:bool = false
+	for card:Card in cards1:
+		if card.检测鼠标():
+			if 鼠标停留的卡牌 == card:
+				鼠标停留的卡牌仍有鼠标 = true
+			if 鼠标停留的卡牌 == null:
+				_鼠标进入卡牌(card)
+				return
+			if is_锁定:
+				#锁定时显示与通常判断范围不一致
+				if 鼠标停留的卡牌 != 卡牌容器容器.get_child(-1):
+					_鼠标进入卡牌(card)
+					return
+	if 鼠标停留的卡牌 and !鼠标停留的卡牌仍有鼠标:
+		_鼠标进入卡牌(null)
+	
+
+func _鼠标进入卡牌(card:Card) -> void:
+	if card:
+		if 鼠标停留的卡牌 == card:
+			return
+		鼠标停留的卡牌 = card
+		event_bus.push_event("战斗_鼠标进入卡牌", card)
+		_updata(0.2)
+		return
+	
+	var arr:Array
+	for i:Card in cards:
+		if i.检测鼠标() and i != 鼠标停留的卡牌:
+			arr.append(i)
+	card = 鼠标停留的卡牌
+	#离原卡牌最近
+	arr.sort_custom(func(a, b):
+		return abs(cards.find(card)-cards.find(a))< abs(cards.find(card)-cards.find(b)))
+	
+	if arr.size() == 0:
+		#鼠标没有卡牌
+		鼠标停留的卡牌 = null
+		event_bus.push_event("战斗_鼠标进入卡牌", null)
+	else :
+		鼠标停留的卡牌 = arr[0]
+		event_bus.push_event("战斗_鼠标进入卡牌", arr[0])
+	_updata(0.2)
+	
+
 
 func set_p2() -> void:
 	p_2.position = Vector2(-p_0.position.x, p_0.position.y)
@@ -37,20 +89,21 @@ func cards改变(new_cards:Array) -> void:
 	
 	cards = new_cards
 	for card:Card in 卡牌容器容器.get_children():
-		card.set_glo()
 		卡牌容器容器.remove_child(card)
 	for card:Card in cards:
 		卡牌容器容器.add_child(card)
-		card.global_position = card.glo
 	_updata()
 
 
 func _updata(time:float = 0.4) -> void:
+	if is_锁定:
+		return
+	
 	var arr:Dictionary = {}
 	var 鼠标序号:int = -1
 	for i in cards:
 		if i is Card:
-			if i.鼠标停留中:
+			if i.鼠标停留的卡牌 == i:
 				鼠标序号 = len(arr)
 			arr[len(arr)] = [i, 0.5]
 	
@@ -80,8 +133,10 @@ func _updata(time:float = 0.4) -> void:
 		var glo:Vector2 = _quadratic_bezier_point(arr[i][1])
 		if 鼠标序号 != -1:
 			glo.y -= 30
+		else :
+			time = 0.4
 		if i == 鼠标序号:
-			卡牌容器容器.move_child(card, -1)
+			卡牌容器容器.move_child(card, len(cards)-1)
 			card.tween动画添加("缩放", "scale", Vector2(1.5, 1.5), time)
 			glo.y -= 60
 		else :
@@ -94,6 +149,8 @@ func _updata(time:float = 0.4) -> void:
 			var dir:Vector2 = glo - rot.position
 			var ang:float = dir.angle() + PI/2
 			card.tween动画添加("旋转", "rotation", ang, time)
+		else :
+			card.tween动画添加("旋转", "rotation", 0, time)
 		
 		
 

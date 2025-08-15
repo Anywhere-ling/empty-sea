@@ -2,7 +2,6 @@ extends Control
 class_name 卡牌创建工具_单个设计区
 
 @onready var 卡名: LineEdit = %卡名
-@onready var 种类: OptionButton = %种类
 @onready var 效果设计区: 卡牌创建工具_效果设计区 = $PanelContainer/主要区域/VBoxContainer/效果/效果设计区
 @onready var 效果: VBoxContainer = $PanelContainer/主要区域/VBoxContainer/效果
 @onready var 前进: Button = %前进
@@ -83,7 +82,7 @@ func _reset_effect_index() -> void:
 
 
 
-func _请求检测空效果的信号(node:卡牌创建工具_效果设计区) -> void:
+func _请求检测空效果的信号(node:HBoxContainer) -> void:
 	_remove_empty_effects()
 	emit_signal("请求储存到历史记录")
 	

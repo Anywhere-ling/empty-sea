@@ -1,9 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://dh6nl1djeguae"]
+[gd_scene load_steps=10 format=3 uid="uid://dh6nl1djeguae"]
 
 [ext_resource type="Script" uid="uid://bixs8w5t1cpjn" path="res://代码/战斗/ui/卡牌复制.gd" id="1_qt6uw"]
 [ext_resource type="Texture2D" uid="uid://defurr1yw2byd" path="res://资产/图片/test.png" id="2_xenl7"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xenl7"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_orkjd"]
 
@@ -29,8 +27,6 @@ offset_bottom = 133.182
 grow_horizontal = 2
 grow_vertical = 2
 scale = Vector2(0.2, 0.2)
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_xenl7")
 script = ExtResource("1_qt6uw")
 
 [node name="边距" type="MarginContainer" parent="."]
@@ -44,6 +40,23 @@ size_flags_vertical = 3
 texture = ExtResource("2_xenl7")
 expand_mode = 5
 stretch_mode = 5
+
+[node name="文本1" type="Label" parent="边距/图片"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 80.0
+offset_bottom = 78.0
+
+[node name="文本2" type="Label" parent="边距/图片"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -11.7273
+offset_right = 80.0
+offset_bottom = 69.2727
+grow_vertical = 2
 
 [node name="左" type="Button" parent="边距"]
 unique_name_in_owner = true

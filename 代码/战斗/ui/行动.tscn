@@ -11,8 +11,6 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
-tooltip_text = "行动"
-tooltip_auto_translate_mode = 2
 
 [node name="p0" type="Node2D" parent="."]
 unique_name_in_owner = true

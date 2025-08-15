@@ -3,12 +3,13 @@ class_name 战斗_单位管理系统
 
 
 @onready var buff系统: Node = %buff系统
+@onready var 日志系统: 战斗_日志系统 = %日志系统
 
 
-
+var all_lifes:Array[Life_sys]
 var lifes:Array[Life_sys]
 var efils:Array[Life_sys]
-
+var 数据改变唯一标识:int = -1
 
 
 
@@ -16,6 +17,7 @@ func create_life(life_cont:战斗_单位控制, is_positive:bool) -> Life_sys:
 	var life:Life_sys = Life_sys.new(life_cont, buff系统)
 	add_child(life)
 	#记录
+	all_lifes.append(life)
 	if is_positive:
 		lifes.append(life)
 	else :
@@ -26,6 +28,8 @@ func create_life(life_cont:战斗_单位控制, is_positive:bool) -> Life_sys:
 func create_card(card_name:String) -> Card_sys:
 	return Card_sys.new(card_name, buff系统)
 
+func create_buff(buff_name, car:Card_sys = null, 结束时间:String = "", 结束次数:int = 1) -> Buff_sys:
+	return Buff_sys.new(buff_name, buff系统, car, 结束时间, 结束次数)
 
 func 创造牌库(life:Life_sys, cards:Array) -> void:
 	for i:String in cards:
@@ -41,7 +45,6 @@ func get_给定显示以上的卡牌(cards:Array[Card_sys], appear:int = 1) -> A
 			ret.append(card)
 	return ret
 
-
 func get_life场上第一张是纵向的格子数量(life:Life_sys) -> int:
 	var pos_arr:Array = life.cards_pos["场上"]
 	var ret:int = 0
@@ -50,6 +53,10 @@ func get_life场上第一张是纵向的格子数量(life:Life_sys) -> int:
 			ret += 1
 	
 	return ret
+
+func get_数据改变唯一标识() -> int:
+	数据改变唯一标识 += 1
+	return 数据改变唯一标识
 
 
 
@@ -69,20 +76,24 @@ class History_sys extends Resource:
 class Data_sys extends Node:
 	var nam:String
 	var data:Resource
-	var index:int#编号
+	var 编号:int#编号
 	var history:Array[History_sys] = []
 	var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 	
 	
-	func set_index() -> void:
+	func _set_index() -> void:
 		event_bus.push_event("战斗_datasys被创造", [self])
+		event_bus.subscribe("战斗_datasys被删除", remove_data_sys)
 	
 	func free_self() -> void:
 		if get_parent():
 			get_parent().remove_child(self)
 		event_bus.push_event("战斗_datasys被删除", [self])
 		queue_free()
-		
+	
+	func remove_data_sys(data_sys:Data_sys) -> void:
+		pass
+	
 	func add_history(tap:String, tur:int, per:String, dat = null) -> void:
 		history.append(History_sys.new(tap, tur, per, dat))
 	
@@ -102,9 +113,10 @@ class Effect_sys extends Data_sys:
 	var main_effect:Array = []
 	var cost_effect:Array = []
 	var features:Array = []
-	var count:int = 1#发动次数
+	var count:int = 0#发动次数
 	
 	func _init(eff:Array, def) -> void:
+		_set_index()
 		buff系统 = def
 		main_effect = eff.duplicate(true)
 		var remove_arr:Array
@@ -130,17 +142,17 @@ class Effect_sys extends Data_sys:
 			
 		for i:Array in remove_arr:
 			main_effect.erase(i)
-			
-			
+		
+		
 		event_bus.push_event("战斗_datasys被创建", [self])
 	
 	
 	func add_buffs() -> void:
 		for i:String in buff_effect:
-			var buff := Buff_sys.new(i, buff系统)
+			var buff := Buff_sys.new(i, buff系统, get_parent())
+			buff.触发 = self
 			buffs.append(buff)
-			add_child(buff)
-			get_parent().get_parent().get_parent().buffs.append(buff)
+			get_parent().get_parent().get_parent().add_buff(buff)
 	
 	
 	#寻找特定字符
@@ -156,8 +168,11 @@ class Effect_sys extends Data_sys:
 	
 	func get_value(key:String):
 		var value = get(key)
-		buff系统.单位与全部buff判断(key, [self, null, value])
 		return value
+	
+	func remove_data_sys(data_sys:Data_sys) -> void:
+		if data_sys is Buff_sys:
+			buffs.erase(data_sys)
 
 
 class Life_sys extends Data_sys:
@@ -169,14 +184,15 @@ class Life_sys extends Data_sys:
 	var speed:int = 10
 	var cards_pos:Dictionary ={}
 	var state:Array[String] =[]
+	var att_mode:Array[String] =[]
 	var att_life:Life_sys#攻击目标
 	var face_life:Life_sys#面对目标
 	
 	func _init(life_cont:战斗_单位控制, def) -> void:
+		_set_index()
 		nam = life_cont.life_nam
 		group = life_cont.组
 		种类 = life_cont.种类
-		set_index()
 		buff系统 = def
 		
 		for i:String in ["行动", "手牌", "白区", "绿区", "蓝区", "红区"]:
@@ -229,12 +245,17 @@ class Life_sys extends Data_sys:
 	
 	func get_value(key:String):
 		var value = get(key)
-		await buff系统.单位与全部buff判断(key, [self, null, value])
+		if key in ["speed", "state", "att_mode"]:
+			await buff系统.单位与全部buff判断(key, [null, self, self, value])
 		return value
 
 	func set_state(sta:String) -> void:
 		state = [sta]
 		event_bus.push_event("战斗_请求检查行动冲突", [self])
+	
+	func remove_data_sys(data_sys:Data_sys) -> void:
+		if data_sys is Buff_sys:
+			buffs.erase(data_sys)
 
 
 class Card_pos_sys extends Data_sys:
@@ -242,6 +263,7 @@ class Card_pos_sys extends Data_sys:
 	var 场上index:int
 	
 	func _init(pos:String) -> void:
+		_set_index()
 		nam = pos
 		
 		event_bus.push_event("战斗_datasys被创建", [self])
@@ -251,25 +273,39 @@ class Card_pos_sys extends Data_sys:
 			cards.append(card)
 		else :
 			cards.insert(0, card)
-		card.test_pos = nam
+		if nam in ["场上"]:
+			card.pos = nam + str(场上index)
+		else:
+			card.pos = nam
+		card.his_pos.append(card.pos)
 		add_child(card)
+		card.reset_appear()
 		
-		#触发buff
-		for effect:Effect_sys in card.effects:
-			if effect.features.has("触发"):
-				for buff:Buff_sys in effect.buffs:
-					buff.free_self()
-				if effect.get_value("features").has(nam) or effect.get_value("features").has("任意"):
-					effect.add_buffs()
-				for i:String in ["场上", "行动", "手牌", "白区", "绿区", "蓝区", "红区"]:
-					if effect.get_value("features").has(nam):
-						return
-				if nam == "场上":
-					effect.add_buffs()
 		
+	
+	
+	func move_card(card:Card_sys, ind:int) -> bool:
+		if !cards.has(card):
+			return false
+		
+		move_child(card, ind)
+		
+		cards.erase(card)
+		if ind <= cards.size():
+			cards.insert(ind, card)
+		else :
+			cards.append(card)
+		
+		card.reset_appear()
+		
+		return true
+	
+	
 	func remove_card(card:Card_sys) -> void:
 		cards.erase(card)
 		remove_child(card)
+		for i in cards:
+			i.reset_appear()
 
 
 class Card_sys extends Data_sys:
@@ -277,14 +313,19 @@ class Card_sys extends Data_sys:
 	var buff系统: Node
 	var effects:Array[Effect_sys] = []
 	var direction:int = 1
-	var appear:int = 0
+	var appear:int = 0:
+		set(value):
+			appear = value
+			if appear > 0:
+				assert(data, "")
+	var state:bool = false
 	var time_take:int
-	
-	var 图形化数据:Dictionary = {}
-	
-	var test_pos
+	var pos:String
+	var his_pos:Array
+	var 数据改变:Dictionary = {"卡名":[], "种类":[], "sp":[], "mp":[], "特征":[], "组":[]}
 	
 	func _init(card_name:String, def) -> void:
+		_set_index()
 		nam = card_name
 		buff系统 = def
 		event_bus.push_event("战斗_datasys被创建", [self])
@@ -293,23 +334,26 @@ class Card_sys extends Data_sys:
 	func face_up() -> void:
 		if appear:
 			return
-		
+	
 		if nam:
 			data = DatatableLoader.get_data_model("card_data", nam)
 		
-		reset_emerde()
+		
+		appear = 1
+		reset_appear()
 		
 		for i:Array in data["效果"]:
 			var effect = Effect_sys.new(i, buff系统)
 			effects.append(effect)
 			add_child(effect)
-		
-		for i:String in ["卡名", "种类", "sp", "mp"]:
-			图形化数据[i] = get_value(i)
-		
-		
+			if get_parent().nam == "场上" and effect.features.has("反转"):
+				if effect.count <= 0:
+					effect.count += 1
 
-	func reset_emerde() -> int:
+
+	func reset_appear() -> int:
+		if appear == 0:
+			return 0
 		var pos:Card_pos_sys = get_parent()
 		if pos.nam == "场上":
 			if direction == 0:
@@ -323,12 +367,15 @@ class Card_sys extends Data_sys:
 		else:
 			appear = 3
 		
+		event_bus.push_event("战斗_添加触发与固有buff", self)
 		
 		return appear
 
 	func face_down() -> void:
 		if !appear:
 			return
+		
+		数据改变 = {"卡名":[], "种类":[], "sp":[], "mp":[], "特征":[], "组":[]}
 		
 		data = null
 		for i in effects:
@@ -337,6 +384,7 @@ class Card_sys extends Data_sys:
 		
 		appear = 0
 
+
 	func get_value(key:String):
 		if !appear:
 			return
@@ -344,19 +392,70 @@ class Card_sys extends Data_sys:
 		var value = data.get(key)
 		if value is Dictionary or value is Array:
 			value = value.duplicate(true)
-		buff系统.单位与全部buff判断(key, [self, null, value])
+		
+		if key in ["sp", "mp"]:
+			for arr:Array in 数据改变[key]:
+				if arr[0] == "加":
+					value += arr[1]
+				elif arr[0] == "减":
+					value -= arr[1]
+				elif arr[0] == "等":
+					value = arr[1]
+		elif key in ["特征", "组"]:
+			for arr:Array in 数据改变[key]:
+				if arr[0] == "加":
+					value.append_array(arr[1])
+				elif arr[0] == "减":
+					for i in arr[1]:
+						value.erase(i)
+				elif arr[0] == "等":
+					value = arr[1]
+		elif key in ["卡名"]:
+			value = value.split()
+			for arr:Array in 数据改变[key]:
+				if arr[0] == "加":
+					value.append_array(arr[1])
+				elif arr[0] == "减":
+					for i in arr[1]:
+						value.erase(i)
+				elif arr[0] == "等":
+					value = arr[1]
+			value = "".join(value)
+		elif key in ["种类"]:
+			for arr:Array in 数据改变[key]:
+				value = arr[1]
+		
 		return value
+
+	func add_value(key:String, arr:Array) -> void:
+		数据改变[key].append(arr)
+
+	func remove_value(ind:int) -> String:
+		for key:String in 数据改变.keys():
+			var erase:Array
+			for arr:Array in 数据改变[key]:
+				if arr[2] == ind:
+					erase = arr
+					break
+			数据改变[key].erase(erase)
+			return key
+		return ""
+
 
 
 class Buff_sys extends Data_sys:
 	var buff系统: Node
 	var effect:Effect_sys
+	var 触发:Effect_sys
 	var card:Card_sys#这个buff依赖的卡牌
+	var targets:Array = [null, null, null, null, null, null, null, null, null, null]
 	
 	func _init(buff_name, def, car:Card_sys = null, 结束时间:String = "", 结束次数:int = 1) -> void:
+		_set_index()
 		buff系统 = def
 		if buff_name:
 			data = DatatableLoader.get_data_model("buff_data", buff_name)
+		nam = buff_name
 		
 		effect = Effect_sys.new(data["效果"][0], buff系统)
 		add_child(effect)
@@ -373,6 +472,7 @@ class Equip_sys extends Data_sys:
 	
 	
 	func _init(equip_name) -> void:
+		_set_index()
 		if equip_name:
 			data = DatatableLoader.get_data_model("equip_data", equip_name)
 		event_bus.push_event("战斗_datasys被创建", [self])

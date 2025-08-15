@@ -7,6 +7,7 @@ class_name 战斗_可选卡牌容器_子节点
 @onready var s_gri: ScrollContainer = %s_gri
 @onready var s_hbo: ScrollContainer = %s_hbo
 
+@export var colors:Dictionary[String, StyleBoxFlat]
 
 var 边距:Vector2
 
@@ -24,6 +25,7 @@ func add_card(card:Card) -> 战斗_卡牌复制:
 			node.add_child(卡牌复制)
 		
 		卡牌复制.set_card(card)
+		_set_color(卡牌复制)
 		if ret:
 			卡牌复制.伴生 = null
 			ret.伴生 = 卡牌复制
@@ -32,6 +34,14 @@ func add_card(card:Card) -> 战斗_卡牌复制:
 			ret = 卡牌复制
 	
 	return ret
+
+func _set_color(卡牌复制:战斗_卡牌复制) -> void:
+	var card:Card = 卡牌复制.card
+	var pos:String = card.get_pos()
+	if pos in ["场上0", "场上1", "场上2", "场上3", "场上4", "场上5"]:
+		pos = "场上"
+	var style:StyleBoxFlat = colors[pos]
+	卡牌复制.add_theme_stylebox_override("panel", style)
 
 func change_mode(b:bool) -> void:
 	if b:

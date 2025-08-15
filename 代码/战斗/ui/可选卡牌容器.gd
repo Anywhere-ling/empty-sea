@@ -13,17 +13,24 @@ class_name 战斗_可选卡牌容器
 
 @export var 边距:Vector2
 
-var cards:Dictionary[Card, 战斗_卡牌复制]
+var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
+
+var cards:Dictionary
+#[Card, 战斗_卡牌复制]
 var lifes:Dictionary
 var 可用lifes:Array
-var select_cards:Array[Card]
 var max:int
 var min:int
 var 显示:战斗_可选卡牌容器_子节点
 var is_展开:bool = false
 var cont_life:战斗_单位管理系统.Life_sys
 
+var select_cards:Array[Card]
 
+func _ready() -> void:
+	event_bus.subscribe("战斗_右键点击", func():if 展开.button_pressed:展开.button_pressed = false)
+	event_bus.subscribe("战斗_右键点击", _on_取消_button_up)
+	event_bus.subscribe("战斗_显示单位切换", func(a,b):change_life(a.life_sys))
 
 func add_life(life:战斗_单位管理系统.Life_sys) -> void:
 	var scr = load(文件路径.tscn_战斗_可选卡牌容器_子节点()).instantiate()
@@ -35,6 +42,8 @@ func add_life(life:战斗_单位管理系统.Life_sys) -> void:
 		cont_life = life
 
 func change_life(life:战斗_单位管理系统.Life_sys) -> void:
+	if !lifes.has(life):
+		return
 	if 显示:
 		显示.visible = false
 	显示 = lifes[life]
@@ -43,13 +52,17 @@ func change_life(life:战斗_单位管理系统.Life_sys) -> void:
 	显示.change_mode(is_展开)
 
 
-func set_cards(arr:Array, p_描述:String = "无", count_max:int = 1, count_min:int = 1, 可以取消:bool = false) -> void:
+func set_cards(arr:Array, p_描述:String = "无", count_max:int = 1, count_min:int = 1) -> void:
 	描述.text = p_描述
 	max = count_max
 	min = count_min
 	
-	取消.visible = 可以取消
-	control_3.visible = 可以取消
+	if min <= 0:
+		取消.visible = true
+		control_3.visible = true
+	else:
+		取消.visible = false
+		control_3.visible = false
 	
 	for card in arr:
 		add_card(card)
@@ -58,6 +71,8 @@ func set_cards(arr:Array, p_描述:String = "无", count_max:int = 1, count_min:
 		change_life(cont_life)
 	
 	set_数量_text()
+
+
 
 func add_card(card:Card) -> void:
 	var life_sys:战斗_单位管理系统.Life_sys = card.card_sys.get_parent().get_parent()
@@ -73,13 +88,12 @@ func select(card:Card) -> void:
 		return
 	if max == 1:
 		if cards[card].select():
-			if !select_cards.has(card):
-				if len(select_cards) > 0:
-					select_cards[0].dis_select()
-					select_cards = []
-				select_cards.append(card)
+			if len(select_cards) > 0:
+				cards[select_cards[0]].dis_select()
+				select_cards = []
+			select_cards.append(card)
 		else:
-			select_cards.erase(card)
+			_on_确认_button_up()
 	else :
 		if cards[card].select():
 			if len(select_cards) >= max:
@@ -113,10 +127,6 @@ func free_cards() -> Array:
 
 
 
-
-
-
-
 func _on_展开_toggled(toggled_on: bool) -> void:
 	is_展开 = toggled_on
 	if toggled_on:
@@ -131,10 +141,14 @@ func _on_展开_toggled(toggled_on: bool) -> void:
 
 
 
-signal 确认按下
+signal 按下
 func _on_确认_button_up() -> void:
-	emit_signal("确认按下", select_cards)
+	if 确认.disabled or !确认.visible:
+		return
+	emit_signal("按下")
 
-signal 取消按下
 func _on_取消_button_up() -> void:
-	emit_signal("取消按下")
+	if 取消.disabled or !取消.visible:
+		return
+	free_cards()
+	emit_signal("按下")

@@ -1,0 +1,61 @@
+[gd_scene load_steps=12 format=3 uid="uid://86xl304d22fs"]
+
+[ext_resource type="Texture2D" uid="uid://em3wq0i60kuq" path="res://数据/战斗动画/动画效果/资源/破坏碎片.png" id="1_vnpxi"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0jy1g"]
+
+[sub_resource type="Curve" id="Curve_ag5bp"]
+_data = [Vector2(0, 1), 0.0, 0.325456, 0, 0, Vector2(1, 0), -2.86847, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_exg4p"]
+curve = SubResource("Curve_ag5bp")
+
+[sub_resource type="Curve" id="Curve_0jy1g"]
+_limits = [0.0, 5.0, 0.0, 1.0]
+_data = [Vector2(0, 0), 0.0, 18.1882, 0, 0, Vector2(1, 5), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_yw2gu"]
+curve = SubResource("Curve_0jy1g")
+
+[sub_resource type="Curve" id="Curve_o8rsa"]
+_data = [Vector2(0.0142857, 1), 0.0, 0.125843, 0, 0, Vector2(1, 0), -3.93259, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_cwr68"]
+curve = SubResource("Curve_o8rsa")
+
+[sub_resource type="Curve" id="Curve_keisr"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.460674), -2.8839, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_u6oto"]
+curve = SubResource("Curve_keisr")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_siev7"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(50, 75, 1)
+angle_min = -43.0
+angle_max = 43.0
+angle_curve = SubResource("CurveTexture_yw2gu")
+radial_velocity_min = 21.79
+radial_velocity_max = 101.67
+radial_velocity_curve = SubResource("CurveTexture_cwr68")
+gravity = Vector3(0, 250, 0)
+scale_min = 0.15
+scale_max = 0.25
+scale_curve = SubResource("CurveTexture_u6oto")
+alpha_curve = SubResource("CurveTexture_exg4p")
+
+[node name="破坏碎片" type="GPUParticles2D"]
+material = SubResource("ShaderMaterial_0jy1g")
+emitting = false
+amount = 20
+texture = ExtResource("1_vnpxi")
+lifetime = 0.5
+one_shot = true
+speed_scale = 2.0
+explosiveness = 0.8
+process_material = SubResource("ParticleProcessMaterial_siev7")
