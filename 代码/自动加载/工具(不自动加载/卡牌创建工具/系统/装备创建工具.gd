@@ -54,7 +54,7 @@ func _将数据写入选择器() -> void:
 
 
 
-func _add_node(node:BoxContainer, s:String) -> Control:
+func _add_node(node:Control, s:String) -> Control:
 	if node.tooltip_text == "媒介":
 		if specification_媒介.has(s):
 			return _add_node_文本(node, s)

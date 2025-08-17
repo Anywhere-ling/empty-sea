@@ -33,6 +33,7 @@ func 录入信息(obj:String, fun:String, args:Array, ret) -> void:
 
 
 func 转化成编号(arr:Array) -> Array:
+	arr = arr.duplicate(true)
 	var arr1:Array
 	for i:int in len(arr):
 		for i1 in arr:
@@ -130,10 +131,10 @@ func _out_data(p_obj:String, p_fun:String, p_args:Array, p_ret) -> void:
 			data = "连锁开始处理"
 	
 	elif p_obj == "战斗_发动判断系统":
-		data = p_fun + "失败"
+		data = p_args[1][1].nam + " 的 " + p_args[1][0].nam + " 在 " + p_fun + " 上检测失败"
 	
 	elif p_obj == "战斗_效果处理系统":
-		data = p_fun + "失败"
+		data = p_args[1][1].nam + " 的 " + p_args[1][0].nam + " 在 " + p_fun + " 上处理失败"
 	
 	elif p_obj == "buff系统":
 		if p_fun == "_buff判断":

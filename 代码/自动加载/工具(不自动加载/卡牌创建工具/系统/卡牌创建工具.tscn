@@ -43,6 +43,7 @@ size_flags_stretch_ratio = 2.0
 [node name="卡牌设计区容器" type="TabContainer" parent="PanelContainer/HBoxContainer/卡牌设计区"]
 unique_name_in_owner = true
 layout_mode = 2
+tab_focus_mode = 0
 
 [node name="文件控制区" type="VBoxContainer" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
@@ -52,6 +53,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_vertical = 3
 current_tab = 0
+tab_focus_mode = 0
 
 [node name="组件" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
 unique_name_in_owner = true
@@ -81,23 +83,17 @@ visible = false
 layout_mode = 2
 metadata/_tab_index = 4
 
-[node name="媒" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
+[node name="组" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 5
 
-[node name="组" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-metadata/_tab_index = 6
-
 [node name="文件" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_xkdcl")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-metadata/_tab_index = 7
+metadata/_tab_index = 6
 
 [node name="简介" type="Label" parent="PanelContainer/HBoxContainer/文件控制区"]
 unique_name_in_owner = true

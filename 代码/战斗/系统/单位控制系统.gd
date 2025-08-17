@@ -77,3 +77,10 @@ func 发动询问(life:战斗_单位管理系统.Life_sys) -> bool:
 	
 	日志系统.callv("录入信息", [name, "发动询问", [life], true])
 	return true
+
+func 请求合成(life:战斗_单位管理系统.Life_sys, cards:Dictionary) -> bool:
+	var cards1 = await control[life].合成(cards)
+	if !cards1:
+		return false
+	await 卡牌打出与发动系统.合成(cards1)
+	return true

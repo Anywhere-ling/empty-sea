@@ -10,6 +10,7 @@ var 动画完成ed:bool = false
 var 二级动画:战斗_动画
 var data:Dictionary
 var card:Card
+var speed:float = Config.动画速度
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 

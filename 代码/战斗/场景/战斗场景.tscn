@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://b3jhuoclqxoef"]
+[gd_scene load_steps=24 format=3 uid="uid://b3jhuoclqxoef"]
 
 [ext_resource type="Script" uid="uid://c06wajmtprs4i" path="res://代码/战斗/场景/战斗场景.gd" id="1_ueb0u"]
 [ext_resource type="Script" uid="uid://poy0bjbsuknh" path="res://代码/战斗/系统/战斗系统.gd" id="2_2qwbv"]
@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://cmkrkgj2frb7m" path="res://代码/战斗/ui/gui效果选择.tscn" id="18_7bkm8"]
 [ext_resource type="PackedScene" uid="uid://c6fpyfctw2ked" path="res://代码/战斗/ui/卡牌信息.tscn" id="19_spr2e"]
 [ext_resource type="PackedScene" uid="uid://hg4d4hdbudm7" path="res://代码/战斗/ui/gui_格选择.tscn" id="20_43yld"]
+[ext_resource type="PackedScene" uid="uid://bw6ch1k7wuxsh" path="res://代码/战斗/ui/gui确认信息.tscn" id="23_7l6a8"]
 
 [node name="战斗场景" type="Control"]
 layout_mode = 3
@@ -155,3 +156,12 @@ layout_mode = 1
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
+
+[node name="gui确认信息" parent="gui系统" instance=ExtResource("23_7l6a8")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+offset_left = 289.0
+offset_top = 239.0
+offset_right = -319.0
+offset_bottom = -226.0

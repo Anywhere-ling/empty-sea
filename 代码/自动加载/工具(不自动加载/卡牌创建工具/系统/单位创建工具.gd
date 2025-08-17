@@ -49,7 +49,7 @@ func _将数据写入选择器() -> void:
 
 
 
-func _add_node(node:BoxContainer, s:String) -> Control:
+func _add_node(node:Control, s:String) -> Control:
 	if ["数量"].has(s):
 		return _add_node_任意输入(node, s)
 	elif node.tooltip_text == "组":

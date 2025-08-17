@@ -359,6 +359,17 @@ func 加入战斗(控制, is_positive:bool) -> 战斗_单位管理系统.Life_sy
 	return life
 
 
+func 图形化数据改变(card:战斗_单位管理系统.Card_sys, key:String) -> bool:
+	if key == "组" and card.pos == "红区":
+		card.get_parent().get_parent().reset_组无效()
+	#动画
+	_请求动画("图形化数据改变", {"card":card, "key":key})
+	await 可以继续
+	
+	日志系统.callv("录入信息", [name, "图形化数据改变", [card, key], true])
+	
+	return true
+
 
 func 死亡(life:战斗_单位管理系统.Life_sys) -> bool:
 	#动画
@@ -392,21 +403,21 @@ func 退出连锁的动画(card:战斗_单位管理系统.Card_sys) -> bool:
 	日志系统.callv("录入信息", [name, "退出连锁的动画", [card], true])
 	return true
 
-func 图形化数据改变(card:战斗_单位管理系统.Card_sys, key:String) -> bool:
-	#动画
-	_请求动画("图形化数据改变", {"card":card, "key":key})
-	await 可以继续
-	
-	日志系统.callv("录入信息", [name, "图形化数据改变", [card, key], true])
-	
-	return true
-
 func 创造牌库(life:战斗_单位管理系统.Life_sys) -> bool:
 	#动画
 	_请求动画("创造牌库", {"life":life})
 	await 可以继续
 	
 	日志系统.callv("录入信息", [name, "创造牌库", [life], true])
+	
+	return true
+
+func 单位图形化数据改变(life:战斗_单位管理系统.Life_sys, key:String) -> bool:
+	#动画
+	_请求动画("单位图形化数据改变", {"life":life, "key":key})
+	await 可以继续
+	
+	日志系统.callv("录入信息", [name, "单位图形化数据改变", [life, key], true])
 	
 	return true
 
@@ -437,6 +448,28 @@ func 无效(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	#后续
 	
 	日志系统.callv("录入信息", [name, "无效", [life, card], true])
+	
+	
+	return true
+
+func 阻止(life:战斗_单位管理系统.Life_sys) -> bool:
+	#动画
+	_请求动画("阻止", {"life":life})
+	await 可以继续
+	#后续
+	
+	日志系统.callv("录入信息", [name, "阻止", [life], true])
+	
+	
+	return true
+
+func 确认信息(test:String) -> bool:
+	#动画
+	_请求动画("确认信息", {"test":test})
+	await 可以继续
+	#后续
+	
+	日志系统.callv("录入信息", [name, "确认信息", [test], true])
 	
 	
 	return true

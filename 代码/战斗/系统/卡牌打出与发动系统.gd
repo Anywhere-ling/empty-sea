@@ -68,11 +68,16 @@ func 发动场上的效果(life:战斗_单位管理系统.Life_sys, card:战斗_
 	var arr_eff:Array
 	var cost_mode:String = ""
 	if effect_mode == "启动":
+		if 连锁系统.chain_state == 2:
+			for effect:战斗_单位管理系统.Effect_sys in card.effects:
+				if effect.features.has("启动"):
+					连锁系统.next_可发动的效果[effect] = [card, life, null]
+			return
 		cost_mode = "正"
 		自然下降的卡牌.erase(card)
 		for effect:战斗_单位管理系统.Effect_sys in card.effects:
 			if effect.features.has("启动"):
-				if await 发动判断系统.卡牌发动判断_单个效果(life, card, "场上", effect, 连锁系统.now_speed):
+				if await 发动判断系统.卡牌发动判断_单个效果(life, card, "场上", effect, 连锁系统.now_speed, ["启动"]):
 					arr_eff.append(effect)
 	elif effect_mode == "攻击前":
 		cost_mode = "直接"
@@ -131,8 +136,65 @@ func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, cost_mode:Stri
 				for i:int in sp:
 					await 最终行动系统.反转(life, cards[i])
 					ret += 1
-	
+		
+		
+		
 		elif await card.get_value("种类") in ["法术", "仪式"]:
+			var cards:Array[战斗_单位管理系统.Card_sys]
+			#非源
+			for i:战斗_单位管理系统.Card_sys in life.cards_pos["蓝区"].cards:
+				if await i.get_value("卡名") != "源":
+					cards.append(i)
+			
+			cards.shuffle()
+			var mp:int = await card.get_value("mp")
+			if mp > len(cards):
+				for i:战斗_单位管理系统.Card_sys in cards:
+					await 最终行动系统.加入(life, i, life.cards_pos["蓝区"])
+					mp -= 1
+					ret += 1
+			else :
+				for i:int in mp:
+					await 最终行动系统.加入(life, cards[i], life.cards_pos["蓝区"])
+					mp -= 1
+					ret += 1
+			
+			#其他
+			cards = life.cards_pos["蓝区"].cards.duplicate(true)
+			
+			cards.shuffle()
+			if mp >= len(cards):
+				for i:战斗_单位管理系统.Card_sys in cards:
+					await 最终行动系统.加入(life, i, life.cards_pos["白区"])
+					ret += 1
+			else :
+				for i:int in mp:
+					await 最终行动系统.加入(life, cards[i], life.cards_pos["白区"])
+					ret += 1
+	
+	
+	
+	elif cost_mode == "负":
+		if await card.get_value("种类") in ["法术", "仪式"]:
+			var cards:Array[战斗_单位管理系统.Card_sys]
+			for i:战斗_单位管理系统.Card_sys in life.cards_pos["绿区"].cards:
+				if i.appear != 0:
+					cards.append(i)
+			
+			cards.shuffle()
+			var sp:int = await card.get_value("sp")
+			if sp >= len(cards):
+				for i:战斗_单位管理系统.Card_sys in cards:
+					await 最终行动系统.加入(life, i, life.cards_pos["蓝区"])
+					ret += 1
+			else :
+				for i:int in sp:
+					await 最终行动系统.加入(life, cards[i], life.cards_pos["蓝区"])
+					ret += 1
+		
+		
+		
+		elif await card.get_value("种类") in ["攻击", "防御"]:
 			var cards:Array[战斗_单位管理系统.Card_sys]
 			#源
 			for i:战斗_单位管理系统.Card_sys in life.cards_pos["蓝区"].cards:
@@ -167,57 +229,7 @@ func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, cost_mode:Stri
 				for i:int in mp:
 					await 释放与源.添加释放卡牌(life, cards[i])
 					ret += 1
-	
-	elif cost_mode == "负":
-		if await card.get_value("种类") in ["法术", "仪式"]:
-			var cards:Array[战斗_单位管理系统.Card_sys]
-			for i:战斗_单位管理系统.Card_sys in life.cards_pos["绿区"].cards:
-				if i.appear != 0:
-					cards.append(i)
 			
-			cards.shuffle()
-			var sp:int = await card.get_value("sp")
-			if sp >= len(cards):
-				for i:战斗_单位管理系统.Card_sys in cards:
-					await 最终行动系统.加入(life, i, life.cards_pos["蓝区"])
-					ret += 1
-			else :
-				for i:int in sp:
-					await 最终行动系统.加入(life, cards[i], life.cards_pos["蓝区"])
-					ret += 1
-	
-		elif await card.get_value("种类") in ["攻击", "防御"]:
-			var cards:Array[战斗_单位管理系统.Card_sys]
-			#非源
-			for i:战斗_单位管理系统.Card_sys in life.cards_pos["蓝区"].cards:
-				if await i.get_value("卡名") != "源":
-					cards.append(i)
-			
-			cards.shuffle()
-			var mp:int = await card.get_value("mp")
-			if mp > len(cards):
-				for i:战斗_单位管理系统.Card_sys in cards:
-					await 最终行动系统.加入(life, i, life.cards_pos["蓝区"])
-					mp -= 1
-					ret += 1
-			else :
-				for i:int in mp:
-					await 最终行动系统.加入(life, cards[i], life.cards_pos["蓝区"])
-					mp -= 1
-					ret += 1
-			
-			#其他
-			cards = life.cards_pos["蓝区"].cards.duplicate(true)
-			
-			cards.shuffle()
-			if mp >= len(cards):
-				for i:战斗_单位管理系统.Card_sys in cards:
-					await 最终行动系统.加入(life, i, life.cards_pos["蓝区"])
-					ret += 1
-			else :
-				for i:int in mp:
-					await 最终行动系统.加入(life, cards[i], life.cards_pos["蓝区"])
-					ret += 1
 	
 	await 最终行动系统.等待动画完成
 	日志系统.callv("录入信息", [name, "_处理卡牌消耗", [card, cost_mode], ret])
@@ -244,6 +256,35 @@ func 选择效果并发动(life:战斗_单位管理系统.Life_sys, card:战斗_
 		if 连锁系统.chain_state == 1:
 			await 连锁系统.start()
 		await 行动组结束()
+
+func 合成(cards:Array) -> void:
+	var card1:战斗_单位管理系统.Card_sys = cards[0]
+	var card2:战斗_单位管理系统.Card_sys = cards[1]
+	var cards3:Array = cards[2]
+	var life1:战斗_单位管理系统.Life_sys = card1.get_parent().get_parent()
+	var life2:战斗_单位管理系统.Life_sys = card2.get_parent().get_parent()
+	
+	var cards4:Array
+	
+	if card2.get_parent().nam == "场上":
+		await 最终行动系统.加入(life2, card2, life2.cards_pos["手牌"])
+	else :
+		await 最终行动系统.加入(life2, card2, life2.cards_pos["绿区"])
+	
+	
+	for card3:战斗_单位管理系统.Card_sys in cards3:
+		var life3:战斗_单位管理系统.Life_sys = card3.get_parent().get_parent()
+		if card2.pos == "场上":
+			await 最终行动系统.加入(life3, card3, life3.cards_pos["绿区"])
+			cards4.append(card3)
+		else :
+			await 最终行动系统.释放(life3, card3)
+	
+	var pos:战斗_单位管理系统.Card_pos_sys = await 单位控制系统.请求选择一格(life1, life1.cards_pos["场上"], ["纵向"])
+	await 最终行动系统.构造(life1, card1, pos)
+	
+	await buff系统.单位与全部buff判断("合成", [null, life1, card1, card2, cards4])
+	await 发动场上的效果(life1, card1, "启动")
 
 
 

@@ -7,6 +7,8 @@ extends Node
 @onready var 卡牌打出与发动系统: Node = %卡牌打出与发动系统
 @onready var buff系统: Node = %buff系统
 @onready var 日志系统: 战斗_日志系统 = %日志系统
+@onready var 回合系统: Node = %回合系统
+@onready var 连锁系统: Node = %连锁系统
 
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus

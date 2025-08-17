@@ -50,8 +50,8 @@ func _将数据写入选择器() -> void:
 	组件.start_build()
 	特.choose_data = specification_特征.keys()
 	特.start_build()
-	媒.choose_data = specification_媒介
-	媒.start_build()
+	#媒.choose_data = specification_媒介
+	#媒.start_build()
 	组.choose_data = specification_组
 	组.start_build()
 	文件.choose_data = cards_data.keys()
@@ -65,7 +65,7 @@ func _将数据写入选择器() -> void:
 
 
 
-func _add_node(node:BoxContainer, s:String) -> Control:
+func _add_node(node:Control, s:String) -> Control:
 	if specification_效果标点.has(s):
 		if specification_效果标点[s][1] == "括号":
 			return _add_node_括号(node, s)
@@ -74,9 +74,9 @@ func _add_node(node:BoxContainer, s:String) -> Control:
 	elif node.tooltip_text == "特征":
 		if specification_特征.has(s):
 			return _add_node_文本(node, s)
-	elif node.tooltip_text == "媒介":
-		if specification_媒介.has(s):
-			return _add_node_文本(node, s)
+	#elif node.tooltip_text == "媒介":
+		#if specification_媒介.has(s):
+			#return _add_node_文本(node, s)
 	elif node.tooltip_text == "组":
 		if specification_组.has(s):
 			return _add_node_文本(node, s)
@@ -146,7 +146,7 @@ func _tran_node_to_data(node:Control) -> Variant:
 		for index:int in len(node.get_children()) - 2:
 			arr.append(_tran_node_to_data(node.get_children()[index]))
 		ret = arr
-	elif node is BoxContainer:
+	elif node is BoxContainer or node is FlowContainer:
 		var arr:Array = []
 		for index:int in len(node.get_children()):
 			arr.append(_tran_node_to_data(node.get_children()[index]))
@@ -271,7 +271,7 @@ func copy_node(focus:Control) -> void:
 			path += node_pa.get_parent().get_child(0).text + "/"
 		if node is Label:
 			path += node.text
-		elif node is HBoxContainer:
+		elif node is HBoxContainer or node is FlowContainer:
 			path += str(node.get_index()) + "/"
 			path += node.get_child(0).text
 		else:

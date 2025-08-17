@@ -81,6 +81,8 @@ func add_card(card:Card) -> void:
 func remove_card(card:Card) -> void:
 	var cards1:Array = cards.duplicate(true)
 	cards1.erase(card)
+	
+	
 	cards改变(cards1)
 
 func cards改变(new_cards:Array) -> void:
@@ -135,6 +137,9 @@ func _updata(time:float = 0.4) -> void:
 			glo.y -= 30
 		else :
 			time = 0.4
+		
+		time = time/Config.动画速度
+		
 		if i == 鼠标序号:
 			卡牌容器容器.move_child(card, len(cards)-1)
 			card.tween动画添加("缩放", "scale", Vector2(1.5, 1.5), time)

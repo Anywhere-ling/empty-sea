@@ -23,19 +23,18 @@ func _start() -> void:
 		card.scale = Vector2()
 		card.modulate = Color(1,1,1,0)
 		card.tween_trans = Tween.TRANS_CUBIC
-		card.tween动画添加("浮现", "modulate", Color(1,1,1,1), 0.2)
-		card.tween动画添加("缩放", "scale", Vector2(0.7,0.7), 0.2)
+		card.tween动画添加("浮现", "modulate", Color(1,1,1,1), 0.2/speed)
+		card.tween动画添加("缩放", "scale", Vector2(0.7,0.7), 0.2/speed)
 		
-		await get_tree().create_timer(0.2).timeout
-	
+		await get_tree().create_timer(0.2/speed).timeout
 	
 	
 	pos_life.add_card(card, new_pos)
 	card.tween_trans = Tween.TRANS_QUAD
-	card.tween动画添加("缩放", "scale", Vector2(0.7,0.7), 0.4)
-	card.tween动画添加("旋转", "rotation_degrees", 0, 0.4)
-	card.tween动画添加("位置", "global_position", new_pos_posi, 0.4)
-	await get_tree().create_timer(0.4).timeout
+	card.tween动画添加("缩放", "scale", Vector2(0.7,0.7), 0.4/speed)
+	card.tween动画添加("旋转", "rotation_degrees", 0, 0.4/speed)
+	card.tween动画添加("位置", "global_position", new_pos_posi, 0.4/speed)
+	await get_tree().create_timer(0.4/speed).timeout
 	
 	emit_可以继续()
 	emit_动画完成()

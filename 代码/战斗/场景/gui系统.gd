@@ -10,6 +10,7 @@ extends Control
 @onready var 可选卡牌容器: 战斗_可选卡牌容器 = %可选卡牌容器
 @onready var gui控制: 战斗_gui控制 = %gui控制
 @onready var gui连锁: PanelContainer = %gui连锁
+@onready var gui确认信息: PanelContainer = %gui确认信息
 
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
@@ -46,6 +47,10 @@ func _请求动画的信号(nam:String, data:Dictionary) -> void:
 		退出连锁的动画()
 	elif nam == "图形化数据改变":
 		图形化数据改变(data)
+	elif nam == "单位图形化数据改变":
+		pass
+	elif nam == "确认信息":
+		确认信息(data)
 	
 	else:
 		动画(nam, data)
@@ -179,6 +184,12 @@ func 图形化数据改变(data:Dictionary) -> void:
 	emit_可以继续()
 	emit_动画完成()
 
+func 确认信息(data:Dictionary) -> void:
+	gui确认信息.set_card(data["test"])
+	await gui确认信息.按钮按下
+	
+	emit_可以继续()
+	emit_动画完成()
 
 
 

@@ -28,6 +28,8 @@ var specification_影响:Dictionary = {
 	"重击":"重击时",
 	"刺击":"刺击时",
 	"格挡":"格挡时",
+	"可被取为对象":"卡牌可被取为对象时(对象/对象单位/效果所属卡牌/效果数据)",
+	"被取为对象":"卡牌被取为对象时(对象/对象单位/效果所属卡牌/效果数据)",
 	
 	"开始":"回合开始时",
 	"结束":"回合结束时",
@@ -77,7 +79,7 @@ func _将数据写入选择器() -> void:
 
 
 
-func _add_node(node:BoxContainer, s:String) -> Control:
+func _add_node(node:Control, s:String) -> Control:
 	if specification_效果标点.has(s) and node is 卡牌创建工具_不定数量的数据节点容器:
 		if specification_效果标点[s][1] == "括号":
 			return _add_node_括号(node, s)

@@ -128,7 +128,7 @@ text = "种类 "
 [node name="种类" type="OptionButton" parent="PanelContainer/主要区域/VBoxContainer/1"]
 unique_name_in_owner = true
 layout_mode = 2
-item_count = 5
+item_count = 6
 popup/item_0/text = "攻击"
 popup/item_0/id = 0
 popup/item_1/text = "防御"
@@ -139,6 +139,8 @@ popup/item_3/text = "仪式"
 popup/item_3/id = 3
 popup/item_4/text = "环境"
 popup/item_4/id = 4
+popup/item_5/text = "特殊"
+popup/item_5/id = 5
 
 [node name="2" type="HFlowContainer" parent="PanelContainer/主要区域/VBoxContainer"]
 layout_mode = 2

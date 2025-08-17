@@ -22,15 +22,15 @@ func _start() -> void:
 	card.scale = Vector2()
 	card.modulate = Color(1,1,1,0)
 	card.tween_trans = Tween.TRANS_EXPO
-	card.tween动画添加("浮现", "modulate", Color(1,1,1,1), 0.2)
-	card.tween动画添加("缩放", "scale", Vector2(0.5,0.5), 0.2)
+	card.tween动画添加("浮现", "modulate", Color(1,1,1,1), 0.2/speed)
+	card.tween动画添加("缩放", "scale", Vector2(0.5,0.5), 0.2/speed)
 
-	get_tree().create_timer(0.2).timeout.connect(emit_可以继续, 4)
-	await get_tree().create_timer(0.2).timeout
+	get_tree().create_timer(0.2/speed).timeout.connect(emit_可以继续, 4)
+	await get_tree().create_timer(0.2/speed).timeout
 	
 	
 	life.add_card(card, "手牌")
-	await get_tree().create_timer(0.4).timeout
+	await get_tree().create_timer(0.4/speed).timeout
 	
 	
 	emit_动画完成()

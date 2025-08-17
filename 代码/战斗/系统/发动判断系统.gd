@@ -99,17 +99,17 @@ func 单位行动阶段打出判断(life:战斗_单位管理系统.Life_sys) -> 
 func 合成构造判断(cards目标:Array, cards核心:Array, cards素材:Array) -> Dictionary:
 	var dic_cards:Dictionary = {}
 	cards目标 = cards目标.filter(func(card:战斗_单位管理系统.Card_sys):
-		return await card.get_value("种类") == "仪式")
+		return card.get_value("种类") == "仪式")
 	cards核心 = cards素材.filter(func(card:战斗_单位管理系统.Card_sys):
-		return await card.get_value("种类") != "环境" and card.appear >= 2)
+		return !card.get_value("种类") in ["环境", "特殊"] and card.appear >= 2)
 	cards素材 = cards素材.filter(func(card:战斗_单位管理系统.Card_sys):
-		return await card.get_value("种类") != "环境" and card.appear >= 2)
+		return !card.get_value("种类") in ["环境", "特殊"] and card.appear >= 2)
 	
 	
 	for arr:Array in [cards目标, cards核心, cards素材]:
 		for card:战斗_单位管理系统.Card_sys in arr:
 			if !dic_cards.has(card):
-				dic_cards[card] = await card.get_value("卡名")
+				dic_cards[card] = card.get_value("卡名")
 	
 	var ret:Dictionary
 	for card in cards目标:
@@ -164,7 +164,11 @@ func 卡牌发动判断(life:战斗_单位管理系统.Life_sys, card:战斗_单
 		日志系统.callv("录入信息", [name, "卡牌发动判断", [card, speed], []])
 		return []
 	
-	
+	#无效
+	if card.is_无效():
+		
+		日志系统.callv("录入信息", [name, "卡牌发动判断", [card, speed], []])
+		return []
 	
 	
 	var ret可发动的效果:Array = []
@@ -242,7 +246,7 @@ func _打出消耗判断(life:战斗_单位管理系统.Life_sys, card:战斗_�
 
 
 
-func 卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:String, effect:战斗_单位管理系统.Effect_sys, speed:int) -> bool:
+func 卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:String, effect:战斗_单位管理系统.Effect_sys, speed:int, more_data:Array = []) -> bool:
 	assert(连锁系统.chain_state != 2, "连锁处理中")
 	
 	var features:Array = await effect.get_value("features")
@@ -257,6 +261,13 @@ func 卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, ca
 		
 		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
 		return false
+	
+	#启动
+	if effect.features.has("启动"):
+		if !连锁系统.now_可发动的效果.has(effect) and !more_data.has("启动"):
+			
+			日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+			return false
 	
 	#触发
 	if effect.features.has("触发"):

@@ -181,12 +181,15 @@ class Life_sys extends Data_sys:
 	var equips:Array[Equip_sys]
 	var group:Array
 	var 种类:String
-	var speed:int = 10
 	var cards_pos:Dictionary ={}
-	var state:Array[String] =[]
-	var att_mode:Array[String] =[]
 	var att_life:Life_sys#攻击目标
 	var face_life:Life_sys#面对目标
+	
+	var speed:int = 10
+	var state:Array[String] =[]
+	var att_mode:Array[String] =[]
+	var 组无效:Array[String] =[]
+	var 数据改变:Dictionary = {"speed":[], "state":[], "att_mode":[], "组无效":[]}
 	
 	func _init(life_cont:战斗_单位控制, def) -> void:
 		_set_index()
@@ -216,12 +219,12 @@ class Life_sys extends Data_sys:
 			speed = 1
 		
 		event_bus.push_event("战斗_datasys被创建", [self])
-	
+
 	func add_buff(buff:Buff_sys) -> void:
 		buffs.append(buff)
 		add_child(buff)
 		event_bus.push_event("战斗_单位添加了buff", [self, buff])
-		
+
 	func remove_buff(buff:Buff_sys) -> void:
 		buffs.erase(buff)
 		event_bus.push_event("战斗_单位移除了buff", [self, buff])
@@ -245,14 +248,54 @@ class Life_sys extends Data_sys:
 	
 	func get_value(key:String):
 		var value = get(key)
-		if key in ["speed", "state", "att_mode"]:
-			await buff系统.单位与全部buff判断(key, [null, self, self, value])
+		if value is Dictionary or value is Array:
+			value = value.duplicate(true)
+		
+		if key in ["speed"]:
+			for arr:Array in 数据改变[key]:
+				if arr[0] == "加":
+					value += arr[1]
+				elif arr[0] == "减":
+					value -= arr[1]
+				elif arr[0] == "等":
+					value = arr[1]
+		elif key in ["att_mode", "state", "组无效"]:
+			for arr:Array in 数据改变[key]:
+				if arr[0] == "加":
+					value.append_array(arr[1])
+				elif arr[0] == "减":
+					for i in arr[1]:
+						value.erase(i)
+				elif arr[0] == "等":
+					value = arr[1]
+		
 		return value
+
+	func add_value(key:String, arr:Array) -> void:
+		数据改变[key].append(arr)
+
+	func remove_value(ind:int) -> String:
+		for key:String in 数据改变.keys():
+			var erase:Array
+			for arr:Array in 数据改变[key]:
+				if arr[2] == ind:
+					erase = arr
+					break
+			数据改变[key].erase(erase)
+			return key
+		return ""
 
 	func set_state(sta:String) -> void:
 		state = [sta]
 		event_bus.push_event("战斗_请求检查行动冲突", [self])
-	
+
+	func reset_组无效() -> void:
+		var cards:Array[Card_sys] = cards_pos["红区"].cards
+		var ret
+		for card in cards:
+			ret.append(card.get_value("组"))
+		组无效 = ret
+
 	func remove_data_sys(data_sys:Data_sys) -> void:
 		if data_sys is Buff_sys:
 			buffs.erase(data_sys)
@@ -281,6 +324,9 @@ class Card_pos_sys extends Data_sys:
 		add_child(card)
 		card.reset_appear()
 		
+		#红区组无效
+		if nam == "红区":
+			get_parent().reset_组无效()
 		
 	
 	
@@ -440,6 +486,17 @@ class Card_sys extends Data_sys:
 			数据改变[key].erase(erase)
 			return key
 		return ""
+	
+	func is_无效() -> bool:
+		if get_value("特征").has("无效"):
+			return true
+		
+		var arr:Array = get_parent().get_parent().get_value("组无效")
+		for i:String in get_value("组"):
+			if arr.has(i):
+				return true
+		
+		return false
 
 
 

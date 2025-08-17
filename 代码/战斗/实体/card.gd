@@ -35,7 +35,6 @@ func _ready() -> void:
 
 
 
-
 func set_card(p_card_sys:战斗_单位管理系统.Card_sys) -> void:
 	card_sys = p_card_sys
 	nam = card_sys.nam
@@ -51,8 +50,18 @@ func display() -> void:
 	图片.resized.connect(func():渲染.size = 图片.size)
 	if !card_sys.direction:
 		第二层.rotation_degrees = 90
-	for i in ["种类", "卡名", "sp", "mp", "组", "特征"]:
-		_图片或文字改变的信号(i)
+	
+	
+	var data = DatatableLoader.get_data_model("card_data", card_sys.nam)
+		
+	种类.texture = load(文件路径.png卡牌种类(data.种类))
+	卡名.text = data.卡名
+	sp.text = str(data.sp)
+	mp.text = str(data.mp)
+	
+	if card_sys.appear != 0:
+		for i in ["特征", "组", "种类", "卡名", "sp", "mp"]:
+			_图片或文字改变的信号(i)
 
 
 signal 卡牌信息改变
@@ -65,6 +74,7 @@ func _图片或文字改变的信号(key:String) -> void:
 	
 	if card_sys.appear == 0:
 		return
+		
 	if key in ["种类"]:
 		种类.texture = load(文件路径.png卡牌种类(card_sys.get_value("种类")))
 	elif key in ["卡名"]:
@@ -126,6 +136,10 @@ func _new_tween(nam) -> Tween:
 	tween.set_trans(tween_trans)
 	tweens[nam] = tween
 	return tween
+
+func tween_kill(nam) -> void:
+	if tweens.has(nam) and tweens[nam]:
+		tweens[nam].kill()
 
 func tween动画添加(tween, property:String, final_val, time:float) -> Tween:
 	if !tween is Tween:

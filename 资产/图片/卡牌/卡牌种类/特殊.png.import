@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cjxbgycdgcr5i"
-path="res://.godot/imported/图标_职业_先锋_大图_白.png-5005d222df581325b2e59aaf9915b1d1.ctex"
+uid="uid://8qc8dgaaiow1"
+path="res://.godot/imported/特殊.png-27691de4820a89bb9a2cf878bd943c5e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://资产/图片/卡牌/卡牌种类/图标_职业_先锋_大图_白.png"
-dest_files=["res://.godot/imported/图标_职业_先锋_大图_白.png-5005d222df581325b2e59aaf9915b1d1.ctex"]
+source_file="res://资产/图片/卡牌/卡牌种类/特殊.png"
+dest_files=["res://.godot/imported/特殊.png-27691de4820a89bb9a2cf878bd943c5e.ctex"]
 
 [params]
 

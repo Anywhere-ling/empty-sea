@@ -160,8 +160,13 @@ func 单位与全部buff判断(影响:String, targets:Array = [null, null, null]
 ##1:受影响且通过,0:受影响且未通过，-1:未受影响
 func _buff判断(buff:战斗_单位管理系统.Buff_sys, 影响:String, targets:Array) -> int:
 	if buff.data["影响"].has(影响):
+		#依赖判断
 		if buff.card:
+			if targets[0] and targets[0] != buff.card:
+				日志系统.callv("录入信息", [name, "_buff判断", [buff, 影响, targets], 0])
+				return 0
 			targets[0] = buff.card
+		#录入buff的对象
 		var new_targets:Array = buff.targets.duplicate(true)
 		for i in len(targets):
 			new_targets[i] = targets[i]

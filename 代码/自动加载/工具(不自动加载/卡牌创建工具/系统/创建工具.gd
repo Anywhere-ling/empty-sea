@@ -40,6 +40,7 @@ var specification_效果特征:Dictionary = {
 	"绿区":"在绿区可以发动",
 	"蓝区":"在蓝区可以发动",
 	"红区":"在红区可以发动",
+	"启动":"当打出或构造时可以发动",
 }
 var specification_效果标点:Dictionary = {
 	"特征":["效果的特征，用于检测", "括号"],
@@ -54,11 +55,12 @@ var specification_特征:Dictionary = {
 	"恒定":"不能改变方向",
 	"永恒":"不能被破坏",
 }
-var specification_媒介:Array = [
-	"潮汐",
-]
+#var specification_媒介:Array = [
+	#"潮汐",
+#]
 var specification_组:Array = [
 	"基本动作",
+	"潮汐",
 ]
 
 var cards_data:Dictionary
@@ -152,16 +154,16 @@ func _将数据写入选择器() -> void:
 
 
 
-func _add_node(node:BoxContainer, s:String) -> Control:
+func _add_node(node:Control, s:String) -> Control:
 	if specification_效果标点.has(s):
 		if specification_效果标点[s][1] == "括号":
 			return _add_node_括号(node, s)
 	elif node.tooltip_text == "特征":
 		if specification_特征.has(s):
 			return _add_node_文本(node, s)
-	elif node.tooltip_text == "媒介":
-		if specification_媒介.has(s):
-			return _add_node_文本(node, s)
+	#elif node.tooltip_text == "媒介":
+		#if specification_媒介.has(s):
+			#return _add_node_文本(node, s)
 	elif node.tooltip_text == "组":
 		if specification_组.has(s):
 			return _add_node_文本(node, s)
@@ -212,7 +214,7 @@ func _add_node_文本(node:Container, 简介:String) -> Label:
 		node.add_child_node(node1)
 	elif node is 卡牌创建工具_不定数量的数据节点容器_h:
 		node.add_child_node(node1)
-	elif node is HBoxContainer:
+	elif node is HBoxContainer or node is HFlowContainer:
 		node.add_child(node1)
 	var a := 提供焦点.duplicate(12)
 	a.visible = true
@@ -225,7 +227,7 @@ func _add_node_任意输入(node:Container, 简介:String = "", default:String =
 	node1.text = default
 	if node is 卡牌创建工具_不定数量的数据节点容器:
 		node.add_child_node(node1)
-	if node is HBoxContainer:
+	if node is HBoxContainer or node is HFlowContainer:
 		node.add_child(node1)
 	node1.size_flags_horizontal = SIZE_EXPAND_FILL
 	return node1
@@ -237,7 +239,7 @@ func _add_node_数字输入(node:Container, 简介:String = "", default:String =
 		node1.value = int(default)
 	if node is 卡牌创建工具_不定数量的数据节点容器:
 		node.add_child_node(node1)
-	if node is HBoxContainer:
+	if node is HBoxContainer or node is HFlowContainer:
 		node.add_child(node1)
 	return node1
 
@@ -252,7 +254,7 @@ func _add_node_单选(node:Container, 简介:String = "", default:String = "", �
 		node1.add_item(i)
 	if node is 卡牌创建工具_不定数量的数据节点容器:
 		node.add_child_node(node1)
-	if node is HBoxContainer:
+	if node is HBoxContainer or node is HFlowContainer:
 		node.add_child(node1)
 	return node1
 
@@ -262,7 +264,7 @@ func _add_node_多选(node:Container, 简介:String = "", default:String = "", �
 	node1.tooltip_text = "多选"
 	if node is 卡牌创建工具_不定数量的数据节点容器:
 		node.add_child_node(node1)
-	if node is HBoxContainer:
+	if node is HBoxContainer or node is HFlowContainer:
 		node.add_child(node1)
 	node1.size_flags_horizontal = SIZE_EXPAND_FILL
 	#node1.size_flags_vertical = SIZE_SHRINK_BEGIN
@@ -274,8 +276,8 @@ func _add_node_多选(node:Container, 简介:String = "", default:String = "", �
 		node1.选项卡.add_item(i)
 	return node1
 
-func _add_node_组件(node:卡牌创建工具_不定数量的数据节点容器, s:String) -> HBoxContainer:
-	var node1:= HBoxContainer.new()
+func _add_node_组件(node:卡牌创建工具_不定数量的数据节点容器, s:String) -> HFlowContainer:
+	var node1:= HFlowContainer.new()
 	add_child(node1)#临时储存
 	node1.size_flags_horizontal = SIZE_EXPAND_FILL
 	
@@ -283,7 +285,8 @@ func _add_node_组件(node:卡牌创建工具_不定数量的数据节点容器,
 	for i:int in len(arr):
 		if i == 0:
 			#效果名
-			_add_node_文本(node1, s)
+			var lab: = _add_node_文本(node1, s)
+			lab.add_theme_color_override("font_color", Color.RED)
 		elif i == 1:
 			#简介
 			pass
@@ -411,7 +414,7 @@ func _tran_node_to_data(node:Control) -> Variant:
 		for index:int in len(node.get_children()) - 2:
 			arr.append(_tran_node_to_data(node.get_children()[index]))
 		ret = arr
-	elif node is BoxContainer:
+	elif node is BoxContainer or node is FlowContainer:
 		var arr:Array = []
 		for index:int in len(node.get_children()):
 			arr.append(_tran_node_to_data(node.get_children()[index]))
@@ -575,7 +578,7 @@ func copy_node(focus:Control) -> void:
 			path += node_pa.get_parent().get_child(0).text + "/"
 		if node is Label:
 			path += node.text
-		elif node is HBoxContainer:
+		elif node is HBoxContainer or node is HFlowContainer:
 			path += str(node.get_index()) + "/"
 			path += node.get_child(0).text
 		else:
