@@ -18,7 +18,7 @@ func _start() -> void:
 	card.tween动画添加_第二层("位置", "position", Vector2(0,0), 0.4/speed)
 	
 	await get_tree().create_timer(0.1/speed).timeout
-	emit_可以继续()
+	emit_可以继续(data["动画index"])
 	await get_tree().create_timer(0.2/speed).timeout
 	emit_动画完成()
 	

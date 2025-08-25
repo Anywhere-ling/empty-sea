@@ -11,3 +11,6 @@ func _physics_process(delta: float) -> void:
 	line_2d.add_point(global_position)
 	if line_2d.points.size() > 20:
 		line_2d.remove_point(0)
+
+func 变灰() -> void:
+	modulate = Color(0.5,0.5,0.5,1)

@@ -8,7 +8,7 @@ class_name 卡牌创建工具
 @onready var 特征: 卡牌创建工具_带搜索的选择器 = %特征
 @onready var 标点: 卡牌创建工具_带搜索的选择器 = %标点
 @onready var 特: 卡牌创建工具_带搜索的选择器 = %特
-@onready var 媒: 卡牌创建工具_带搜索的选择器 = %媒
+#@onready var 媒: 卡牌创建工具_带搜索的选择器 = %媒
 @onready var 组: 卡牌创建工具_带搜索的选择器 = %组
 @onready var buff: 卡牌创建工具_带搜索的选择器 = %buff
 
@@ -19,6 +19,8 @@ class_name 卡牌创建工具
 
 func _ready() -> void:
 	await DatatableLoader.加载完成
+	_基本设置()
+	
 	_加载卡牌数据()
 	_加载规范文件并处理数据()
 	_将数据写入选择器()
@@ -26,7 +28,7 @@ func _ready() -> void:
 	特征.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	标点.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	特.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
-	媒.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
+	#媒.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	组.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	buff.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	文件.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
@@ -170,7 +172,7 @@ func _tran_node_to_data(node:Control) -> Variant:
 
 
 func add_单个卡牌设计区() -> 卡牌创建工具_单个卡牌设计区:
-	var node:卡牌创建工具_单个卡牌设计区 = load(文件路径.tscn卡牌创建工具_单个卡牌设计区()).instantiate()
+	var node:卡牌创建工具_单个卡牌设计区 = preload(文件路径.tscn卡牌创建工具_单个卡牌设计区).instantiate()
 	卡牌设计区容器.add_child(node)
 	卡牌设计区容器.current_tab = 卡牌设计区容器.get_tab_idx_from_control(node)
 	node.请求关闭该卡牌.connect(_请求删除卡牌设计区的信号)
@@ -245,6 +247,8 @@ func _write_data_to_node(data, node:Control) -> void:
 			node.加.emit_signal("button_up")
 	else :
 		assert(false, "无法识别")
+
+
 
 
 
@@ -436,7 +440,7 @@ func _on_保存_button_up() -> void:
 	
 	var data:Dictionary = save_card(卡牌设计区容器.get_current_tab_control())
 	if  data["卡名"]:
-		var file = FileAccess.open(文件路径.folder卡牌() + data["卡名"] + ".json", FileAccess.WRITE)
+		var file = FileAccess.open(文件路径.folder卡牌 + data["卡名"] + ".json", FileAccess.WRITE)
 		file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
 		file.close()
 	

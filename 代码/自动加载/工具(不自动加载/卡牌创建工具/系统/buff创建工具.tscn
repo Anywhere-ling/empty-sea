@@ -105,7 +105,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 
-[node name="存储区数据" type="Label" parent="PanelContainer/HBoxContainer/文件控制区/复制区/ScrollContainer/复制储存区"]
+[node name="存储区数据" type="LineEdit" parent="PanelContainer/HBoxContainer/文件控制区/复制区/ScrollContainer/复制储存区"]
 unique_name_in_owner = true
 layout_mode = 2
 

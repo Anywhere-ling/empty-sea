@@ -1,19 +1,23 @@
-[gd_scene load_steps=10 format=3 uid="uid://dy4foosax8oej"]
+[gd_scene load_steps=11 format=3 uid="uid://dy4foosax8oej"]
 
 [ext_resource type="Theme" uid="uid://cr5es1wy1227s" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/字体大小.tres" id="1_3bpcx"]
 [ext_resource type="Script" uid="uid://58wobldhsqgy" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/单个卡牌设计区.gd" id="2_sxr7k"]
 [ext_resource type="PackedScene" uid="uid://iegorx0n1tjw" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/不定数量的数据节点容器_h.tscn" id="3_ji6gn"]
+[ext_resource type="Script" uid="uid://tjjup5xfnlqd" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/提供焦点.gd" id="3_l32e3"]
 [ext_resource type="PackedScene" uid="uid://dp46167mmhfua" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/效果设计区.tscn" id="4_ji6gn"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ji6gn"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_l32e3"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5eigx"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ogok6"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_l32e3"]
+bg_color = Color(0, 0.647059, 0.898039, 0.301961)
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ekktd"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5eigx"]
+bg_color = Color(0, 0.647059, 0.898039, 0.301961)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_412hd"]
+bg_color = Color(0, 0.647059, 0.898039, 0.541176)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4feap"]
 
 [node name="单个卡牌设计区" type="Control"]
 layout_mode = 3
@@ -181,11 +185,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_ji6gn")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_l32e3")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_5eigx")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_ogok6")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_ekktd")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_5eigx")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_l32e3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_5eigx")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_412hd")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_4feap")
+toggle_mode = true
+script = ExtResource("3_l32e3")
 
 [node name="特征" parent="PanelContainer/主要区域/VBoxContainer/4" instance=ExtResource("3_ji6gn")]
 layout_mode = 2
@@ -193,6 +199,7 @@ tooltip_text = "特征"
 tooltip_auto_translate_mode = 2
 
 [node name="5" type="HFlowContainer" parent="PanelContainer/主要区域/VBoxContainer"]
+visible = false
 layout_mode = 2
 
 [node name="Label5" type="Label" parent="PanelContainer/主要区域/VBoxContainer/5"]
@@ -209,11 +216,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_ji6gn")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_l32e3")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_5eigx")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_ogok6")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_ekktd")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_5eigx")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_l32e3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_5eigx")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_412hd")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_4feap")
+toggle_mode = true
+script = ExtResource("3_l32e3")
 
 [node name="媒介" parent="PanelContainer/主要区域/VBoxContainer/5" instance=ExtResource("3_ji6gn")]
 layout_mode = 2
@@ -237,11 +246,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_ji6gn")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_l32e3")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_5eigx")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_ogok6")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_ekktd")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_5eigx")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_l32e3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_5eigx")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_412hd")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_4feap")
+toggle_mode = true
+script = ExtResource("3_l32e3")
 
 [node name="组" parent="PanelContainer/主要区域/VBoxContainer/6" instance=ExtResource("3_ji6gn")]
 layout_mode = 2
@@ -262,17 +273,20 @@ text = "文本
 "
 
 [node name="提供焦点" type="Button" parent="PanelContainer/主要区域/VBoxContainer/7/Label7"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_ji6gn")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_l32e3")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_5eigx")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_ogok6")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_ekktd")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_5eigx")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_l32e3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_5eigx")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_412hd")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_4feap")
+toggle_mode = true
+script = ExtResource("3_l32e3")
 
 [node name="文本" type="TextEdit" parent="PanelContainer/主要区域/VBoxContainer/7"]
 unique_name_in_owner = true
@@ -294,4 +308,8 @@ layout_mode = 2
 [connection signal="item_selected" from="PanelContainer/主要区域/VBoxContainer/1/种类" to="." method="_on_种类_item_selected"]
 [connection signal="value_changed" from="PanelContainer/主要区域/VBoxContainer/2/sp" to="." method="_on_sp_value_changed"]
 [connection signal="value_changed" from="PanelContainer/主要区域/VBoxContainer/3/mp" to="." method="_on_mp_value_changed"]
+[connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/4/Label4/提供焦点" to="PanelContainer/主要区域/VBoxContainer/4/Label4/提供焦点" method="_on_button_up"]
+[connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/5/Label5/提供焦点" to="PanelContainer/主要区域/VBoxContainer/5/Label5/提供焦点" method="_on_button_up"]
+[connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/6/Label6/提供焦点" to="PanelContainer/主要区域/VBoxContainer/6/Label6/提供焦点" method="_on_button_up"]
+[connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/7/Label7/提供焦点" to="PanelContainer/主要区域/VBoxContainer/7/Label7/提供焦点" method="_on_button_up"]
 [connection signal="text_changed" from="PanelContainer/主要区域/VBoxContainer/7/文本" to="." method="_on_文本_text_changed"]

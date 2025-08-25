@@ -13,7 +13,7 @@ func _start() -> void:
 	await 动画2.可以继续
 	
 	
-	emit_可以继续()
+	emit_可以继续(data["动画index"])
 	
 	emit_动画完成()
 	

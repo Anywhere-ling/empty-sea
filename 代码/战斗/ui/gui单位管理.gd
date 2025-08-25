@@ -3,10 +3,11 @@ extends Control
 
 
 
-@onready var 选项集: VBoxContainer = %选项集
+@onready var 选项集: Container = %选项集
 @onready var sop: Control = %sop
 @onready var pos: Control = %pos
 @onready var 选项集节点: Control = %选项集节点
+@onready var 手牌: 战斗_行动与手牌 = %手牌
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
@@ -22,9 +23,13 @@ var efils_ind:float = 0:
 		efils_ind = value
 
 
-func _ready() -> void:
-	event_bus.call_deferred("push_event", "战斗_右边显示改变", 选项集节点)
+#func _ready() -> void:
+	#event_bus.call_deferred("push_event", "战斗_右边显示改变", 选项集节点)
 
+
+func set_c0ntrol(life:战斗_life) -> void:
+	life.手牌 = 手牌
+	life.卡牌五区.光圈手牌.visible = false
 
 
 func add_life(life:战斗_life, index:int, all_index:int, is_positive:bool) -> void:
@@ -84,7 +89,7 @@ func life显示改变(lifes:Array[战斗_life], ind:float) -> void:
 
 
 func add_btn(p_life:战斗_life, all_index:int, is_positive:bool) -> void:
-	var button:战斗_gui单位管理_选项 = load(文件路径.tscn_gui单位管理_选项()).instantiate()
+	var button:战斗_gui单位管理_选项 = preload(文件路径.tscn_gui单位管理_选项).instantiate()
 	选项集.add_child(button)
 	选项集.move_child(button, all_index)
 	button.set_icon(p_life, is_positive)
@@ -101,5 +106,5 @@ func _按钮被按下(life:战斗_life) -> void:
 
 
 func _on_点击旁边_button_up() -> void:
-	event_bus.push_event("战斗_右边显示改变", 选项集节点)
+	#event_bus.push_event("战斗_右边显示改变", 选项集节点)
 	event_bus.push_event("战斗_左键点击旁边")

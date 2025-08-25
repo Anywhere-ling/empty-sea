@@ -56,7 +56,7 @@ func set_cards(arr:Array, p_描述:String = "无", count_max:int = 1, count_min:
 	
 	for i in arr:
 		var life:战斗_life = 动画系统.对照表["life"][i.get_parent()]
-		btns.append(life.场上.set_button(i.场上index))
+		#btns.append(life.场上.set_button(i.场上index))
 
 
 func free_cards() -> Array:

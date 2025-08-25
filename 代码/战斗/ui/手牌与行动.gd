@@ -3,6 +3,7 @@ class_name 战斗_行动与手牌
 
 @onready var 卡牌容器容器: Control = %卡牌容器容器
 @onready var p_0: Node2D = %p0
+@onready var p_1: Node2D = %p1
 @onready var p_2: Node2D = %p2
 @onready var rot: Node2D = %rot
 
@@ -73,12 +74,13 @@ func set_p2() -> void:
 	p_2.position = Vector2(-p_0.position.x, p_0.position.y)
 
 
-func add_card(card:Card) -> void:
+func add_card(card:Card, _a=null) -> void:
 	var cards1:Array = cards.duplicate(true)
 	cards1.append(card)
+	card.set_pos(self)
 	cards改变(cards1)
 
-func remove_card(card:Card) -> void:
+func remove_card(card:Card, _a=null) -> void:
 	var cards1:Array = cards.duplicate(true)
 	cards1.erase(card)
 	
@@ -138,7 +140,7 @@ func _updata(time:float = 0.4) -> void:
 		else :
 			time = 0.4
 		
-		time = time/Config.动画速度
+		time = time/C0nfig.动画速度
 		
 		if i == 鼠标序号:
 			卡牌容器容器.move_child(card, len(cards)-1)
@@ -163,7 +165,7 @@ func _updata(time:float = 0.4) -> void:
 
 func _quadratic_bezier_point(t: float) -> Vector2:
 	var p0: Vector2 = p_0.position
-	var p1: Vector2 = position
+	var p1: Vector2 = p_1.position
 	var p2: Vector2 = p_2.position
 	
 	var q0 = p0.lerp(p1, t)

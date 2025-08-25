@@ -7,21 +7,23 @@
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_bottom = 2556.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_1beli")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="HBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
 
 [node name="PanelContainer2" type="PanelContainer" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="TextureRect" type="TextureRect" parent="HBoxContainer/PanelContainer2"]
 layout_mode = 2
 texture = ExtResource("2_3dsqj")
-expand_mode = 5
+expand_mode = 3
 stretch_mode = 6
 
 [node name="正" type="Button" parent="HBoxContainer/PanelContainer2/TextureRect"]
@@ -38,6 +40,7 @@ expand_icon = true
 [node name="PanelContainer" type="PanelContainer" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 size_flags_stretch_ratio = 0.03
 
 [node name="ColorRect" type="ColorRect" parent="HBoxContainer/PanelContainer"]
@@ -46,11 +49,12 @@ layout_mode = 2
 [node name="PanelContainer3" type="PanelContainer" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="TextureRect2" type="TextureRect" parent="HBoxContainer/PanelContainer3"]
 layout_mode = 2
 texture = ExtResource("2_3dsqj")
-expand_mode = 5
+expand_mode = 3
 stretch_mode = 6
 
 [node name="反" type="Button" parent="HBoxContainer/PanelContainer3/TextureRect2"]

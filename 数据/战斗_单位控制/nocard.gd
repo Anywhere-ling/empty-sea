@@ -299,7 +299,7 @@ func 结束阶段弃牌() -> Array[战斗_单位管理系统.Card_sys]:
 
 func 对象选择(arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 1) -> Array:
 	var ret:Array = []
-	arr.shuffle()
+	arr
 	#尽量多选
 	if len(arr) <= count_max:
 		return arr
@@ -310,7 +310,7 @@ func 对象选择(arr:Array, 描述:String = "无", count_max:int = 1, count_min
 
 func 选择一格(arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 1) -> Array:
 	var ret:Array = []
-	arr.shuffle()
+	arr
 	#尽量多选
 	if len(arr) <= count_max:
 		return arr
@@ -325,5 +325,5 @@ func 选择效果发动(card:战斗_单位管理系统.Card_sys, arr_int:Array[i
 
 func 选择单位(arr:Array[战斗_单位管理系统.Life_sys]) -> 战斗_单位管理系统.Life_sys:
 	var arr1:Array = arr
-	arr1.shuffle()
+	arr1
 	return arr1[0]

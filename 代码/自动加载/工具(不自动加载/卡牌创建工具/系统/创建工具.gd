@@ -21,12 +21,12 @@ class_name 创建工具
 @onready var 简介: Label = %简介
 @onready var 提供焦点: Button = %提供焦点
 @onready var 路径: Label = %路径
-@onready var 存储区数据: Label = %存储区数据
+@onready var 存储区数据: LineEdit = %存储区数据
 @onready var 复制储存区: VBoxContainer = %复制储存区
 @onready var push_error: PanelContainer = %push_error
 
 
-
+var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
 #规范文件的加载数据
 var specification_效果组件:Dictionary
@@ -35,6 +35,7 @@ var specification_效果特征:Dictionary = {
 	"固有":"在指定位置永远生效",
 	"任意":"在任意位置可以发动",
 	"场上":"在场上可以发动",
+	"行动":"在行动可以发动",
 	"手牌":"在手牌可以发动",
 	"白区":"在白区可以发动",
 	"绿区":"在绿区可以发动",
@@ -54,6 +55,7 @@ var specification_特征:Dictionary = {
 	"闪耀":"不能变为里侧",
 	"恒定":"不能改变方向",
 	"永恒":"不能被破坏",
+	"无限":"不能被取为对象",
 }
 #var specification_媒介:Array = [
 	#"潮汐",
@@ -61,6 +63,8 @@ var specification_特征:Dictionary = {
 var specification_组:Array = [
 	"基本动作",
 	"潮汐",
+	"深海",
+	"重型",
 ]
 
 var cards_data:Dictionary
@@ -79,12 +83,11 @@ var 读取中:bool = false:
 		if !读取中:
 			_请求保存历史记录的信号()
 var save_不可为空:bool = false
+var pressed焦点按钮:Array = []
 
 
-
-
-
-
+func _基本设置() -> void:
+	event_bus.subscribe("提供焦点的按钮被按下", _焦点按钮被按下)
 
 func _加载卡牌数据() -> void:
 	var names:Array = DatatableLoader.other_data["卡名总表"]
@@ -102,11 +105,9 @@ func _加载卡牌数据() -> void:
 	var names4:Array = DatatableLoader.other_data["单位名总表"]
 	for i:String in names4:
 		lifes_data[i] = DatatableLoader.get_dic_data("life_data", i)
-	
-
 
 func _加载规范文件并处理数据() -> void:
-	var file_效果组件:= FileAccess.open(文件路径.csv效果组件规范(), FileAccess.READ)
+	var file_效果组件:= FileAccess.open(文件路径.csv效果组件规范, FileAccess.READ)
 	
 	#效果组件
 	file_效果组件.get_csv_line()
@@ -149,8 +150,32 @@ func _将数据写入选择器() -> void:
 	文件.start_build()
 
 
+#焦点按钮
+func _焦点按钮被按下(btn:Button) -> void:
+	if Input.is_key_pressed(KEY_CTRL):
+		if pressed焦点按钮.has(btn):
+			btn.button_pressed = false
+			pressed焦点按钮.erase(btn)
+		else:
+			btn.button_pressed = true
+			pressed焦点按钮.append(btn)
+		
+	else :
+		for i:Button in pressed焦点按钮:
+			i.button_pressed = false
+		pressed焦点按钮 = []
+		pressed焦点按钮.append(btn)
+		btn.button_pressed = true
+	
 
+func _get_焦点按钮s() -> Array:
+	return pressed焦点按钮
 
+func _get_焦点按钮() -> Button:
+	if pressed焦点按钮:
+		return pressed焦点按钮[-1]
+	else:
+		return
 
 
 
@@ -182,7 +207,7 @@ func _add_node_括号(node:卡牌创建工具_不定数量的数据节点容器,
 	node2.text = "]" + s
 	
 	node.add_child_node(node1)
-	var a := 提供焦点.duplicate(12)
+	var a := 提供焦点.duplicate(15)
 	a.visible = true
 	node1.add_child(a)
 	
@@ -194,7 +219,7 @@ func _add_node_括号(node:卡牌创建工具_不定数量的数据节点容器,
 			node3 = _add_node_任意输入(node, "" , 添加任意输入)
 	
 	node.add_child_node(node2)
-	var a2 := 提供焦点.duplicate(12)
+	var a2 := 提供焦点.duplicate(15)
 	a2.visible = true
 	node2.add_child(a2)
 	
@@ -216,7 +241,7 @@ func _add_node_文本(node:Container, 简介:String) -> Label:
 		node.add_child_node(node1)
 	elif node is HBoxContainer or node is HFlowContainer:
 		node.add_child(node1)
-	var a := 提供焦点.duplicate(12)
+	var a := 提供焦点.duplicate(15)
 	a.visible = true
 	node1.add_child(a)
 	return node1
@@ -259,7 +284,7 @@ func _add_node_单选(node:Container, 简介:String = "", default:String = "", �
 	return node1
 
 func _add_node_多选(node:Container, 简介:String = "", default:String = "", 选项:Array = []) -> 卡牌创建工具_不定数量的数据节点容器_h:
-	var node1 := load(文件路径.tscn卡牌创建工具_不定数量的数据节点容器_h()).instantiate() as 卡牌创建工具_不定数量的数据节点容器_h
+	var node1 := preload(文件路径.tscn卡牌创建工具_不定数量的数据节点容器_h).instantiate() as 卡牌创建工具_不定数量的数据节点容器_h
 	node1.tooltip_auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	node1.tooltip_text = "多选"
 	if node is 卡牌创建工具_不定数量的数据节点容器:
@@ -438,7 +463,7 @@ func _tran_node_to_data(node:Control) -> Variant:
 
 
 func add_单个卡牌设计区() -> 卡牌创建工具_单个设计区:
-	var node:卡牌创建工具_单个设计区 = load(文件路径.tscn卡牌创建工具_单个卡牌设计区()).instantiate()
+	var node:卡牌创建工具_单个设计区 = preload(文件路径.tscn卡牌创建工具_单个卡牌设计区).instantiate()
 	卡牌设计区容器.add_child(node)
 	卡牌设计区容器.current_tab = 卡牌设计区容器.get_tab_idx_from_control(node)
 	node.请求关闭该卡牌.connect(_请求删除卡牌设计区的信号)
@@ -554,7 +579,18 @@ func _write_data_to_node(data, node:Control) -> void:
 		assert(false, "无法识别")
 
 
+#获得按下的焦点按钮
+func _set_focus_buttons() -> void:
+	for button:Button in get_tree().get_nodes_in_group("提供焦点"):
+		button.button_up.connect(_press_focus_buttons.bind(button))
+	
 
+func _press_focus_buttons() -> void:
+	pass
+
+func _get_focus_buttons() -> Array:
+	return []
+	
 
 
 #复制数据节点
@@ -778,7 +814,7 @@ func _on_保存_button_up() -> void:
 	读取中 = true#阻止保存历史记录
 	
 	var data:Dictionary = save_card(卡牌设计区容器.get_current_tab_control())
-	var file = FileAccess.open(文件路径.folder卡牌() + data["卡名"] + ".json", FileAccess.WRITE)
+	var file = FileAccess.open(文件路径.folder卡牌 + data["卡名"] + ".json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
 	file.close()
 	

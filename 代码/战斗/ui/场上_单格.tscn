@@ -1,0 +1,95 @@
+[gd_scene load_steps=6 format=3 uid="uid://da4rw872xmo5u"]
+
+[ext_resource type="Script" uid="uid://b4hvrketuasge" path="res://代码/战斗/ui/场上_单格.gd" id="1_ocnv3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ocnv3"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Animation" id="Animation_lg3yo"]
+resource_name = "可选择时的光圈浮动"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0.9, 0.9), Vector2(0.8, 0.8), Vector2(0.9, 0.9)]
+}
+
+[sub_resource type="Animation" id="Animation_mmcnv"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_fsnne"]
+_data = {
+&"RESET": SubResource("Animation_mmcnv"),
+&"可选择时的光圈浮动": SubResource("Animation_lg3yo")
+}
+
+[node name="场上_单格" type="Panel"]
+offset_right = 100.0
+offset_bottom = 100.0
+script = ExtResource("1_ocnv3")
+
+[node name="中心" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="按钮" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+toggle_mode = true
+
+[node name="光圈" type="Panel" parent="按钮"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(50, 50)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ocnv3")
+
+[node name="动画" type="AnimationPlayer" parent="按钮/光圈"]
+unique_name_in_owner = true
+libraries = {
+&"": SubResource("AnimationLibrary_fsnne")
+}
+
+[connection signal="button_up" from="按钮" to="." method="_on_按钮_button_up"]

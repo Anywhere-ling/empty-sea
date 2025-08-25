@@ -87,7 +87,7 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 
 
 func add_单个角色设计区() -> 卡牌创建工具_单个单位设计区:
-	var node:卡牌创建工具_单个单位设计区 = load(文件路径.tscn卡牌创建工具_单位_单个卡牌设计区()).instantiate()
+	var node:卡牌创建工具_单个单位设计区 = preload(文件路径.tscn卡牌创建工具_单位_单个卡牌设计区).instantiate()
 	卡牌设计区容器.add_child(node)
 	卡牌设计区容器.current_tab = 卡牌设计区容器.get_tab_idx_from_control(node)
 	node.请求关闭该卡牌.connect(_请求删除卡牌设计区的信号)
@@ -158,7 +158,7 @@ func _on_保存_button_up() -> void:
 	
 	var data:Dictionary = save_card(卡牌设计区容器.get_current_tab_control())
 	if  data["卡名"]:
-		var file = FileAccess.open(文件路径.folder单位() + data["卡名"] + ".json", FileAccess.WRITE)
+		var file = FileAccess.open(文件路径.folder单位 + data["卡名"] + ".json", FileAccess.WRITE)
 		file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
 		file.close()
 	

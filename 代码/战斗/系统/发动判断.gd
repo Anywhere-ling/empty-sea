@@ -13,9 +13,11 @@ var effect可判断:Array = [
 	"以单位为对象",
 	"以区为对象",
 	"以序号为对象",
+	"以场上为对象",
 	
 	"对象处理",
 	"数据判断",
+	"计算数量",
 	"计算相似度",
 	"效果判断",
 	"非条件卡牌筛选",
@@ -25,7 +27,8 @@ var effect可判断:Array = [
 	"取卡牌对象",
 	"取格对象",
 	
-	"去掉",
+	"去除",
+	"移动",
 ]
 
 
@@ -58,9 +61,9 @@ func _effect_process(p_effect:Array) -> bool:
 
 func _取卡牌对象(data:Array) -> bool:
 	#提取数据
-	var data0 = _get_cards(data[0])
+	var data0 = _gett(data[0], true, false, 战斗_单位管理系统.Card_sys)
 	
-	if data0 == []:
+	if !data0:
 		return false
 	
 	var 最小数量:int = int(data[3])
@@ -78,7 +81,10 @@ func _取卡牌对象(data:Array) -> bool:
 
 func _取格对象(data:Array) -> bool:
 	#提取数据
-	var data0 = targets[_get_sub_index(data[0])].duplicate(true)
+	var data0:Array
+	for i in _gett(data[0], true, false, 战斗_单位管理系统.Card_pos_sys):
+		if i.nam == "场上":
+			data0.append(i)
 	
 	if data0 == []:
 		return false
@@ -98,21 +104,38 @@ func _取格对象(data:Array) -> bool:
 
 
 
-func _去掉(data:Array) -> bool:
+func _去除(data:Array) -> bool:
 	#提取数据
-	var data0 = _get_cards(data[0])
+	var data0 = _gett(data[0], true, false, 战斗_单位管理系统.Card_sys)
+	var data1 = data[1]
+	var is_活性:bool = false
+	if data1 == "活性":
+		is_活性 = true
 	
-	var cards1:Array
-	for i in data0:
-		var pos:战斗_单位管理系统.Card_pos_sys = i.get_parent()
-		if pos.nam != "场上":
+	var cards1:Dictionary
+	for card:战斗_单位管理系统.Card_sys in data0:
+		for i in card.get_素材(is_活性):
+			cards1[i] = card
+	
+	if len(cards1) < int(data[2]):
+		if is_活性:
 			return false
-		cards1 = []
-		for card in pos.cards:
-			if card.appear <= 1:
-				cards1.append(card)
+		else :
+			for card:战斗_单位管理系统.Card_sys in data0:
+				for i in card.get_素材(true):
+					cards1[i] = card
+			if len(cards1) < int(data[2]):
+				return false
 	
-	if len(cards1) < int(data[1]):
+	
+	return true
+
+
+func _移动(data:Array) -> bool:
+	var data0 = _gett(data[0], false, false, 战斗_单位管理系统.Card_sys)
+	
+	var pos:战斗_单位管理系统.Card_pos_sys = _get_array(targets[_get_sub_index(data[1])])[0]
+	if pos.nam != "场上" or pos.appear == 4:
 		return false
 	
 	

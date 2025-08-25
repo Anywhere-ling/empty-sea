@@ -12,6 +12,7 @@ class_name buff创建工具
 
 
 var specification_影响:Dictionary = {
+	"全部":"会检测全部单位",
 	"加入":"加入卡牌时",
 	"发动":"卡牌发动时",
 	"打出":"打出卡牌时",
@@ -20,6 +21,7 @@ var specification_影响:Dictionary = {
 	"反转":"反转卡牌时",
 	"破坏":"破坏卡牌时",
 	"创造":"创造卡牌时",
+	"阻止":"单位被阻止时",
 	"抽牌":"抽牌时",
 	"释放":"卡牌释放时",
 	"攻击":"攻击时",
@@ -127,7 +129,7 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 
 
 func add_单个角色设计区() -> 卡牌创建工具_单个buff设计区:
-	var node:卡牌创建工具_单个buff设计区 = load(文件路径.tscn卡牌创建工具_buff_单个卡牌设计区()).instantiate()
+	var node:卡牌创建工具_单个buff设计区 = preload(文件路径.tscn卡牌创建工具_buff_单个卡牌设计区).instantiate()
 	卡牌设计区容器.add_child(node)
 	卡牌设计区容器.current_tab = 卡牌设计区容器.get_tab_idx_from_control(node)
 	node.请求关闭该卡牌.connect(_请求删除卡牌设计区的信号)
@@ -192,7 +194,7 @@ func _on_保存_button_up() -> void:
 	
 	var data:Dictionary = save_card(卡牌设计区容器.get_current_tab_control())
 	if  data["卡名"]:
-		var file = FileAccess.open(文件路径.folderbuff() + data["卡名"] + ".json", FileAccess.WRITE)
+		var file = FileAccess.open(文件路径.folderbuff + data["卡名"] + ".json", FileAccess.WRITE)
 		file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
 		file.close()
 	

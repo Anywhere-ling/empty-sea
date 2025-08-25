@@ -1,0 +1,197 @@
+[gd_scene load_steps=2 format=3 uid="uid://box4248uvimpc"]
+
+[ext_resource type="Script" uid="uid://lce7e8se4lxc" path="res://test.gd" id="1_37kl0"]
+
+[node name="test" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_37kl0")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 500.0
+offset_bottom = 500.0
+columns = 5
+
+[node name="Button" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button2" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button3" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button4" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button5" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button6" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button7" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button8" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button9" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button10" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button11" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button12" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button13" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button14" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button15" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button16" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button17" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button18" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button19" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button20" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button21" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button22" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button23" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button24" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button25" type="Button" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="x" type="SpinBox" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1213.0
+offset_top = 383.0
+offset_right = 1299.56
+offset_bottom = 414.0
+scale = Vector2(3, 3)
+min_value = 1.0
+max_value = 5.0
+value = 1.0
+
+[node name="y" type="SpinBox" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1492.0
+offset_top = 379.0
+offset_right = 1578.56
+offset_bottom = 410.0
+scale = Vector2(3, 3)
+min_value = 1.0
+max_value = 5.0
+value = 1.0
+
+[node name="1" type="SpinBox" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1481.0
+offset_top = 480.0
+offset_right = 1567.56
+offset_bottom = 511.0
+scale = Vector2(3, 3)
+min_value = -10.0
+
+[node name="2" type="SpinBox" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1483.0
+offset_top = 589.0
+offset_right = 1569.56
+offset_bottom = 620.0
+scale = Vector2(3, 3)
+min_value = -10.0
+
+[node name="HSlider" type="HSlider" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 71.0
+offset_top = 935.0
+offset_right = 1864.0
+offset_bottom = 972.0
+max_value = 360.0

@@ -14,11 +14,15 @@ offset_bottom = 40.0
 
 [node name="p0" type="Node2D" parent="."]
 unique_name_in_owner = true
-position = Vector2(-502, 210)
+position = Vector2(-652, 99)
+
+[node name="p1" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -106)
 
 [node name="p2" type="Node2D" parent="."]
 unique_name_in_owner = true
 
 [node name="rot" type="Node2D" parent="."]
 unique_name_in_owner = true
-position = Vector2(0, 1000)
+position = Vector2(0, 1373)

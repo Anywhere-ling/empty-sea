@@ -10,6 +10,9 @@ extends Node
 @onready var buff系统: Node = %buff系统
 @onready var 单位控制系统: Node = %单位控制系统
 @onready var 日志系统: 战斗_日志系统 = %日志系统
+@onready var 场地系统: Node = %场地系统
+@onready var 效果系统: Node = %效果系统
+@onready var 二级行动系统: Node = %二级行动系统
 
 signal 下一阶段
 
@@ -24,8 +27,9 @@ var 没有第一次抽牌的单位:Array[战斗_单位管理系统.Life_sys]
 func _ready() -> void:
 	_绑定信号()
 	
+	场地系统.start()
 	最终行动系统.临时pos = 战斗_单位管理系统.Card_pos_sys.new("临时")
-
+	
 
 
 func add_life(life, is_positive:bool) -> void:
@@ -56,6 +60,7 @@ func add_life(life, is_positive:bool) -> void:
 func start() -> void:
 	日志系统.callv("录入信息", [name, "start", [], null])
 	
+	await 最终行动系统.开始()
 	回合系统.start()
 
 
@@ -84,16 +89,16 @@ func _战斗阶段(life:战斗_单位管理系统.Life_sys) -> void:
 				await 卡牌打出与发动系统.发动场上的效果(life, card, "攻击前")
 				
 				if life.get_value("state").has("阻止"):
-					await 卡牌打出与发动系统.阻止(life)
 					await buff系统.单位与全部buff判断("阻止", [null, life, null])
-					break
+					emit_signal("下一阶段")
+					return
 				
-				if card.get_parent().nam == "行动":
-					await _攻击判断(life, card)
+				if card.get_parent().nam == "行动" and card.get_所属life() == life:
+					if life.get_value("state").has("攻击"):
+						await _攻击判断(life, card)
 			卡牌打出与发动系统.自然下降的卡牌[card] = ["打出", life]
 	
 	else:
-		await 卡牌打出与发动系统.阻止(life)
 		await buff系统.单位与全部buff判断("阻止", [null, life, null])
 	
 	emit_signal("下一阶段")
@@ -139,17 +144,17 @@ func _攻击判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位�
 		for i:int in att_sp:
 			if len(att_life.cards_pos["白区"].cards) >= 1:
 				var card1:战斗_单位管理系统.Card_sys = att_life.cards_pos["白区"].cards[0]
-				await 最终行动系统.加入(att_life, card1, att_life.cards_pos["红区"])
+				await 二级行动系统.加入(att_life, card1, att_life.cards_pos["红区"])
 			elif len(att_life.cards_pos["手牌"].cards) >= 1:
 				var card1:战斗_单位管理系统.Card_sys = att_life.cards_pos["手牌"].cards[0]
-				await 最终行动系统.加入(att_life, card1, att_life.cards_pos["红区"])
+				await 二级行动系统.加入(att_life, card1, att_life.cards_pos["红区"])
 			else :
 				await buff系统.单位与全部buff判断("被攻击", [null, att_life, card])
 				await 最终行动系统.死亡(att_life)
 				return
 		
 		#反转
-		var cards:Array = att_life.cards_pos["红区"]
+		var cards:Array = att_life.cards_pos["红区"].cards
 		cards = cards.duplicate(true)
 		cards.shuffle()
 		var count:int = len(cards)/2
@@ -159,6 +164,7 @@ func _攻击判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位�
 				await 最终行动系统.反转(att_life, cards[i])
 	
 	await buff系统.单位与全部buff判断("被攻击", [null, att_life, card])
+
 
 
 func _抽牌阶段(life:战斗_单位管理系统.Life_sys) -> void:
@@ -191,17 +197,17 @@ func _第一次抽牌(life:战斗_单位管理系统.Life_sys) -> void:
 		var card:战斗_单位管理系统.Card_sys = life.cards_pos["白区"].cards[0]
 		await 最终行动系统.反转(life, card)
 		if await card.get_value("种类") in ["攻击", "防御"]:
-			await 最终行动系统.加入(life, card, life.cards_pos["手牌"])
+			await 二级行动系统.加入(life, card, life.cards_pos["手牌"])
 			hand_cadrs += 1
 		else :
-			await 最终行动系统.加入(life, card, life.cards_pos["蓝区"])
+			await 二级行动系统.加入(life, card, life.cards_pos["蓝区"])
 
 func _第一次弃牌(life:战斗_单位管理系统.Life_sys) -> void:
 	日志系统.callv("录入信息", [name, "_第一次弃牌", [life], null])
 	
 	var cards:Array = await 单位控制系统.control[life].第一次弃牌()
 	for card:战斗_单位管理系统.Card_sys in cards:
-		await 最终行动系统.加入(life, card, life.cards_pos["绿区"])
+		await 二级行动系统.加入(life, card, life.cards_pos["绿区"])
 		await 最终行动系统.抽牌(life)
 
 func _整理手牌(life:战斗_单位管理系统.Life_sys) -> void:
@@ -238,14 +244,49 @@ func _开始阶段(life:战斗_单位管理系统.Life_sys) -> void:
 
 func _行动阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	日志系统.callv("录入信息", [name, "_行动阶段", [life], null])
+	var card:战斗_单位管理系统.Card_sys
+	if life.cards_pos["行动"].cards:
+		card = life.cards_pos["行动"].cards[0]
+		_行动阶段移动(life, [card.get_value("种类")])
+	else:
+		var cards:Array[战斗_单位管理系统.Card_sys] = await 发动判断系统.单位行动阶段打出判断(life)
+		card = await 单位控制系统.control[life].打出(cards)
+		if card:
+			if await 卡牌打出与发动系统.打出(life, card):
+				
+				await 卡牌打出与发动系统.行动组结束()
+				
+				await _行动阶段移动(life, [card.get_value("种类")])
 	
-	var cards:Array[战斗_单位管理系统.Card_sys] = await 发动判断系统.单位行动阶段打出判断(life)
-	var card:战斗_单位管理系统.Card_sys = await 单位控制系统.control[life].打出(cards)
-	if card:
-		await 卡牌打出与发动系统.打出(life, card)
 	emit_signal("下一阶段")
 
-
+func _行动阶段移动(life:战斗_单位管理系统.Life_sys, state:Array) -> bool:
+	var 方向:Array
+	if state.has("攻击"):
+		方向.append(0)
+	if state.has("防御"):
+		方向.append(90)
+		方向.append(180)
+		方向.append(270)
+	
+	var dic:Dictionary = await 效果系统.可用移动(life, 方向, 1, 1)[0]
+	if !dic:
+		return false
+	
+	while true:
+		var arr_card:Array = await 单位控制系统.请求选择(life, "要让谁移动呢", dic.keys(), 1, 0)
+		if !arr_card:
+			return false
+		var card:战斗_单位管理系统.Card_sys = arr_card[0]
+		var arr_pos:Array = dic[card]
+		
+		var pos:战斗_单位管理系统.Card_pos_sys = await 单位控制系统.请求选择一格(life, arr_pos)
+		if !pos:
+			continue
+		await 二级行动系统.加入(life, card, pos)
+		return true
+	
+	return true
 
 
 func _主要阶段(life:战斗_单位管理系统.Life_sys) -> void:
@@ -287,12 +328,12 @@ func _主要阶段判断(life:战斗_单位管理系统.Life_sys) -> void:
 	if 连锁系统.chain_state == 0:
 		var 蓝区cards:Array[战斗_单位管理系统.Card_sys] = 单位管理系统.get_给定显示以上的卡牌(life.cards_pos["蓝区"].cards, 3)
 		var 场上cards:Array[战斗_单位管理系统.Card_sys]
-		for i in 6:
-			if life.cards_pos["场上"][i].cards:
-				场上cards.append(life.cards_pos["场上"][i].cards[0])
+		for pos in life.cards_pos["场上"]:
+			if pos.cards:
+				场上cards.append(pos.cards[0])
 		场上cards = 单位管理系统.get_给定显示以上的卡牌(场上cards, 2)
 		var 手牌cards:Array[战斗_单位管理系统.Card_sys] = 单位管理系统.get_给定显示以上的卡牌(life.cards_pos["手牌"].cards, 3)
-		合成cards = 发动判断系统.合成构造判断(蓝区cards+手牌cards, 蓝区cards+场上cards, 蓝区cards+场上cards)
+		合成cards = 发动判断系统.合成构造判断(life, 蓝区cards+手牌cards, 蓝区cards+场上cards, 蓝区cards+场上cards)
 		
 	单位控制系统.control[life].主要阶段判断(发动cards, 打出cards, 合成cards)
 
@@ -317,13 +358,16 @@ func _结束阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	if len(life.cards_pos["手牌"].cards) > await life.get_value("speed"):
 		var cards:Array[战斗_单位管理系统.Card_sys] = await 单位控制系统.control[life].结束阶段弃牌()
 		for card:战斗_单位管理系统.Card_sys in cards:
-			await 最终行动系统.加入(life, card, life.cards_pos["绿区"])
+			await 二级行动系统.加入(life, card, life.cards_pos["绿区"])
 	
-	_恢复数值(life)
 	_恢复红区(life)
+	
+	await 卡牌打出与发动系统.行动组结束()
 	释放与源.释放卡牌()
 	
 	emit_signal("下一阶段")
+
+
 
 func _恢复绿区(life:战斗_单位管理系统.Life_sys) -> void:
 	日志系统.callv("录入信息", [name, "_恢复绿区", [life], null])
@@ -345,20 +389,7 @@ func _恢复红区(life:战斗_单位管理系统.Life_sys) -> void:
 			await 最终行动系统.反转(life, card)
 			return
 
-func _恢复数值(life:战斗_单位管理系统.Life_sys) -> void:
-	日志系统.callv("录入信息", [name, "_恢复数值", [life], null])
-	
-	var cards:Array[战斗_单位管理系统.Card_sys] = life.get_all_cards()
-	cards = 单位管理系统.get_给定显示以上的卡牌(cards, 1)
-	for card:战斗_单位管理系统.Card_sys in cards:
-		var is_改变:bool = false
-		for i:String in ["种类", "卡名", "sp", "mp"]:
-			if await card.get_value(i) != card.data.get(i):
-				is_改变 = true
-				card.set(i, card.data.get(i))
-		
-		if is_改变:
-			await 最终行动系统.图形化数据改变(card)
+
 
 
 

@@ -17,13 +17,11 @@ func 请求选择单位(life:战斗_单位管理系统.Life_sys, mp:int) -> 战�
 	var arr:Array[战斗_单位管理系统.Life_sys]
 	if 单位管理系统.lifes.has(life):
 		for i:战斗_单位管理系统.Life_sys in 单位管理系统.efils:
-			if mp >= 6 - len(卡牌打出与发动系统.get_可用的格子(i.cards_pos["场上"], ["卡牌"])):
-				arr.append(i)
+			arr.append(i)
 		
 	else :
 		for i:战斗_单位管理系统.Life_sys in 单位管理系统.lifes:
-			if mp >= 6 - len(卡牌打出与发动系统.get_可用的格子(i.cards_pos["场上"], ["卡牌"])):
-				arr.append(i)
+			arr.append(i)
 	
 	var ret:战斗_单位管理系统.Life_sys = await control[life].选择单位(arr)
 	
@@ -36,9 +34,11 @@ func 请求选择(life:战斗_单位管理系统.Life_sys, 描述:String, arr:Ar
 	日志系统.callv("录入信息", [name, "请求选择", [life, 描述, arr, count_max, count_min], ret])
 	return ret
 
-func 请求选择一格(life:战斗_单位管理系统.Life_sys, arr:Array, condition:Array) -> 战斗_单位管理系统.Card_pos_sys:
-	arr = 卡牌打出与发动系统.get_可用的格子(arr, condition)
-	var arr1:Array = await control[life].选择一格(arr)
+func 请求选择一格(life:战斗_单位管理系统.Life_sys, arr:Array, 可以取消:bool = true) -> 战斗_单位管理系统.Card_pos_sys:
+	var min:int = 1
+	if 可以取消:
+		min = 0
+	var arr1:Array = await control[life].选择一格(arr, "要选择一格吗", 1, min)
 	var ret:战斗_单位管理系统.Card_pos_sys
 	if arr1:
 		ret = arr1[0]
@@ -70,7 +70,10 @@ func 发动询问(life:战斗_单位管理系统.Life_sys) -> bool:
 		日志系统.callv("录入信息", [name, "发动询问", [life], false])
 		return false
 	
-	await 卡牌打出与发动系统.发动(life, card)
+	if !await 卡牌打出与发动系统.发动(life, card):
+		
+		日志系统.callv("录入信息", [name, "发动询问", [life], false])
+		return false
 	
 	if 连锁系统.chain_state:
 		await 连锁系统.连锁处理结束

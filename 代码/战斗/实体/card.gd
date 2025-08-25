@@ -14,6 +14,7 @@ class_name Card
 @onready var 第二层: Node2D = %第二层
 @onready var 光圈: Panel = %光圈
 @onready var 顶部: Control = %顶部
+@onready var 中心: Control = %中心
 
 @export var 光圈_arr:Array[StyleBoxFlat]
 
@@ -24,6 +25,23 @@ var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
 var nam:String
 var card_sys:战斗_单位管理系统.Card_sys
+var alpha:float:
+	set(a):
+		alpha = a
+		if a > 1:
+			alpha = 1
+		elif a < 0:
+			alpha = 0
+		
+		if alpha == 0:
+			visible = false
+		else :
+			visible = true
+		
+		modulate = Color(1,1,1,alpha)
+			
+var pos:Node
+
 
 func _ready() -> void:
 	event_bus.subscribe("战斗_鼠标进入卡牌", func(a):
@@ -42,10 +60,10 @@ func set_card(p_card_sys:战斗_单位管理系统.Card_sys) -> void:
 
 
 func display() -> void:
-	if FileAccess.file_exists(文件路径.png卡牌种类(card_sys.nam)):
-		卡图.texture = load(文件路径.png卡牌种类(card_sys.nam))
+	if FileAccess.file_exists(文件路径.png卡牌种类 + card_sys.nam + "/.png"):
+		卡图.texture = load(文件路径.png卡牌种类 + card_sys.nam + ".png")
 	else :
-		卡图.texture = load(文件路径.png_test())
+		卡图.texture = preload(文件路径.png_test)
 	
 	图片.resized.connect(func():渲染.size = 图片.size)
 	if !card_sys.direction:
@@ -54,42 +72,48 @@ func display() -> void:
 	
 	var data = DatatableLoader.get_data_model("card_data", card_sys.nam)
 		
-	种类.texture = load(文件路径.png卡牌种类(data.种类))
+	种类.texture = load(文件路径.png卡牌种类 + data.种类 + ".png")
 	卡名.text = data.卡名
 	sp.text = str(data.sp)
 	mp.text = str(data.mp)
 	
+	
 	if card_sys.appear != 0:
 		for i in ["特征", "组", "种类", "卡名", "sp", "mp"]:
 			_图片或文字改变的信号(i)
+	_图片或文字改变的信号("appear")
 
 
 signal 卡牌信息改变
 var 组:Array
 var 特征:Array
 func _图片或文字改变的信号(key:String) -> void:
-	var positive:bool = card_sys.appear
-	表侧.visible = positive
-	里侧.visible = !positive
-	
+	if key == "appear":
+		var positive:bool = card_sys.appear
+		表侧.visible = positive
+		里侧.visible = !positive
+		
 	if card_sys.appear == 0:
+		_重新渲染()
 		return
 		
 	if key in ["种类"]:
-		种类.texture = load(文件路径.png卡牌种类(card_sys.get_value("种类")))
+		种类.texture = load(文件路径.png卡牌种类 + card_sys.get_value("种类") + ".png")
 	elif key in ["卡名"]:
-		卡名.text = card_sys.get_value("卡名")
+		卡名.text = card_sys.get_value("显示卡名")
 	elif key in ["sp"]:
 		sp.text = str(card_sys.get_value("sp"))
 	elif key in ["mp"]:
 		mp.text = str(card_sys.get_value("mp"))
 	elif key in ["组"]:
 		组 = card_sys.get_value("组")
-		卡牌信息改变
+		emit_signal("卡牌信息改变")
+		_重新渲染()
 		return
 	elif key in ["特征"]:
 		特征 = card_sys.get_value("特征")
-		卡牌信息改变
+		emit_signal("卡牌信息改变")
+		_重新渲染()
 		return
 	
 	
@@ -115,6 +139,29 @@ func get_pos() -> String:
 
 func get_his_pos() -> String:
 	return card_sys.his_pos[-2]
+
+#素材相关
+func get_中心() -> Control:
+	return 中心
+
+func add_card(card:Card) -> void:
+	if card.get_parent():
+		card.get_parent().remove_child(card)
+	
+	中心.add_child(card)
+	card.set_pos(self)
+
+func remove_card(card:Card) -> void:
+	中心.remove_child(card)
+
+
+func set_pos(node:Node) -> void:
+	pos = node
+
+func pos_remove_card() -> void:
+	pos.remove_card(self)
+	assert(!get_parent(), "有父节点")
+	pos = null
 
 
 signal 卡牌被释放

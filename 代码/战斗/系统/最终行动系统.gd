@@ -23,7 +23,6 @@ var 未完成的动画:int = 0:
 
 
 func _ready() -> void:
-	可以继续.connect(_可以继续的信号)
 	动画完成.connect(_动画完成的信号)
 
 
@@ -33,17 +32,28 @@ func 等待动画完成() -> void:
 
 
 func _add_history(data_sys:战斗_单位管理系统.Data_sys, tapy:String, data = null) -> void:
-	data_sys.add_history(tapy, 回合系统.turn, 回合系统.period, data)
+	if data_sys:
+		data_sys.add_history(tapy, 回合系统.turn, 回合系统.period, data)
 
-func _可以继续的信号() -> void:
-	未完成的动画 += 1
 
 func _动画完成的信号() -> void:
 	未完成的动画 -= 1
 
-func _请求动画(nam:String, data:Dictionary) -> void:
-	event_bus.push_event("战斗_请求动画", [nam, data])
 
+var 动画index:int = 0
+func _请求动画(nam:String, data:Dictionary) -> void:
+	未完成的动画 += 1
+	动画index += 1
+	var ind:int = 动画index
+	data["动画index"] = ind
+	
+	event_bus.push_event("战斗_请求动画", [nam, data])
+	
+	var ret:bool = true
+	while ret:
+		var ret_ind:int = await 可以继续
+		if ret_ind == ind:
+			ret = false
 
 
 func 行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
@@ -53,8 +63,8 @@ func 行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管
 	_add_history(card, "打出")
 	
 	#动画
-	_请求动画("行动打出", {"life":life, "card":card})
-	await 可以继续
+	await _请求动画("行动打出", {"life":life, "card":card})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "行动打出", [life, card], true])
@@ -74,8 +84,8 @@ func 非行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 	_add_history(card, "打出")
 	
 	#动画
-	_请求动画("非行动打出", {"life":life, "card":card, "pos":pos})
-	await 可以继续
+	await _请求动画("非行动打出", {"life":life, "card":card, "pos":pos})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "非行动打出", [life, card, pos], true])
@@ -90,14 +100,13 @@ func 非行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 func 构造(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Card_pos_sys) -> bool:
 	card.get_parent().remove_card(card)
 	pos.add_card(card)
-	pos.move_card(card, 0)
 	card.state = true
 	_add_history(life, "构造", card)
 	_add_history(card, "构造")
 	
 	#动画
-	_请求动画("构造", {"life":life, "card":card, "pos":pos})
-	await 可以继续
+	await _请求动画("构造", {"life":life, "card":card, "pos":pos})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "构造", [life, card, pos], true])
@@ -118,8 +127,8 @@ func 非场上发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 	pos.add_card(card)
 	
 	#动画
-	_请求动画("非场上发动", {"life":life, "card":card, "pos":pos})
-	await 可以继续
+	await _请求动画("非场上发动", {"life":life, "card":card, "pos":pos})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "非场上发动", [life, card, pos], true])
@@ -137,8 +146,8 @@ func 改变方向(life:战斗_单位管理系统.Life_sys, card:战斗_单位管
 	_add_history(card, "改变方向")
 	
 	#动画
-	_请求动画("改变方向", {"life":life, "card":card})
-	await 可以继续
+	await _请求动画("改变方向", {"life":life, "card":card})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "改变方向", [life, card], true])
@@ -158,8 +167,8 @@ func 反转(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	_add_history(card, "反转")
 	
 	#动画
-	_请求动画("反转", {"life":life, "card":card})
-	await 可以继续
+	await _请求动画("反转", {"life":life, "card":card})
+	
 	#后续
 	
 	
@@ -185,8 +194,8 @@ func 破坏(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	_add_history(card, "破坏")
 	
 	#动画
-	_请求动画("破坏", {"life":life, "card":card})
-	await 可以继续
+	await _请求动画("破坏", {"life":life, "card":card})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "破坏", [life, card], true])
@@ -213,8 +222,8 @@ func 加入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	
 	#动画
-	_请求动画("加入", {"life":life, "card":card, "pos":pos})
-	await 可以继续
+	await _请求动画("加入", {"life":life, "card":card, "pos":pos})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "加入", [life, card, pos], true])
@@ -242,8 +251,8 @@ func 插入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	
 	#动画
-	_请求动画("加入", {"life":life, "card":card, "pos":pos})
-	await 可以继续
+	await _请求动画("加入", {"life":life, "card":card, "pos":pos})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "插入", [life, card, pos], true])
@@ -252,8 +261,46 @@ func 插入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	return true
 
 
-func 创造(card_name:String) -> 战斗_单位管理系统.Card_sys:
+func 填入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, 素材:战斗_单位管理系统.Card_sys) -> bool:
+	card.add_素材(素材)
+	_add_history(life, "填入", 素材)
+	_add_history(card, "填入", 素材)
+	_add_history(素材, "被填入", card)
+	
+	#动画
+	await _请求动画("填入", {"life":life, "card":card, "素材":素材})
+	
+	
+	#后续
+	日志系统.callv("录入信息", [name, "填入", [life, card, 素材], true])
+	
+	
+	return true
+
+
+func 去除(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, 素材:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Card_pos_sys) -> bool:
+	if card.nam == "剑之坟":
+		pass
+	card.remove_素材(素材)
+	pos.add_card(素材)
+	_add_history(life, "去除", 素材)
+	_add_history(card, "去除", 素材)
+	_add_history(素材, "被去除", pos)
+	
+	#动画
+	await _请求动画("去除", {"life":life, "card":card, "素材":素材, "pos":pos})
+	
+	
+	#后续
+	日志系统.callv("录入信息", [name, "去除", [life, card, 素材, pos], true])
+	
+	
+	return true
+
+
+func 创造(life:战斗_单位管理系统.Life_sys, card_name:String) -> 战斗_单位管理系统.Card_sys:
 	var card:= 单位管理系统.create_card(card_name)
+	card.所属life = life
 	临时pos.add_card(card)
 	card.face_up()
 	if await card.get_value("种类") == "环境":
@@ -261,8 +308,8 @@ func 创造(card_name:String) -> 战斗_单位管理系统.Card_sys:
 	_add_history(card, "创造")
 	
 	#动画
-	_请求动画("创造", {"card":card})
-	await 可以继续
+	await _请求动画("创造", {"card":card})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "创造", [card_name], true])
@@ -290,8 +337,8 @@ func 抽牌(life:战斗_单位管理系统.Life_sys) -> bool:
 	_add_history(card, "抽牌")
 	
 	#动画
-	_请求动画("抽牌", {"life":life, "card":card})
-	await 可以继续
+	await _请求动画("抽牌", {"life":life, "card":card})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "抽牌", [life], true])
@@ -309,8 +356,8 @@ func 释放(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	_add_history(card, "释放")
 	
 	#动画
-	_请求动画("释放", {"life":life, "card":card})
-	await 可以继续
+	await _请求动画("释放", {"life":life, "card":card})
+	
 	
 	#后续
 	日志系统.callv("录入信息", [name, "释放", [life, card], true])
@@ -328,8 +375,8 @@ func 攻击(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	#动画
 	if mode == "直接攻击":
-		_请求动画("直接攻击", {"life":life, "card":card, "mode":mode})
-	await 可以继续
+		await _请求动画("直接攻击", {"life":life, "card":card, "mode":mode})
+	
 	#后续
 	
 	日志系统.callv("录入信息", [name, "攻击", [life, card, mode], true])
@@ -348,8 +395,8 @@ func 加入战斗(控制, is_positive:bool) -> 战斗_单位管理系统.Life_sy
 	
 	
 	#动画
-	_请求动画("加入战斗", {"life":life, "is_positive":is_positive})
-	await 可以继续
+	await _请求动画("加入战斗", {"life":life, "is_positive":is_positive})
+	
 	
 	控制.life_sys = life
 	单位管理系统.创造牌库(life, 控制.创造牌库())
@@ -359,22 +406,22 @@ func 加入战斗(控制, is_positive:bool) -> 战斗_单位管理系统.Life_sy
 	return life
 
 
-func 图形化数据改变(card:战斗_单位管理系统.Card_sys, key:String) -> bool:
+func 图形化数据改变(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, key:String) -> bool:
 	if key == "组" and card.pos == "红区":
-		card.get_parent().get_parent().reset_组无效()
+		life.reset_组无效()
 	#动画
-	_请求动画("图形化数据改变", {"card":card, "key":key})
-	await 可以继续
+	await _请求动画("图形化数据改变", {"life":life, "card":card, "key":key})
 	
-	日志系统.callv("录入信息", [name, "图形化数据改变", [card, key], true])
+	
+	日志系统.callv("录入信息", [name, "图形化数据改变", [life, card, key], true])
 	
 	return true
 
 
 func 死亡(life:战斗_单位管理系统.Life_sys) -> bool:
 	#动画
-	_请求动画("死亡", {"life":life})
-	await 可以继续
+	await _请求动画("死亡", {"life":life})
+	
 	#后续
 	
 	日志系统.callv("录入信息", [name, "死亡", [life], true])
@@ -389,24 +436,24 @@ func 死亡(life:战斗_单位管理系统.Life_sys) -> bool:
 #纯动画
 func 加入连锁的动画(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, effect_ind:int, speed:int) -> bool:
 	#动画
-	_请求动画("加入连锁的动画", {"life":life, "card":card, "effect_ind":effect_ind, "speed":speed})
-	await 可以继续
+	await _请求动画("加入连锁的动画", {"life":life, "card":card, "effect_ind":effect_ind, "speed":speed})
+	
 	
 	日志系统.callv("录入信息", [name, "加入连锁的动画", [life, card, effect_ind, speed], true])
 	return true
 
 func 退出连锁的动画(card:战斗_单位管理系统.Card_sys) -> bool:
 	#动画
-	_请求动画("退出连锁的动画", {"card":card})
-	await 可以继续
+	await _请求动画("退出连锁的动画", {"card":card})
+	
 	
 	日志系统.callv("录入信息", [name, "退出连锁的动画", [card], true])
 	return true
 
 func 创造牌库(life:战斗_单位管理系统.Life_sys) -> bool:
 	#动画
-	_请求动画("创造牌库", {"life":life})
-	await 可以继续
+	await _请求动画("创造牌库", {"life":life})
+	
 	
 	日志系统.callv("录入信息", [name, "创造牌库", [life], true])
 	
@@ -414,8 +461,8 @@ func 创造牌库(life:战斗_单位管理系统.Life_sys) -> bool:
 
 func 单位图形化数据改变(life:战斗_单位管理系统.Life_sys, key:String) -> bool:
 	#动画
-	_请求动画("单位图形化数据改变", {"life":life, "key":key})
-	await 可以继续
+	await _请求动画("单位图形化数据改变", {"life":life, "key":key})
+	
 	
 	日志系统.callv("录入信息", [name, "单位图形化数据改变", [life, key], true])
 	
@@ -423,8 +470,8 @@ func 单位图形化数据改变(life:战斗_单位管理系统.Life_sys, key:St
 
 func 整理手牌(life:战斗_单位管理系统.Life_sys) -> bool:
 	#动画
-	_请求动画("整理手牌", {"life":life})
-	await 可以继续
+	await _请求动画("整理手牌", {"life":life})
+	
 	
 	日志系统.callv("录入信息", [name, "整理手牌", [life], true])
 	
@@ -432,8 +479,8 @@ func 整理手牌(life:战斗_单位管理系统.Life_sys) -> bool:
 
 func 场上发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
 	#动画
-	_请求动画("场上发动", {"life":life, "card":card})
-	await 可以继续
+	await _请求动画("场上发动", {"life":life, "card":card})
+	
 	#后续
 	
 	日志系统.callv("录入信息", [name, "场上发动", [life, card], true])
@@ -443,8 +490,8 @@ func 场上发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位管
 
 func 无效(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
 	#动画
-	_请求动画("无效", {"life":life, "card":card})
-	await 可以继续
+	await _请求动画("无效", {"life":life, "card":card})
+	
 	#后续
 	
 	日志系统.callv("录入信息", [name, "无效", [life, card], true])
@@ -454,8 +501,8 @@ func 无效(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 
 func 阻止(life:战斗_单位管理系统.Life_sys) -> bool:
 	#动画
-	_请求动画("阻止", {"life":life})
-	await 可以继续
+	await _请求动画("阻止", {"life":life})
+	
 	#后续
 	
 	日志系统.callv("录入信息", [name, "阻止", [life], true])
@@ -465,11 +512,22 @@ func 阻止(life:战斗_单位管理系统.Life_sys) -> bool:
 
 func 确认信息(test:String) -> bool:
 	#动画
-	_请求动画("确认信息", {"test":test})
-	await 可以继续
+	await _请求动画("确认信息", {"test":test})
+	
 	#后续
 	
 	日志系统.callv("录入信息", [name, "确认信息", [test], true])
+	
+	
+	return true
+
+func 开始() -> bool:
+	#动画
+	await _请求动画("开始", {})
+	
+	#后续
+	
+	日志系统.callv("录入信息", [name, "开始", [], true])
 	
 	
 	return true
@@ -479,7 +537,6 @@ func 确认信息(test:String) -> bool:
 func 直接释放(card:战斗_单位管理系统.Card_sys) -> void:
 	日志系统.callv("录入信息", [name, "直接释放", [card], null])
 	
-	释放与源.all_mp += 1
 	if card.nam!= "源" and !释放与源.cards.has(card.nam):
 		释放与源.cards.append(card.nam)
 	

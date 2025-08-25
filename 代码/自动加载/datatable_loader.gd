@@ -24,7 +24,7 @@ func _ready() -> void:
 	#data_manager的设置
 	if has_node(^"/root/DataManager"):
 		_data_manager = get_node(^"/root/DataManager")
-	_data_manager.register_data_loader("txt", load(文件路径.gdcard_data_loader()).new())
+	_data_manager.register_data_loader("txt", preload(文件路径.gdcard_data_loader).new())
 	
 	
 	#信号

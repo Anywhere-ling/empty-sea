@@ -43,7 +43,7 @@ func _将数据写入选择器() -> void:
 	buff.start_build()
 	卡牌.choose_data = cards_data.keys()
 	卡牌.start_build()
-	媒介.choose_data = specification_媒介
+	#媒介.choose_data = specification_媒介
 	媒介.start_build()
 	文件.choose_data = equips_data.keys()
 	文件.start_build()
@@ -55,10 +55,10 @@ func _将数据写入选择器() -> void:
 
 
 func _add_node(node:Control, s:String) -> Control:
-	if node.tooltip_text == "媒介":
-		if specification_媒介.has(s):
-			return _add_node_文本(node, s)
-	elif node.tooltip_text == "卡牌":
+	#if node.tooltip_text == "媒介":
+		#if specification_媒介.has(s):
+			#return _add_node_文本(node, s)
+	if node.tooltip_text == "卡牌":
 		if cards_data.has(s):
 			return _add_node_文本(node, s)
 	elif node.tooltip_text == "buff":
@@ -88,7 +88,7 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 
 
 func add_单个角色设计区() -> 卡牌创建工具_单个装备设计区:
-	var node:卡牌创建工具_单个装备设计区 = load(文件路径.tscn卡牌创建工具_装备_单个卡牌设计区()).instantiate()
+	var node:卡牌创建工具_单个装备设计区 = preload(文件路径.tscn卡牌创建工具_装备_单个卡牌设计区).instantiate()
 	卡牌设计区容器.add_child(node)
 	卡牌设计区容器.current_tab = 卡牌设计区容器.get_tab_idx_from_control(node)
 	node.请求关闭该卡牌.connect(_请求删除卡牌设计区的信号)
@@ -138,7 +138,7 @@ func _on_保存_button_up() -> void:
 	
 	var data:Dictionary = save_card(卡牌设计区容器.get_current_tab_control())
 	if  data["卡名"]:
-		var file = FileAccess.open(文件路径.folder装备() + data["卡名"] + ".json", FileAccess.WRITE)
+		var file = FileAccess.open(文件路径.folder装备 + data["卡名"] + ".json", FileAccess.WRITE)
 		file.store_string(JSON.stringify(data, "   ", true, true))  # 写入内容（可为空）
 		file.close()
 	

@@ -21,9 +21,10 @@
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 311.0
-offset_top = -133.0
-offset_bottom = 133.182
+offset_left = 309.0
+offset_top = 111.0
+offset_right = -1511.0
+offset_bottom = -842.0
 grow_horizontal = 2
 grow_vertical = 2
 scale = Vector2(0.2, 0.2)
@@ -80,8 +81,8 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_cufxw")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_0837n")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_jwivg")
 
-[node name="Label" type="Label" parent="边距"]
+[node name="横" type="Label" parent="边距"]
 layout_mode = 2
-text = "                  "
+text = "                        "
 
 [connection signal="button_up" from="边距/左/Button" to="." method="_on_button_button_up"]

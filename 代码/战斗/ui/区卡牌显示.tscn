@@ -14,12 +14,8 @@ script = ExtResource("1_16alr")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_right = 117.0
-offset_bottom = 620.0
-grow_horizontal = 0
+offset_right = 160.0
+offset_bottom = 1174.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_16alr")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
@@ -31,7 +27,7 @@ size_flags_horizontal = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
-[node name="v" type="VBoxContainer" parent="PanelContainer/HBoxContainer/ScrollContainer"]
+[node name="容器" type="VBoxContainer" parent="PanelContainer/HBoxContainer/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

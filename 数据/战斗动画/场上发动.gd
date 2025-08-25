@@ -11,7 +11,7 @@ func _start() -> void:
 	card.tween动画添加("缩放", "scale", Vector2(1,1), 0.4/speed)
 	
 	await get_tree().create_timer(0.6/speed).timeout
-	emit_可以继续()
+	emit_可以继续(data["动画index"])
 	
 	card.tween_trans = Tween.TRANS_QUAD
 	card.tween动画添加("缩放", "scale", Vector2(0.7,0.7), 0.4/speed)

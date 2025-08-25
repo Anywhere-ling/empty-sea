@@ -155,7 +155,7 @@ tooltip_auto_translate_mode = 2
 mouse_filter = 1
 text = "组     "
 
-[node name="提供焦点" type="Button" parent="PanelContainer/主要区域/VBoxContainer/3/Label4"]
+[node name="提供焦点" type="Button" parent="PanelContainer/主要区域/VBoxContainer/3/Label4" groups=["提供焦点"]]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -183,7 +183,7 @@ tooltip_auto_translate_mode = 2
 mouse_filter = 1
 text = "装备 "
 
-[node name="提供焦点" type="Button" parent="PanelContainer/主要区域/VBoxContainer/4/Label4"]
+[node name="提供焦点" type="Button" parent="PanelContainer/主要区域/VBoxContainer/4/Label4" groups=["提供焦点"]]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

@@ -9,53 +9,58 @@ extends Node
 @onready var 单位控制系统: Node = %单位控制系统
 @onready var 发动判断系统: Node = %发动判断系统
 @onready var 日志系统: 战斗_日志系统 = %日志系统
+@onready var 场地系统: Node = %场地系统
+@onready var 二级行动系统: Node = %二级行动系统
 
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
 func 单位主要阶段发动判断(life:战斗_单位管理系统.Life_sys) -> Array[战斗_单位管理系统.Card_sys]:
-	var speed:int = 连锁系统.now_speed
 	var ret可发动的卡牌:Array[战斗_单位管理系统.Card_sys] = []
 	#发动
 	var cards:Array[战斗_单位管理系统.Card_sys] = 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards(), 3)
 	for card:战斗_单位管理系统.Card_sys in cards:
-		if await 卡牌发动与消耗判断(card, speed):
-			if !ret可发动的卡牌.has(card):
-				ret可发动的卡牌.append(card)
+		#test
+		if card.test == 1:
+			pass
+		
+		if card.nam == "内装甲激活":
+			pass
+		
+		if await _发动消耗判断(life, card):
+			if await 卡牌发动判断(life, card, card.get_parent().nam):
+				if !ret可发动的卡牌.has(card):
+					ret可发动的卡牌.append(card)
 
 	
 
 	
-	日志系统.callv("录入信息", [name, "单位主要阶段发动判断", [life, speed], ret可发动的卡牌])
+	日志系统.callv("录入信息", [name, "单位主要阶段发动判断", [life], ret可发动的卡牌])
 	return ret可发动的卡牌
 
 
 func 单位主要阶段打出判断(life:战斗_单位管理系统.Life_sys) -> Array[战斗_单位管理系统.Card_sys]:
-	var speed:int = 连锁系统.now_speed
 	var ret可打出的卡牌:Array[战斗_单位管理系统.Card_sys] = []
 	#打出
 	for card:战斗_单位管理系统.Card_sys in life.cards_pos["手牌"].cards:
+		if !场地系统.get_可用场上(life, "手牌", 0):
+			continue
 		if _打出消耗判断(life, card):
 			if card.data["种类"] in ["仪式"]:
-				if !卡牌打出与发动系统.get_可用的格子(life.cards_pos["场上"], ["纵向"]):
-					continue
 				if !ret可打出的卡牌.has(card):
 					ret可打出的卡牌.append(card)
 			elif card.data["种类"] in ["法术"]:
-				if !卡牌打出与发动系统.get_可用的格子(life.cards_pos["场上"], ["纵向"]):
-					continue
 				var pos = "场上"
-				if await 卡牌发动判断(life, card, pos, speed):
+				if await 卡牌发动判断(life, card, pos):
 					if !ret可打出的卡牌.has(card):
 						ret可打出的卡牌.append(card)
 
 	
-	日志系统.callv("录入信息", [name, "单位主要阶段打出判断", [life, speed], ret可打出的卡牌])
+	日志系统.callv("录入信息", [name, "单位主要阶段打出判断", [life], ret可打出的卡牌])
 	return ret可打出的卡牌
 
 
 func 单位非主要阶段发动判断(life:战斗_单位管理系统.Life_sys) -> Array[战斗_单位管理系统.Card_sys]:
-	var speed:int = 连锁系统.now_speed
 	var ret可发动的卡牌:Array[战斗_单位管理系统.Card_sys] = []
 	#发动
 	var cards:Array[战斗_单位管理系统.Card_sys]
@@ -64,12 +69,17 @@ func 单位非主要阶段发动判断(life:战斗_单位管理系统.Life_sys) 
 	else :
 		cards = 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards(), 4)
 	for card:战斗_单位管理系统.Card_sys in cards:
-		if await 卡牌发动与消耗判断(card, speed):
-			if !ret可发动的卡牌.has(card):
-				ret可发动的卡牌.append(card)
+		#test
+		if card.test == 1:
+			pass
+		
+		if await _发动消耗判断(life, card):
+			if await 卡牌发动判断(life, card, card.get_parent().nam):
+				if !ret可发动的卡牌.has(card):
+					ret可发动的卡牌.append(card)
 	
 	
-	日志系统.callv("录入信息", [name, "单位非主要阶段发动判断", [life, speed], ret可发动的卡牌])
+	日志系统.callv("录入信息", [name, "单位非主要阶段发动判断", [life], ret可发动的卡牌])
 	return ret可发动的卡牌
 
 
@@ -77,26 +87,23 @@ func 单位行动阶段打出判断(life:战斗_单位管理系统.Life_sys) -> 
 	var ret可打出的卡牌:Array[战斗_单位管理系统.Card_sys] = []
 	
 	#打出
-	var mp:int 
-	if life.att_life:
-		mp = 单位管理系统.get_life场上第一张是纵向的格子数量(life.att_life)
-	else :
-		mp = 单位管理系统.get_life场上第一张是纵向的格子数量(life.face_life)
 	for card:战斗_单位管理系统.Card_sys in life.cards_pos["手牌"].cards:
-		if card.appear and await card.get_value("mp") >= mp:
-			var 种类:String = await card.get_value("种类")
-			var state:Array[String] = await life.get_value("state")
-			if 种类 in ["攻击", "防御"] and (state == [] or state.has(种类)):
-				if _打出消耗判断(life, card):
-					if !ret可打出的卡牌.has(card):
-						ret可打出的卡牌.append(card)
+		var 种类:String = await card.get_value("种类")
+		var state:Array[String] = await life.get_value("state")
+		if 种类 in ["攻击", "防御"] and (state == [] or state.has(种类)):
+			if _打出消耗判断(life, card):
+				if !ret可打出的卡牌.has(card):
+					ret可打出的卡牌.append(card)
 	
 	
 	日志系统.callv("录入信息", [name, "单位行动阶段打出判断", [life], ret可打出的卡牌])
 	return ret可打出的卡牌
 
 
-func 合成构造判断(cards目标:Array, cards核心:Array, cards素材:Array) -> Dictionary:
+func 合成构造判断(life:战斗_单位管理系统.Life_sys, cards目标:Array, cards核心:Array, cards素材:Array) -> Dictionary:
+	if !场地系统.get_可用场上(life, "手牌", 0):
+		return {}
+	
 	var dic_cards:Dictionary = {}
 	cards目标 = cards目标.filter(func(card:战斗_单位管理系统.Card_sys):
 		return card.get_value("种类") == "仪式")
@@ -124,6 +131,8 @@ func 合成构造判断(cards目标:Array, cards核心:Array, cards素材:Array)
 			var card目标2:Array = card目标.split()
 			for i in card核心:
 				card目标1.erase(i)
+			if len(card目标1) == len(card目标2):
+				continue
 			
 			var cards素材1:Array
 			for i in cards素材:
@@ -141,43 +150,51 @@ func 合成构造判断(cards目标:Array, cards核心:Array, cards素材:Array)
 
 
 
-##不在场上
-func 卡牌发动与消耗判断(card:战斗_单位管理系统.Card_sys, speed:int) -> bool:
-	var pos:String = card.get_parent().nam
-	var life:战斗_单位管理系统.Life_sys = card.get_parent().get_parent()
-	if await _发动消耗判断(life, card):
-		if await 卡牌发动判断(life, card, card.get_parent().nam, speed):
+
+
+func 卡牌发动判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:String) -> Array:
+	#可用格检测
+	if !card.get_parent().nam in ["场上", "行动"]:
+		if !场地系统.get_可用场上(life, card.pos, card.get_value("mp")):
 			
-			日志系统.callv("录入信息", [name, "卡牌发动与消耗判断", [card, speed], true])
-			return true
+			日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "可用格检测未通过"])
+			return []
 	
-	日志系统.callv("录入信息", [name, "卡牌发动与消耗判断", [card, speed], true])
-	return false
-
-
-
-##在场上
-func 卡牌发动判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:String, speed:int) -> Array:
+	#连接检测
+	if card.get_parent().nam in ["场上"]:
+		if !场地系统.get_连接场上(life).has(card.get_parent()):
+			
+			日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "连接检测未通过"])
+			return []
 	
+	#表侧检测
 	if !card.appear:
 		
-		日志系统.callv("录入信息", [name, "卡牌发动判断", [card, speed], []])
+		日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "表侧检测未通过"])
 		return []
 	
-	#无效
+	#无效检测
 	if card.is_无效():
 		
-		日志系统.callv("录入信息", [name, "卡牌发动判断", [card, speed], []])
+		日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "无效检测未通过"])
 		return []
 	
+	#自然下降检测
+	if 卡牌打出与发动系统.自然下降的卡牌.has(card):
+		
+		日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "自然下降检测未通过"])
+		return []
 	
 	var ret可发动的效果:Array = []
 	
 	for effect:战斗_单位管理系统.Effect_sys in card.effects:
-		if await 卡牌发动判断_单个效果(life, card, pos, effect, speed):
+		if await 卡牌发动判断_单个效果(life, card, pos, effect):
 			ret可发动的效果.append(effect)
 	
-	日志系统.callv("录入信息", [name, "卡牌发动判断", [card, speed], ret可发动的效果])
+	if ret可发动的效果:
+		日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "通过"])
+	else:
+		日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "未通过"])
 	return ret可发动的效果
 
 
@@ -246,77 +263,60 @@ func _打出消耗判断(life:战斗_单位管理系统.Life_sys, card:战斗_�
 
 
 
-func 卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:String, effect:战斗_单位管理系统.Effect_sys, speed:int, more_data:Array = []) -> bool:
+func 卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:String, effect:战斗_单位管理系统.Effect_sys, more_data:Array = []) -> bool:
 	assert(连锁系统.chain_state != 2, "连锁处理中")
 	
 	var features:Array = await effect.get_value("features")
 	
-	if 卡牌打出与发动系统.自然下降的卡牌.has(card):
-		
-		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
-		return false
-	
-	#次数
+	#次数检测
 	if effect.count <= 0:
 		
-		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+		日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "次数检测未通过"])
 		return false
 	
-	#启动
-	if effect.features.has("启动"):
-		if !连锁系统.now_可发动的效果.has(effect) and !more_data.has("启动"):
-			
-			日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
-			return false
-	
-	#触发
-	if effect.features.has("触发"):
-		if !连锁系统.now_可发动的效果.has(effect):
-			
-			日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
-			return false
-	
-	#空格
-	if !_空格判断(features, life):
-		
-		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
-		return false
-	
-	#位置
+	#位置检测
 	if pos != "":
 		if !_位置判断(features, pos):
 			
-			日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+			日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "位置检测未通过"])
+			return false
+	
+	#启动检测
+	if effect.features.has("启动"):
+		if !连锁系统.now_可发动的效果.has(effect) and !more_data.has("启动"):
+			
+			日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "启动检测未通过"])
+			return false
+	
+	#触发检测
+	if effect.features.has("触发"):
+		if !连锁系统.now_可发动的效果.has(effect):
+			
+			日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "触发检测未通过"])
 			return false
 	
 	
-	#状态
+	#状态检测
 	if !_状态判断(features, await life.get_value("state")):
 		
-		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+		日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "状态检测未通过"])
 		return false
 	
-	#模式
+	#模式检测
 	if !_模式判断(features, await life.get_value("att_mode")):
 		
-		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+		日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "模式检测未通过"])
 		return false
 	
 	
-	#时差
-	if !await _时差判断(card, speed):
-		
-		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
-		return false
-	
-	
+	#buff检测
 	if !buff系统.单位与全部buff判断("发动判断", [null, life, effect]):
 		
-		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+		日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "buff检测未通过"])
 		return false
 	
 	
-	#cost
+	#cost检测
 	var targets:Array = [card, life]
 	if 连锁系统.now_可发动的效果.has(effect):
 		targets = 连锁系统.now_可发动的效果[effect]
@@ -324,30 +324,21 @@ func 卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, ca
 		targets = await _效果发动判断(effect.cost_effect, card, features, targets)
 	if !targets:
 		
-		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+		日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "cost检测未通过"])
 		return false
 	
 	
-	#main
+	#main检测
 	if ! await _效果发动判断(effect.main_effect, card, features, targets):
 		
-		日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], false])
+		日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "main检测未通过"])
 		return false
 	
 	
-	日志系统.callv("录入信息", [name, "_卡牌发动判断_单个效果", [life, card, pos, effect, speed], true])
+	日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "通过"])
 	return true
 
 
-func _空格判断(features:Array, life:战斗_单位管理系统.Life_sys) -> bool:
-	if !features.has("启动"):
-		if len(卡牌打出与发动系统.get_可用的格子(life.cards_pos["场上"], ["纵向"])) == 0:
-			
-			日志系统.callv("录入信息", [name, "_空格判断", [features, life], false])
-			return false
-	
-	日志系统.callv("录入信息", [name, "_空格判断", [features, life], true])
-	return true
 
 func _位置判断(features:Array, pos:String) -> bool:
 	if features.has("任意"):
@@ -370,6 +361,8 @@ func _位置判断(features:Array, pos:String) -> bool:
 	for i:String in ["手牌", "白区", "绿区", "蓝区", "红区"]:
 		if features.has(i):
 			if pos == i:
+				if pos == "蓝区":
+					pass
 				
 				日志系统.callv("录入信息", [name, "_位置判断", [features, pos], true])
 				return true
@@ -406,22 +399,6 @@ func _模式判断(features:Array, mode:Array[String]) -> bool:
 	
 	日志系统.callv("录入信息", [name, "_模式判断", [features, mode], true])
 	return true
-
-func _时差判断(card:战斗_单位管理系统.Card_sys, speed:int) -> bool:
-	var ret:bool
-	var 种类:String = await card.get_value("种类")
-	if 种类 in ["攻击", "防御"]:
-		ret = await card.get_value("sp") >= speed
-	elif 种类 in ["法术"]:
-		ret = await card.get_value("mp") >= speed
-	elif 种类 in ["仪式"]:
-		if card.get_parent().nam == "场上":
-			ret = (0 >= speed)
-		else :
-			ret = await card.get_value("mp") >= speed
-	
-	日志系统.callv("录入信息", [name, "_时差判断", [card, speed], ret])
-	return ret
 
 
 

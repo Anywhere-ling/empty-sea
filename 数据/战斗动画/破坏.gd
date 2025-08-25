@@ -9,7 +9,7 @@ func _start() -> void:
 	var pos:String = card.get_his_pos()
 	var pos_posi:Vector2 = life.get_posi(pos)
 	
-	life.remove_card(card, pos)
+	card.pos_remove_card()
 	
 	_add_card(card)
 	
@@ -25,14 +25,14 @@ func _start() -> void:
 		add_child(破坏碎片)
 		破坏碎片.global_position = card.global_position
 		破坏碎片.restart()
-		card.modulate = Color(1,1,1,0)
+		card.alpha = 0
 		card.scale = Vector2()
 		await get_tree().create_timer(0.1/speed).timeout
 	
 	var 带拖尾的光球:Node2D = _add_效果("带拖尾的光球")
 	add_child(带拖尾的光球)
 	带拖尾的光球.posi = card
-	emit_可以继续()
+	emit_可以继续(data["动画index"])
 	
 	card.tween_ease = Tween.EASE_OUT
 	card.tween_trans = Tween.TRANS_QUAD

@@ -22,10 +22,13 @@ CoreSystem="*res://addons/godot_core_system/source/core_system.gd"
 DatatableLoader="*res://代码/自动加载/datatable_loader.gd"
 "文件路径"="*res://代码/自动加载/文件路径.gd"
 AutoFuncs="*res://代码/自动加载/Auto_funcs.gd"
-Config="*res://代码/自动加载/Config.gd"
+C0nfig="*res://代码/自动加载/C0nfig.gd"
 
 [display]
 
+window/size/viewport_width=1920
+window/size/viewport_height=1000
+window/size/borderless=true
 window/stretch/mode="canvas_items"
 window/stretch/aspect="ignore"
 

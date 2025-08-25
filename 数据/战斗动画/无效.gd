@@ -32,7 +32,7 @@ func _start() -> void:
 	
 	await get_tree().create_timer(0.6/speed).timeout
 	
-	emit_可以继续()
+	emit_可以继续(data["动画index"])
 	emit_动画完成()
 	
 	_free()

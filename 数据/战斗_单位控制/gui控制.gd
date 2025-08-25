@@ -9,8 +9,8 @@ class_name 战斗_gui控制
 @onready var 打出按钮: Button = %打出按钮
 @onready var 发动按钮: Button = %发动按钮
 @onready var 合成按钮: Button = %合成按钮
-@onready var gui效果选择: PanelContainer = $"../gui效果选择"
-@onready var gui_格选择: Control = $"../gui_格选择"
+@onready var gui效果选择: PanelContainer = %gui效果选择
+@onready var gui_场上: 战斗_场上 = %gui_场上
 @onready var 回合结束: Button = %回合结束
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
@@ -19,10 +19,11 @@ var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 var life_gui:战斗_life
 
 var o_cards:Array = [
-	["test打1", "test卡组堆二", 5],
-	["test打1", 5],
-	["test反3炸1", 2],
-	["test反3回1", "test卡组堆二", 10],
+	["海", "剑之坟",  10],
+	["内装甲激活", 5],
+	["巨人讨灭", 5],
+	["剑之坟", 2],
+	["潮之高压", "潮汐变化", 10],
 ]
 
 
@@ -45,7 +46,7 @@ func _显示单位切换的信号(p_life_gui:战斗_life, p_is_positive:bool) ->
 
 func set_life_gui(p_life_gui:战斗_life) -> void:
 	life_gui = p_life_gui
-	动画系统._data转换(life_sys).卡牌四区.按钮按下.connect(_卡牌四区的按钮按下)
+	动画系统._data转换(life_sys).卡牌五区.按钮按下.connect(_卡牌四区的按钮按下)
 
 
 func 创造牌库() -> Array:
@@ -90,6 +91,8 @@ func 整理手牌() -> Array:
 	return []
 
 func 打出(cards:Array) -> 战斗_单位管理系统.Card_sys:
+	return cards[0]
+	
 	var cards_gui:Array
 	if !cards:
 		return null
@@ -260,12 +263,12 @@ func 对象选择(arr:Array, 描述:String = "无", count_max:int = 1, count_min
 	return ret
 
 
-func 选择一格(arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 1) -> Array:
-	gui_格选择.set_cards(arr, 描述, count_max, count_min)
+func 选择一格(arr:Array, 描述:String = "无", count_max:int = 1, count_min:int = 0) -> Array:
+	gui_场上.set_cards(arr, 描述, count_max, count_min)
 	
-	await gui_格选择.按下
+	await gui_场上.按下
 	var ret:Array
-	for i in gui_格选择.free_cards():
+	for i in gui_场上.free_cards():
 		ret.append(i)
 	
 	return ret
@@ -327,7 +330,7 @@ func _清除卡牌颜色() -> void:
 		i.光圈改变(0)
 	可进行的卡牌 = {}
 	可进行的区 = {"白区":[[],[],[],0], "绿区":[[],[],[],0], "蓝区":[[],[],[],0], "红区":[[],[],[],0]}
-	动画系统._data转换(life_sys).卡牌四区.光圈([0,0,0,0])
+	动画系统._data转换(life_sys).卡牌五区.光圈([0,0,0,0])
 
 
 
@@ -337,7 +340,7 @@ func set_card_mode() -> void:
 			card.光圈改变(1)
 		else :
 			card.光圈改变(2)
-	动画系统._data转换(life_sys).卡牌四区.光圈([可进行的区["白区"][-1], 可进行的区["绿区"][-1], 可进行的区["蓝区"][-1], 可进行的区["红区"][-1]])
+	动画系统._data转换(life_sys).卡牌五区.光圈([可进行的区["白区"][-1], 可进行的区["绿区"][-1], 可进行的区["蓝区"][-1], 可进行的区["红区"][-1]])
 	
 
 func _卡牌四区的按钮按下(pos:String) -> void:

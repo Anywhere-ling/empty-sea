@@ -29,11 +29,11 @@ var select_cards:Array[Card]
 
 func _ready() -> void:
 	event_bus.subscribe("战斗_右键点击", func():if 展开.button_pressed:展开.button_pressed = false)
-	event_bus.subscribe("战斗_右键点击", _on_取消_button_up)
+	event_bus.subscribe("战斗_右键点击", func():if !取消.disabled and 取消.visible: call_deferred("_on_取消_button_up"))
 	event_bus.subscribe("战斗_显示单位切换", func(a,b):change_life(a.life_sys))
 
 func add_life(life:战斗_单位管理系统.Life_sys) -> void:
-	var scr = load(文件路径.tscn_战斗_可选卡牌容器_子节点()).instantiate()
+	var scr = preload(文件路径.tscn_战斗_可选卡牌容器_子节点).instantiate()
 	lifes[life] = scr
 	单位.add_child(scr)
 	scr.边距 = 边距
@@ -118,6 +118,7 @@ func free_cards() -> Array:
 	可用lifes = []
 	显示 = null
 	展开.button_pressed = false
+	取消.visible = false
 	is_展开 = false
 	visible = false
 	var ret = select_cards.duplicate(true)
@@ -130,11 +131,11 @@ func free_cards() -> Array:
 func _on_展开_toggled(toggled_on: bool) -> void:
 	is_展开 = toggled_on
 	if toggled_on:
-		size.y = 560
-		position.y -= 400
+		size.y = 850
+		position.y -= 600
 	else:
-		size.y = 160
-		position.y += 400
+		size.y = 250
+		position.y += 600
 	
 	if 显示:
 		显示.change_mode(is_展开)

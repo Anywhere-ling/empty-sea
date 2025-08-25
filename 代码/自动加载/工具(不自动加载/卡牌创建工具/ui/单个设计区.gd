@@ -48,7 +48,7 @@ func get_需要一起删除_array(node:Control) -> Array:
 
 ##添加下一条空效果
 func _add_new_effect() -> void:
-	var new_effect:卡牌创建工具_效果设计区 = load(文件路径.tscn卡牌创建工具_效果设计区()).instantiate()
+	var new_effect:卡牌创建工具_效果设计区 = preload(文件路径.tscn卡牌创建工具_效果设计区).instantiate()
 	效果.add_child(new_effect)
 	_reset_effect_index()
 	#绑定信号

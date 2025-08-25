@@ -12,16 +12,15 @@ signal 连锁处理结束
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
-var now_speed:int = -1
 var all_chain:Array[Array]
 var chain_state:int = 0
 #0:未连锁，1:处理前，2:处理中
 
 var current_life:战斗_单位管理系统.Life_sys
-var frist_lifes:Array[战斗_单位管理系统.Life_sys]
+var frist_lifes:Array
 
-var next_可发动的效果:Dictionary[战斗_单位管理系统.Effect_sys, Array]
-var now_可发动的效果:Dictionary[战斗_单位管理系统.Effect_sys, Array]
+var next_可发动的效果:Dictionary
+var now_可发动的效果:Dictionary
 
 
 func _ready() -> void:
@@ -36,21 +35,21 @@ func 请求进行下一连锁() -> void:
 	日志系统.callv("录入信息", [name, "请求进行下一连锁", [], null])
 	
 	var life:战斗_单位管理系统.Life_sys = current_life
-	var arr_lifes:Array[战斗_单位管理系统.Life_sys]
+	var att_lifes:Array[战斗_单位管理系统.Life_sys]
 	var f_lifes:Array[战斗_单位管理系统.Life_sys]
 	
 	if 单位管理系统.lifes.has(life):
-		arr_lifes = 单位管理系统.efils
+		att_lifes = 单位管理系统.efils
 		f_lifes = 单位管理系统.lifes
 	else :
-		arr_lifes = 单位管理系统.lifes
+		att_lifes = 单位管理系统.lifes
 		f_lifes = 单位管理系统.efils
 	
 	
 	#敌对对象
 	for i:战斗_单位管理系统.Life_sys in frist_lifes:
-		if arr_lifes.has(i):
-			arr_lifes.erase(i)
+		if att_lifes.has(i):
+			att_lifes.erase(i)
 			if await 单位控制系统.发动询问(i):
 				return
 	#友方
@@ -64,7 +63,7 @@ func 请求进行下一连锁() -> void:
 		if await 单位控制系统.发动询问(life.att_life):
 			return
 	#全部
-	for i:战斗_单位管理系统.Life_sys in arr_lifes:
+	for i:战斗_单位管理系统.Life_sys in att_lifes:
 		if await 单位控制系统.发动询问(i):
 			return
 	for i:战斗_单位管理系统.Life_sys in f_lifes:
@@ -78,7 +77,7 @@ func 请求进行下一连锁() -> void:
 
 func add_chain(effect:战斗_单位管理系统.Effect_sys) -> bool:
 	var card:战斗_单位管理系统.Card_sys = effect.get_parent()
-	var life:战斗_单位管理系统.Life_sys = card.get_parent().get_parent()
+	var life:战斗_单位管理系统.Life_sys = card.get_所属life()
 	
 	var targets:Array = [card, life, null]
 	if now_可发动的效果.has(effect):
@@ -101,12 +100,11 @@ func set_now_speed(effect:战斗_单位管理系统.Effect_sys, speed:int) -> vo
 	日志系统.callv("录入信息", [name, "set_now_speed", [effect, speed], null])
 	
 	all_chain[-1].append(speed)
-	now_speed = speed
 	
 	now_可发动的效果.erase(effect)
 	effect.count -= 1
 	
-	await 最终行动系统.加入连锁的动画(effect.get_parent().get_parent().get_parent(), effect.get_parent(), effect.get_parent().effects.find(effect), speed)
+	await 最终行动系统.加入连锁的动画(effect.get_parent().get_所属life(), effect.get_parent(), effect.get_parent().effects.find(effect), speed)
 	
 
 
@@ -122,12 +120,12 @@ func start() -> void:
 	for arr:Array in all_chain:
 		var effect:战斗_单位管理系统.Effect_sys = arr[0]
 		var card:战斗_单位管理系统.Card_sys = effect.get_parent()
-		var life:战斗_单位管理系统.Life_sys = card.get_parent().get_parent()
+		var life:战斗_单位管理系统.Life_sys = card.get_所属life()
 		await 最终行动系统.退出连锁的动画(card)
 		await 效果系统.效果处理(effect.main_effect, card, await effect.get_value("features"), arr[1])
 	all_chain = []
-	now_speed = -1
 	chain_state = 0
+	now_可发动的效果 = {}
 	event_bus.push_event("战斗_连锁处理结束")
 	emit_signal("连锁处理结束")
 	await 卡牌打出与发动系统.行动组结束()
@@ -161,18 +159,33 @@ func _请求新连锁() -> void:
 			return
 	#全部
 	for i:战斗_单位管理系统.Life_sys in arr_lifes:
+		if i in [life, life.att_life]:
+			continue
 		if await 单位控制系统.发动询问(i):
 			return
 	for i:战斗_单位管理系统.Life_sys in f_lifes:
+		if i in [life, life.att_life]:
+			continue
 		if await 单位控制系统.发动询问(i):
 			return
 	
-	now_可发动的效果 = {}
+	
 
 func _储存取对象的目标(cards:Array) -> void:
 	日志系统.callv("录入信息", [name, "_储存取对象的目标", [cards], null])
 	
 	for card:战斗_单位管理系统.Card_sys in cards:
-		var life:战斗_单位管理系统.Life_sys = card.get_parent().get_parent()
+		var life:战斗_单位管理系统.Life_sys = card.get_所属life()
 		frist_lifes.erase(life)
 		frist_lifes.append(life)
+
+func add_可发动的效果(effect:战斗_单位管理系统.Effect_sys, targets:Array = []) -> bool:
+	var dic:Dictionary = now_可发动的效果
+	if chain_state in [0,2]:
+		dic = next_可发动的效果
+	
+	if !dic.has(effect):
+		if targets:
+			dic[effect] = targets
+		return true
+	return false

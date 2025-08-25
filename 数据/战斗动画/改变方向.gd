@@ -15,13 +15,13 @@ func _start() -> void:
 	
 	card.tween_ease = Tween.EASE_IN_OUT
 	card.tween_trans = Tween.TRANS_QUAD
-	if pos in ["白区", "绿区", "蓝区" ,"红区"]:
+	if is_方块区(life, pos):
 		card.第二层.rotation_degrees = ro
-		emit_可以继续()
+		emit_可以继续(data["动画index"])
 	else :
 		card.tween动画添加_第二层("方向", "rotation_degrees", ro, 0.4/speed)
 		await get_tree().create_timer(0.2/speed).timeout
-		emit_可以继续()
+		emit_可以继续(data["动画index"])
 		await get_tree().create_timer(0.2/speed).timeout
 	
 	emit_动画完成()

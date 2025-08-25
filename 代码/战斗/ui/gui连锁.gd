@@ -48,7 +48,7 @@ func add_card(card:Card, is_positive:bool, eff_ind:int, speed:int) -> void:
 
 
 func _get_子() -> 战斗_gui连锁_子:
-	var 子:战斗_gui连锁_子 = load(文件路径.tscn_战斗_gui连锁_子()).instantiate()
+	var 子:战斗_gui连锁_子 = preload(文件路径.tscn_战斗_gui连锁_子).instantiate()
 	return 子
 
 func free_card() -> void:
@@ -70,6 +70,7 @@ func _tween(a:int, time:float = 1.1) -> void:
 	tween.set_ease(Tween.EASE_IN)
 	tween.set_trans(Tween.TRANS_QUAD)
 	
+	time = time/C0nfig.动画速度
 	tween.tween_property(滚动, "scroll_vertical", a, time*0.7)
 	await get_tree().create_timer(time).timeout
 

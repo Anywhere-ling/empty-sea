@@ -38,7 +38,7 @@ func add_card(card:Card) -> 战斗_卡牌复制:
 func _set_color(卡牌复制:战斗_卡牌复制) -> void:
 	var card:Card = 卡牌复制.card
 	var pos:String = card.get_pos()
-	if pos in ["场上0", "场上1", "场上2", "场上3", "场上4", "场上5"]:
+	if "场上" in pos:
 		pos = "场上"
 	var style:StyleBoxFlat = colors[pos]
 	卡牌复制.add_theme_stylebox_override("panel", style)
@@ -50,13 +50,11 @@ func change_mode(b:bool) -> void:
 	else:
 		s_gri.visible = false
 		s_hbo.visible = true
-		
-
 
 
 func get_卡牌复制() -> 战斗_卡牌复制:
 	var ret:战斗_卡牌复制
-	ret = load(文件路径.tscn_战斗_卡牌复制()).instantiate()
+	ret = preload(文件路径.tscn_战斗_卡牌复制).instantiate()
 	add_child(ret)
 	ret.set_边距(边距.x, 边距.y)
 	remove_child(ret)

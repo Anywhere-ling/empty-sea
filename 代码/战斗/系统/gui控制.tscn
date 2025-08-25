@@ -42,10 +42,10 @@ text = "合成"
 
 [node name="回合结束" type="Button" parent="."]
 unique_name_in_owner = true
-offset_left = 892.0
-offset_top = 313.0
-offset_right = 964.0
-offset_bottom = 344.0
+offset_left = 1473.0
+offset_top = 514.0
+offset_right = 1586.0
+offset_bottom = 568.0
 disabled = true
 text = "回合结束"
 

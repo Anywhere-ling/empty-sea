@@ -16,7 +16,7 @@ func load_datatable(table_path: StringName) -> Dictionary:
 	var file_data : Dictionary = {}
 	
 	#加载卡牌名总表
-	var card_folder := DirAccess.open(文件路径.call(file_func))
+	var card_folder := DirAccess.open(文件路径.get(file_func))
 	var ok := DirAccess.get_open_error()
 	if ok != OK: 
 		push_error("未能正确打开文件！")
@@ -27,7 +27,7 @@ func load_datatable(table_path: StringName) -> Dictionary:
 	
 	while file_name != "":
 		if not card_folder.current_is_dir():  # 忽略子文件夹
-			file_data[file_name] = 文件路径.call(file_func) + file_name + ".json"
+			file_data[file_name] = 文件路径.get(file_func) + file_name + ".json"
 		file_name = card_folder.get_next().get_basename()
 	
 	card_folder.list_dir_end()

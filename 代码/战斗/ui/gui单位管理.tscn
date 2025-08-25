@@ -1,6 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://bh8hxq45s0awa"]
+[gd_scene load_steps=9 format=3 uid="uid://bh8hxq45s0awa"]
 
 [ext_resource type="Script" uid="uid://07feh2nex3x8" path="res://代码/战斗/ui/gui单位管理.gd" id="1_vl3yh"]
+[ext_resource type="PackedScene" uid="uid://rxxyhi404v4s" path="res://代码/战斗/ui/手牌.tscn" id="2_s7org"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vl3yh"]
 
@@ -21,10 +22,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_vl3yh")
 
 [node name="点击旁边" type="Button" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -41,14 +44,24 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_cx1nc")
 [node name="sop" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-grow_horizontal = 2
-scale = Vector2(-1, -1)
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(-1, 1)
 
 [node name="pos" type="Control" parent="."]
 unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+grow_vertical = 2
+
+[node name="control" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -58,22 +71,32 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 0
 
+[node name="手牌" parent="control" instance=ExtResource("2_s7org")]
+unique_name_in_owner = true
+position = Vector2(0, -148)
+
 [node name="选项集节点" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 1
+anchors_preset = 3
 anchor_left = 1.0
+anchor_top = 1.0
 anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 0
+grow_vertical = 0
 
 [node name="PanelContainer" type="PanelContainer" parent="选项集节点"]
 layout_mode = 1
-anchors_preset = 1
+anchors_preset = 3
 anchor_left = 1.0
+anchor_top = 1.0
 anchor_right = 1.0
-offset_left = -117.0
-offset_bottom = 322.0
+anchor_bottom = 1.0
+offset_left = -433.0
+offset_top = -216.0
 grow_horizontal = 0
+grow_vertical = 0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -82,7 +105,7 @@ layout_mode = 2
 horizontal_scroll_mode = 0
 metadata/_edit_use_anchors_ = true
 
-[node name="选项集" type="VBoxContainer" parent="选项集节点/PanelContainer/ScrollContainer"]
+[node name="选项集" type="HBoxContainer" parent="选项集节点/PanelContainer/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

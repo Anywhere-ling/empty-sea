@@ -1,125 +1,128 @@
 extends Control
 class_name 战斗_场上
 
-@onready var _0: Control = %"0"
-@onready var _1: Control = %"1"
-@onready var _2: Control = %"2"
-@onready var _3: Control = %"3"
-@onready var _4: Control = %"4"
-@onready var _5: Control = %"5"
-@onready var button_0: Button = %Button0
-@onready var button_1: Button = %Button1
-@onready var button_2: Button = %Button2
-@onready var button_3: Button = %Button3
-@onready var button_4: Button = %Button4
-@onready var button_5: Button = %Button5
+@onready var 动画系统: Node = %动画系统
+
+@onready var 确认: Button = %确认
+@onready var 取消: Button = %取消
+@onready var 描述: Label = %描述
+@onready var 容器: GridContainer = %容器
+@onready var 按钮: Control = %按钮
+
+
+var 返回data:Array
+var max:int
+var min:int
+var nodes:Array
+
+
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
 var life_sys:战斗_单位管理系统.Life_sys
 
 func _ready() -> void:
-	event_bus.subscribe("战斗_gui场上按钮被按下", func(a,b):
-		for i in [button_0, button_1, button_2, button_3, button_4, button_5]:
-			i.visible = false)
+	event_bus.subscribe("战斗_右键点击", func():if !取消.disabled and 取消.visible:call_deferred("_on_取消_button_up"))
 
 
-func add_card(card:Card, pos:String) -> void:
-	var node:Control
-	match pos:
-		"场上0":node = _0
-		"场上1":node = _1
-		"场上2":node = _2
-		"场上3":node = _3
-		"场上4":node = _4
-		"场上5":node = _5
-	
-	node.add_child(card)
-	reset_chlidren(node, pos)
+func ready(poss:Array) -> void:
+	nodes = 容器.get_children()
+	for i in 25:
+		nodes[i].set_card(poss[i])
+		nodes[i].按钮按下.connect(_选择一格返回)
+		
+
+func get_ind(x:int, y:int) -> 战斗_场上_单格:
+	if x<1 or x>5 or y<1 or y>5:
+		assert(false)
+	return 容器.get_child(((y-1)*5)+x-1) as 战斗_场上_单格
 
 
-func remove_card(card:Card, pos:String) -> void:
-	var node:Control
-	match pos:
-		"场上0":node = _0
-		"场上1":node = _1
-		"场上2":node = _2
-		"场上3":node = _3
-		"场上4":node = _4
-		"场上5":node = _5
-	
-	node.remove_child(card)
+func add_card(card:Card, x:int, y:int) -> void:
+	var node: = get_ind(x, y)
+	node.add_card(card)
 
 
-func reset_chlidren(node:Control, pos:String) -> void:
-	var arr1:Array = node.get_children()
-	if arr1.size() <= 1:
+func remove_card(card:Card, x:int, y:int) -> void:
+	var node: = get_ind(x, y)
+	node.remove_card(card)
+
+
+func get_posi(x:int, y:int) -> Vector2:
+	var node: = get_ind(x, y)
+	return node.get_posi()
+
+
+func set_button(x:int, y:int) -> void:
+	var node: = get_ind(x, y)
+
+
+
+
+
+func _选择一格返回(btn:战斗_场上_单格, pos:战斗_单位管理系统.Card_pos_sys) -> void:
+	if max == 1:
+		返回data = [pos]
+		_on_确认_button_up()
 		return
-	var ind:int = int(pos.erase(0, 2))
-	pos = pos.erase(2)
-	var arr2:Array = life_sys.cards_pos[pos][ind].cards
-	var arr3:Array = arr1.duplicate(true)
 	
-	arr3.sort_custom(func(a,b):return arr2.find(a.card_sys) < arr2.find(b.card_sys))
-	arr3.reverse()
-	if arr1 != arr3:
-		for i in len(arr3):
-			node.move_child(arr3[i], i)
-
-
-
-func get_posi(pos:String) -> Vector2:
-	var node:Control
-	match pos:
-		"场上0":node = _0
-		"场上1":node = _1
-		"场上2":node = _2
-		"场上3":node = _3
-		"场上4":node = _4
-		"场上5":node = _5
-
-	return node.global_position
-
-
-func set_button(index:int) -> Button:
-	var node:Button
-	match index:
-		0:node = button_0
-		1:node = button_1
-		2:node = button_2
-		3:node = button_3
-		4:node = button_4
-		5:node = button_5
+	if 返回data.size() >= max:
+		btn.set_button_pressed(false)
+		返回data.erase(pos)
+		return
 	
-	node.visible = true
-	return node
+	if btn.button_pressed:
+		返回data.append(pos)
+	else :
+		返回data.erase(pos)
+	
+	if 返回data.size() >= min:
+		确认.disabled = false
+	else :
+		确认.disabled = true
+
+
+func set_cards(arr:Array, p_描述:String = "无", count_max:int = 1, count_min:int = 1) -> void:
+	描述.text = p_描述
+	max = count_max
+	min = count_min
+	
+	
+	
+	if min <= 0:
+		取消.visible = true
+	else:
+		取消.visible = false
+	按钮.visible = true
+	
+	for i in arr:
+		get_ind(i.glo_x, i.y).set_button()
+		if p_描述 == "攻击!":
+			get_ind(i.glo_x, i.y).chnage_光圈颜色(Color.ORANGE_RED)
+		else:
+			get_ind(i.glo_x, i.y).chnage_光圈颜色(Color.DEEP_SKY_BLUE)
+
+
+func free_cards() -> Array:
+	var ret:Array = 返回data.duplicate(true)
+	for i in 容器.get_children():
+		i.dis_set_button()
+	确认.disabled = true
+	取消.visible = false
+	按钮.visible = false
+	返回data = []
+	return ret
 
 
 
 
+signal 按下
+func _on_确认_button_up() -> void:
+	emit_signal("按下")
 
 
-
-
-func _on_button_0_button_up() -> void:
-	event_bus.push_event("战斗_gui场上按钮被按下", [button_0, get_parent(), 0])
-
-
-func _on_button_1_button_up() -> void:
-	event_bus.push_event("战斗_gui场上按钮被按下", [button_1, get_parent(), 1])
-
-
-func _on_button_2_button_up() -> void:
-	event_bus.push_event("战斗_gui场上按钮被按下", [button_2, get_parent(), 2])
-
-
-func _on_button_3_button_up() -> void:
-	event_bus.push_event("战斗_gui场上按钮被按下", [button_3, get_parent(), 3])
-
-
-func _on_button_4_button_up() -> void:
-	event_bus.push_event("战斗_gui场上按钮被按下", [button_4, get_parent(), 4])
-
-
-func _on_button_5_button_up() -> void:
-	event_bus.push_event("战斗_gui场上按钮被按下", [button_5, get_parent(), 5])
+func _on_取消_button_up() -> void:
+	if 取消.disabled or !取消.visible:
+		return
+	free_cards()
+	emit_signal("按下")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://hg4d4hdbudm7"]
 
-[ext_resource type="Script" uid="uid://dns12khq4fcsy" path="res://代码/战斗/ui/gui_格选择.gd" id="1_qjtiq"]
+[ext_resource type="Script" uid="uid://dns12khq4fcsy" path="res://代码/战斗/废弃/废弃gui_格选择.gd" id="1_yil43"]
 
 [node name="gui_格选择" type="Control"]
 layout_mode = 3
@@ -10,7 +10,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("1_qjtiq")
+script = ExtResource("1_yil43")
 
 [node name="确认" type="Button" parent="."]
 unique_name_in_owner = true
