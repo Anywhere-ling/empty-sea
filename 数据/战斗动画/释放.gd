@@ -6,17 +6,14 @@ extends 战斗_动画
 func _start() -> void:
 	card = data["card"]
 	var life:战斗_life = data["life"]
-	var pos:String = card.get_his_pos()
-	var pos_posi:Vector2 = get_posi(pos, life)
 	
-	card.pos_remove_card()
+	var pos:Node = card.pos_remove_card()
 	
 	_add_card(card)
 	
 	card.tween_ease = Tween.EASE_OUT
 	card.tween_trans = Tween.TRANS_EXPO
-	if is_方块区(life, pos):
-		card.global_position = pos_posi
+	if is_方块区(pos):
 		card.rotation_degrees = -90
 		card.scale = Vector2()
 		card.alpha = 1

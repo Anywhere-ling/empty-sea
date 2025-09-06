@@ -7,6 +7,7 @@ class_name 战斗_场上
 @onready var 取消: Button = %取消
 @onready var 描述: Label = %描述
 @onready var 容器: GridContainer = %容器
+@onready var 容器大小: PanelContainer = $容器大小
 @onready var 按钮: Control = %按钮
 
 
@@ -18,6 +19,7 @@ var nodes:Array
 
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
+var 场地行数:int = C0nfig.场地行数
 
 var life_sys:战斗_单位管理系统.Life_sys
 
@@ -26,11 +28,15 @@ func _ready() -> void:
 
 
 func ready(poss:Array) -> void:
-	nodes = 容器.get_children()
-	for i in 25:
-		nodes[i].set_card(poss[i])
-		nodes[i].按钮按下.connect(_选择一格返回)
-		
+	容器大小.size = Vector2(800, 160 * 场地行数)
+	容器大小.position = Vector2(-400, -80 * 场地行数)
+	for i in 场地行数 * 5:
+		var node:战斗_场上_单格 = preload(文件路径.tscn_场上_单格).instantiate()
+		容器.add_child(node)
+		node.set_card(poss[i])
+		node.按钮按下.connect(_选择一格返回)
+		动画系统.add_对照表(node)
+
 
 func get_ind(x:int, y:int) -> 战斗_场上_单格:
 	if x<1 or x>5 or y<1 or y>5:

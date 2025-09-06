@@ -1,29 +1,16 @@
 extends Control
 class_name 创建工具
 
-'''
-用于创建卡牌的gui工具
-希望实现功能：
-	1.读取所有已创建的卡牌文件（csv）：
-		有一个总目录以便读取
-		为读取的每一张卡创建一个选项
-		当点击选项时显示卡牌信息
-	2.创建的卡牌文件（csv）：
-		规范卡牌，以规范文件（csv）为基础创建选项
-		通过选项创建卡牌
-		保存
-	3.修改规范文件（csv）
 
-'''
 
 @onready var 卡牌设计区容器: TabContainer = %卡牌设计区容器
 @onready var 文件: 卡牌创建工具_带搜索的选择器 = %文件
 @onready var 简介: Label = %简介
 @onready var 提供焦点: Button = %提供焦点
-@onready var 路径: Label = %路径
 @onready var 存储区数据: LineEdit = %存储区数据
 @onready var 复制储存区: VBoxContainer = %复制储存区
 @onready var push_error: PanelContainer = %push_error
+@onready var 选择器: TabContainer = %选择器
 
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
@@ -47,7 +34,11 @@ var specification_效果标点:Dictionary = {
 	"特征":["效果的特征，用于检测", "括号"],
 	"条件":["效果的发动前条件", "括号"],
 	"buff":["触发效果的发动检测", "括号"],
+	"临时buff":["直接用效果组件创造buff", "括号"],
 	"逐一":["在括号内将对象拆分", "括号输入"],
+	"否定":["括号内通过则返回否", "括号"],
+	"如果":["一定返回是", "括号"],
+	"否则":["在如果内使用，之前的判断未通过则执行", "括号"],
 	
 }
 
@@ -65,7 +56,39 @@ var specification_组:Array = [
 	"潮汐",
 	"深海",
 	"重型",
+	"血",
+	"本能",
 ]
+
+var specification_影响:Dictionary = {
+	"全部":"会检测全部单位",
+	"加入":"加入卡牌时",
+	"发动":"卡牌发动时",
+	"打出":"打出卡牌时",
+	"构造":"构造卡牌时",
+	"改变方向":"改变卡牌方向时",
+	"反转":"反转卡牌时",
+	"破坏":"破坏卡牌时",
+	"创造":"创造卡牌时",
+	"阻止":"单位被阻止时",
+	"抽牌":"抽牌时",
+	"释放前":"卡牌即将释放时",
+	"攻击":"攻击时",
+	"直接攻击":"直接攻击时",
+	"斩击":"斩击时",
+	"重击":"重击时",
+	"刺击":"刺击时",
+	"格挡":"格挡时",
+	"可被取为对象":"卡牌可被取为对象时(对象/对象单位/效果所属卡牌/效果数据)",
+	"被取为对象":"卡牌被取为对象时(对象/对象单位/效果所属卡牌/效果数据)",
+	
+	"开始":"回合开始时",
+	"结束":"回合结束时",
+	"连锁处理开始":"连锁处理开始时",
+	"连锁处理结束":"连锁处理结束时",
+}
+
+
 
 var cards_data:Dictionary
 var buffs_data:Dictionary
@@ -73,17 +96,17 @@ var equips_data:Dictionary
 var lifes_data:Dictionary
 
 
-var copy_node_data:#储存复制数据
-	set(value):
-		copy_node_data = value
-		存储区数据.text = str(copy_node_data)
+
 var 读取中:bool = false:
 	set(value):
 		读取中 = value
 		if !读取中:
 			_请求保存历史记录的信号()
 var save_不可为空:bool = false
-var pressed焦点按钮:Array = []
+var pressed焦点按钮:Array = []:
+	get():
+		pressed焦点按钮 = pressed焦点按钮.filter(func(x): return is_instance_valid(x))
+		return pressed焦点按钮
 
 
 func _基本设置() -> void:
@@ -161,7 +184,7 @@ func _焦点按钮被按下(btn:Button) -> void:
 			pressed焦点按钮.append(btn)
 		
 	else :
-		for i:Button in pressed焦点按钮:
+		for i in pressed焦点按钮:
 			i.button_pressed = false
 		pressed焦点按钮 = []
 		pressed焦点按钮.append(btn)
@@ -169,7 +192,9 @@ func _焦点按钮被按下(btn:Button) -> void:
 	
 
 func _get_焦点按钮s() -> Array:
-	return pressed焦点按钮
+	var arr:Array = pressed焦点按钮.duplicate(true)
+	arr.sort_custom(_比较节点在树中的顺序)
+	return arr
 
 func _get_焦点按钮() -> Button:
 	if pressed焦点按钮:
@@ -177,25 +202,50 @@ func _get_焦点按钮() -> Button:
 	else:
 		return
 
+func _比较节点在树中的顺序(node_a: Node, node_b: Node) -> bool:
+	if _compare_tree_order(node_a, node_b) == 1:
+		return false
+	else :
+		return true
+
+func _compare_tree_order(node_a: Node, node_b: Node) -> int:
+	if node_a == node_b:
+		return 0  # 相同节点
+
+	# 获取从根到节点的路径
+	var path_a = []
+	var path_b = []
+	var n = node_a
+	while n != null:
+		path_a.insert(0, n)
+		n = n.get_parent()
+	n = node_b
+	while n != null:
+		path_b.insert(0, n)
+		n = n.get_parent()
+
+	# 找到共同的祖先
+	var min_len = min(path_a.size(), path_b.size())
+	for i in range(min_len):
+		if path_a[i] != path_b[i]:
+			# 不同的分支，比较在父节点中的顺序
+			var parent = path_a[i].get_parent()
+			var index_a = parent.get_children().find(path_a[i])
+			var index_b = parent.get_children().find(path_b[i])
+			return sign(index_a - index_b)  # -1 表示 A 在前，1 表示 B 在前
+
+	# 一个是另一个的祖先，较短的在前
+	return sign(path_a.size() - path_b.size())
+
+func 改变选择器(nam: String) -> void:
+	for i in range(选择器.get_child_count()):
+		if 选择器.get_child(i).name == nam:
+			选择器.current_tab = i
+			return
 
 
 func _add_node(node:Control, s:String) -> Control:
-	if specification_效果标点.has(s):
-		if specification_效果标点[s][1] == "括号":
-			return _add_node_括号(node, s)
-	elif node.tooltip_text == "特征":
-		if specification_特征.has(s):
-			return _add_node_文本(node, s)
-	#elif node.tooltip_text == "媒介":
-		#if specification_媒介.has(s):
-			#return _add_node_文本(node, s)
-	elif node.tooltip_text == "组":
-		if specification_组.has(s):
-			return _add_node_文本(node, s)
-	elif specification_效果特征.has(s):
-		return _add_node_文本(node, s)
-	elif specification_效果组件.has(s):
-		return _add_node_组件(node, s)
+	
 	return 
 
 func _add_node_括号(node:卡牌创建工具_不定数量的数据节点容器, s:String , 添加任意输入:String = "") -> Label:
@@ -388,12 +438,19 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 	return card_data
 
 #处理符号
-func _翻译效果data(node:卡牌创建工具_不定数量的数据节点容器) -> Array:
+func _翻译效果data(node) -> Array:
+	var arr_nodes:Array
+	if node is Array:
+		arr_nodes = node
+	else :
+		assert(node is 卡牌创建工具_不定数量的数据节点容器)
+		for ind:int in len(node.get_children()) - 2:
+			arr_nodes.append(node.get_children()[ind])
+		
 	var arr:Array = []#返回值
 	var temp_string:String = ""#正在处理的符号
 	var temp_dic:Dictionary = {}#处理符号时使用
-	for ind:int in len(node.get_children()) - 2:
-		var node1:Control = node.get_children()[ind]
+	for node1:Control in arr_nodes:
 		var data:Variant = _tran_node_to_data(node1)
 		
 		if data.find("[") != -1:
@@ -433,7 +490,8 @@ func _tran_node_to_data(node:Control) -> Variant:
 	elif node is SpinBox :
 		ret = str(node.value)
 	elif node is OptionButton :
-		ret = node.get_item_text(node.selected)
+		if node.selected != -1:
+			ret = node.get_item_text(node.selected)
 	elif node is 卡牌创建工具_不定数量的数据节点容器 or node is 卡牌创建工具_不定数量的数据节点容器_h :
 		var arr:Array = []
 		for index:int in len(node.get_children()) - 2:
@@ -508,7 +566,7 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个设计区:
 	读取中 = false
 	return node
 
-func _翻译效果node(data, node:卡牌创建工具_不定数量的数据节点容器, focus:Control) -> void:
+func _翻译效果node(data, node:Control, focus:Control) -> void:
 	if !data:
 		return
 	focus.grab_focus()
@@ -519,6 +577,10 @@ func _翻译效果node(data, node:卡牌创建工具_不定数量的数据节点
 			_add_node_文本(node, data)
 		elif buffs_data.has(data):
 			_add_node_文本(node, data)
+		elif specification_影响.has(data):
+			_add_node_文本(node, data)
+		else:
+			assert(false, "未识别")
 	elif data is Array:
 		#效果
 		if specification_效果组件.keys().has(data[0]):
@@ -546,6 +608,7 @@ func _翻译效果node(data, node:卡牌创建工具_不定数量的数据节点
 				for i in data:
 					_翻译效果node(i, node, focus2)
 				focus.grab_focus()
+		
 		else:
 			assert(false, "未识别")
 
@@ -579,107 +642,88 @@ func _write_data_to_node(data, node:Control) -> void:
 		assert(false, "无法识别")
 
 
-#获得按下的焦点按钮
-func _set_focus_buttons() -> void:
-	for button:Button in get_tree().get_nodes_in_group("提供焦点"):
-		button.button_up.connect(_press_focus_buttons.bind(button))
-	
 
-func _press_focus_buttons() -> void:
-	pass
-
-func _get_focus_buttons() -> Array:
-	return []
-	
 
 
 #复制数据节点
-func copy_node(focus:Control) -> void:
-	var path:String = 卡牌设计区容器.get_current_tab_control().卡名.text + "/"
-	var node:Node
-	#焦点在最左边的label
-	if focus.get_parent().tooltip_text == "基础数据节点容器的名字":
-		path += focus.get_parent().text
-		node = focus.get_parent().get_parent().get_child(1)
-		路径.text = path
-		_存入储存区(node)
-		return
+func copy_node(nodes:Array) -> void:
+	var arr_nodes:Array = []
 	
-	node = _find_parent(focus)
-	if node:
-		var node_pa:Node = node.get_parent()
-		if node_pa.get_parent() is 卡牌创建工具_效果设计区:
-			path += node_pa.get_parent().名字.text + "/"
-		else :
-			path += node_pa.get_parent().get_child(0).text + "/"
-		if node is Label:
-			path += node.text
-		elif node is HBoxContainer or node is HFlowContainer:
-			path += str(node.get_index()) + "/"
-			path += node.get_child(0).text
-		else:
-			assert(true, "不能处理的类型")
-		路径.text = path
-		_存入储存区(node)
-
-
-func _存入储存区(node:Control) -> void:
-	#转成文字
-	var data:Array
-	if node is 卡牌创建工具_不定数量的数据节点容器 or node is 卡牌创建工具_不定数量的数据节点容器_h:
-		var path_end:String = (路径.text).split("/")[1]
-		assert(path_end in ["卡名 ", "种类 ", "sp    ", "mp   ", "特征 ", "媒介 ", "组     ", "文本 ", "效果"], "路径不匹配")
-		if path_end != "效果":
-			data = _tran_node_to_data(node)
-		else:
-			data = _翻译效果data(node)
-	else :
-		data = _tran_node_to_data(node)
-	copy_node_data = data
-	print(copy_node_data)
+	for node:Control in nodes:
 		
+		if node.get_parent().tooltip_text == "基础数据节点容器的名字":
+			#焦点在最左边的label
+			if !node.get_parent().text.begins_with("效果"):
+				return
+			var arr_node1:Array = node.get_parent().get_parent().get_child(1).get_children()
+			for ind:int in len(arr_node1) - 2:
+				if !arr_nodes.has(arr_node1[ind]):
+					arr_nodes.append(arr_node1[ind])
+				
+		else:
+			node = _find_parent(node)
+			if node is Label and node.text.begins_with("]"):
+				var 关键词:String = node.text.erase(0) + "["
+				var node1:Container = node.get_parent()
+				var arr_node1:Array = node1.get_children()
+				var 开始录入:bool = false
+				for ind:int in range(0, arr_node1.find(node) + 1):
+					var node2:Control = arr_node1[ind]
+					if 开始录入:
+						arr_nodes.erase(node2)
+						arr_nodes.append(node2)
+					else:
+						if node2 is Label and node2.text == 关键词:
+							开始录入 = true
+							arr_nodes.erase(node2)
+							arr_nodes.append(node2)
+				
+			elif node is Label and node.text.ends_with("["):
+				var 关键词:String = "]" + node.text.erase(2)
+				var node1:Container = node.get_parent()
+				var arr_node1:Array = node1.get_children()
+				for ind:int in range(arr_node1.find(node), len(arr_node1) - 2):
+					var node2:Control = arr_node1[ind]
+					if node2 is Label and node2.text == 关键词:
+						if !arr_nodes.has(node2):
+							arr_nodes.append(node2)
+						break
+					else:
+						if !arr_nodes.has(node2):
+							arr_nodes.append(node2)
+			
+			else:
+				if !arr_nodes.has(node):
+					arr_nodes.append(node)
+	
+	var data = _翻译效果data(arr_nodes)
+	存储区数据.text = str(data)
+
+
 
 #粘贴
 func stackup_node() -> void:
-	var node:卡牌创建工具_单个设计区 = 卡牌设计区容器.get_current_tab_control()
-	if !copy_node_data :
+	var focus:Button = _get_焦点按钮()
+	if !存储区数据.text :
 		return
-	#
-	var path_arr:Array = 路径.text.split("/")
-	assert(path_arr[1] in ["卡名 ", "种类 ", "sp    ", "mp   ", "特征 ", "媒介 ", "组     ", "文本 ", "效果"], "路径不匹配")
-	if len(path_arr) < 3 or path_arr[1] == "效果" and len(path_arr) < 4:
-		if path_arr[1] == "特征 ":
-			for i:String in copy_node_data:
-				_add_node(node.特征, i)
-		elif path_arr[1] == "媒介 ":
-			for i:String in copy_node_data:
-				_add_node(node.媒介, i)
-		elif path_arr[1] == "组     ":
-			for i:String in copy_node_data:
-				_add_node(node.组, i)
-		
-		elif path_arr[1] == "效果":
-			var node1:卡牌创建工具_效果设计区 = node.效果.get_child(-1)
-			for i1 in copy_node_data:
-				_翻译效果node(i1, node1.get_child(-1), node1.名字.get_child(-1))
-		else:
-			assert(true, "不合规范的数据")
+	var node:Node
+	if focus.get_parent().tooltip_text == "基础数据节点容器的名字":
+		#焦点在最左边的label
+		if !focus.get_parent().text.begins_with("效果"):
+			return
+		node = focus.get_parent().get_parent().get_child(1)
 	else:
-		assert(path_arr[1] == "效果", "不合规范的数据")
-		var node1:Control = _将选项翻译并添加到指定的地方(copy_node_data[0])
-		var arr:Array = node1.get_children()
-		for i:int in len(arr):
-			if i == 0:
-				continue
-			_write_data_to_node(copy_node_data[i], arr[i])
-		
-	
-	
-	
+		node = _find_parent(focus).get_parent()
+	for i1 in JSON.parse_string(存储区数据.text):
+		_翻译效果node(i1, node, focus)
 
 
 func _将选项翻译并添加到指定的地方(choose:String) -> Control:
-	var focus:Control = get_viewport().gui_get_focus_owner()
+	var focus:Button = _get_焦点按钮()
+	if !focus:
+		return
+	if !选择器.get_current_tab_control().name in ["buff", "文件"]:
+		focus.grab_focus()
 	#焦点在最左边的label
 	if focus and focus.get_parent().tooltip_text == "基础数据节点容器的名字":
 		return _add_node(focus.get_parent().get_parent().get_child(1), choose)
@@ -773,32 +817,35 @@ func _请求删除卡牌设计区的信号(node:卡牌创建工具_单个设计�
 func _on_删除_button_up() -> void:
 	读取中 = true
 	
-	var focus:Control = get_viewport().gui_get_focus_owner()
-	var node:Control = focus.get_parent()
-	
-	#多选
-	if node is Label and node.get_parent() is 卡牌创建工具_不定数量的数据节点容器_h:
-		node.get_parent().remove_child_node(node)
+	var focuss:Array = _get_焦点按钮s()
+	if !focuss:
 		return
-	#焦点在最左边的label
-	if focus and node.tooltip_text == "基础数据节点容器的名字":
-		for i in node.get_parent().get_child(1).get_children():
-			i.get_parent().remove_child_node(i)
-		return
-	
-	node = _find_parent(focus)
-	#一起删除
-	var 卡片设计区:卡牌创建工具_单个设计区 = 卡牌设计区容器.get_current_tab_control()
-	var arr:Array = 卡片设计区.get_需要一起删除_array(node)
-	if arr != []:
-		for i in arr:
-			if i:
+	for focus:Control  in focuss:
+		var node:Control = focus.get_parent()
+		
+		#多选
+		if node is Label and node.get_parent() is 卡牌创建工具_不定数量的数据节点容器_h:
+			node.get_parent().remove_child_node(node)
+			continue
+		#焦点在最左边的label
+		if focus and node.tooltip_text == "基础数据节点容器的名字":
+			for i in node.get_parent().get_child(1).get_children():
 				i.get_parent().remove_child_node(i)
-		return
-	
-	
-	if node:
-		node.get_parent().remove_child_node(node)
+			continue
+		
+		node = _find_parent(focus)
+		#一起删除
+		var 卡片设计区:卡牌创建工具_单个设计区 = 卡牌设计区容器.get_current_tab_control()
+		var arr:Array = 卡片设计区.get_需要一起删除_array(node)
+		if arr != []:
+			for i in arr:
+				if i:
+					i.get_parent().remove_child_node(i)
+			continue
+		
+		
+		if node:
+			node.get_parent().remove_child_node(node)
 	
 	读取中 = false
 
@@ -823,8 +870,8 @@ func _on_保存_button_up() -> void:
 
 
 func _on_复制_button_up() -> void:
-	var focus:Control = get_viewport().gui_get_focus_owner()
-	copy_node(focus)
+	var nodes:Array = _get_焦点按钮s()
+	copy_node(nodes)
 
 
 func _on_粘贴_button_up() -> void:

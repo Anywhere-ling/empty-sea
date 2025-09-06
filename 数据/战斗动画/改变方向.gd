@@ -6,7 +6,7 @@ extends 战斗_动画
 func _start() -> void:
 	card = data["card"]
 	var life:战斗_life = data["life"]
-	var pos:String = card.get_pos()
+	var pos:Node = card.get_pos()
 	
 	var ro:int = 0
 	if !card.card_sys.direction:
@@ -15,7 +15,7 @@ func _start() -> void:
 	
 	card.tween_ease = Tween.EASE_IN_OUT
 	card.tween_trans = Tween.TRANS_QUAD
-	if is_方块区(life, pos):
+	if is_方块区(pos):
 		card.第二层.rotation_degrees = ro
 		emit_可以继续(data["动画index"])
 	else :

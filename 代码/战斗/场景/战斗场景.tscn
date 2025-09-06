@@ -161,14 +161,13 @@ offset_bottom = 598.0
 
 [node name="卡牌信息" parent="gui系统" instance=ExtResource("19_spr2e")]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
 offset_top = -219.0
-offset_right = 161.0
-offset_bottom = 219.0
+offset_right = 174.0
+offset_bottom = 333.0
 grow_vertical = 2
 
 [node name="gui连锁" parent="gui系统" instance=ExtResource("17_u8e7f")]

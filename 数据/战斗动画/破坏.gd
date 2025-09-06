@@ -6,10 +6,9 @@ extends 战斗_动画
 func _start() -> void:
 	card = data["card"]
 	var life:战斗_life = data["life"]
-	var pos:String = card.get_his_pos()
-	var pos_posi:Vector2 = life.get_posi(pos)
+	var new_pos:Node = life.卡牌五区.绿区
 	
-	card.pos_remove_card()
+	var pos:Node = card.pos_remove_card()
 	
 	_add_card(card)
 	
@@ -34,6 +33,7 @@ func _start() -> void:
 	带拖尾的光球.posi = card
 	emit_可以继续(data["动画index"])
 	
+	new_pos.add_card(card)
 	card.tween_ease = Tween.EASE_OUT
 	card.tween_trans = Tween.TRANS_QUAD
 	card.tween动画添加("旋转", "rotation_degrees", -90, 0.4/speed)
@@ -42,7 +42,6 @@ func _start() -> void:
 	remove_child(带拖尾的光球)
 	带拖尾的光球.queue_free()
 	
-	life.add_card(card, "绿区")
 	
 	emit_动画完成()
 	

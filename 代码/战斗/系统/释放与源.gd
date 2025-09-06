@@ -17,9 +17,9 @@ func 添加释放卡牌(life:战斗_单位管理系统.Life_sys, card:战斗_单
 	日志系统.callv("录入信息", [name, "添加释放卡牌", [life, card], null])
 	
 	await 最终行动系统.释放(life, card)
-	if card.own:
+	if card.get_own():
 		all_mp += 1
-		这个回合释放过的单位.append(card.own)
+		这个回合释放过的单位.append(card.get_own())
 	会释放的卡牌.append(card)
 
 func 释放卡牌() -> void:

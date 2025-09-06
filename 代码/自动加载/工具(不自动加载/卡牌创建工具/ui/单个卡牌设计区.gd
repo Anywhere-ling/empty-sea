@@ -62,6 +62,8 @@ func _on_后退_button_up() -> void:
 
 
 func _on_卡名_text_changed(new_text: String) -> void:
+	if !new_text:
+		new_text = "[空]"
 	name = new_text
 	emit_signal("请求储存到历史记录")
 

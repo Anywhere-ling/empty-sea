@@ -9,6 +9,7 @@ class_name 战斗_行动与手牌
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
+var pos_sys:战斗_单位管理系统.Card_pos_sys
 var cards:Array = []
 var is_锁定:bool = false
 var 鼠标停留的卡牌:Card
@@ -74,7 +75,13 @@ func set_p2() -> void:
 	p_2.position = Vector2(-p_0.position.x, p_0.position.y)
 
 
+func get_pos_nam() -> String:
+	return pos_sys.nam
+
 func add_card(card:Card, _a=null) -> void:
+	if card.get_parent():
+		card.get_parent().remove_child(card)
+	
 	var cards1:Array = cards.duplicate(true)
 	cards1.append(card)
 	card.set_pos(self)

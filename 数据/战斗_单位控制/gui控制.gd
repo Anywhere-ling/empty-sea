@@ -19,24 +19,37 @@ var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 var life_gui:战斗_life
 
 var o_cards:Array = [
-	["海", "剑之坟",  10],
-	["内装甲激活", 5],
-	["巨人讨灭", 5],
-	["剑之坟", 2],
-	["潮之高压", "潮汐变化", 10],
+	["海",  10],
+	["乱流", 6],
+	["锐流", "剑之坟", 6],
+	["暗流", "流变化", 10],
+	["血液逆流", 2],
+	["巨人讨灭", 6],
+	["内装甲过载", 10],
+	["潮之高压", "强袭", 6],
 ]
+
+var test_card:Array = [
+	["蓄力", "海", 10],
+	["遗志", 5],
+	["正握", 10],
+	["锐流", 3],
+	["海", 3],
+]
+
+
 
 
 func _ready() -> void:
 	life_nam = "control"
 	种类 = "c0ntrol"
+	装备 = ["海"]
 	
 	event_bus.subscribe("战斗_显示单位切换", _显示单位切换的信号)
 	event_bus.subscribe("战斗_卡牌被左键点击", _卡牌_被点击)
 	event_bus.subscribe("战斗_左键点击旁边", _卡牌_被点击_取消)
 	event_bus.subscribe("战斗_右键点击", _卡牌_被点击_取消)
-	
-	
+
 
 
 func _显示单位切换的信号(p_life_gui:战斗_life, p_is_positive:bool) -> void:
@@ -46,11 +59,17 @@ func _显示单位切换的信号(p_life_gui:战斗_life, p_is_positive:bool) ->
 
 func set_life_gui(p_life_gui:战斗_life) -> void:
 	life_gui = p_life_gui
-	动画系统._data转换(life_sys).卡牌五区.按钮按下.connect(_卡牌四区的按钮按下)
+	动画系统.data转换(life_sys).卡牌五区.按钮按下.connect(_卡牌四区的按钮按下)
 
 
 func 创造牌库() -> Array:
-	return 生成牌库(o_cards)
+	if !test_card:
+		var cards:Array = 生成牌库(o_cards)
+		cards.shuffle()
+		return cards
+	else :
+		return 生成牌库(test_card)
+	
 
 
 func 确认目标(lifes:Array[战斗_单位管理系统.Life_sys], efils:Array[战斗_单位管理系统.Life_sys]) -> void:
@@ -63,14 +82,18 @@ func 确认目标(lifes:Array[战斗_单位管理系统.Life_sys], efils:Array[�
 signal test
 func 第一次弃牌() -> Array:
 	
+	
+	
 	var cards_sys:Array = life_sys.cards_pos["手牌"].cards
 	var cards:Array
 	if !cards_sys:
 		return []
+	
 	var test:Array
-	for i in 5:
+	for i in cards_sys.size():
 		test.append(cards_sys[i])
 	return test
+	
 	
 	
 	
@@ -91,7 +114,8 @@ func 整理手牌() -> Array:
 	return []
 
 func 打出(cards:Array) -> 战斗_单位管理系统.Card_sys:
-	return cards[0]
+	if test_card:
+		return cards[0]
 	
 	var cards_gui:Array
 	if !cards:
@@ -200,7 +224,7 @@ func 主要阶段判断(cards1:Array[战斗_单位管理系统.Card_sys], cards2
 	合成cards = cards3
 	
 	for card in 打出cards:
-		var card_gui:Card = 动画系统._data转换(card)
+		var card_gui:Card = 动画系统.data转换(card)
 		if 可进行的卡牌.has(card_gui):
 			可进行的卡牌[card_gui] += 2
 		else :
@@ -210,7 +234,7 @@ func 主要阶段判断(cards1:Array[战斗_单位管理系统.Card_sys], cards2
 			可进行的区[card.pos][-1] = 2
 	
 	for card in 合成cards:
-		var card_gui:Card = 动画系统._data转换(card)
+		var card_gui:Card = 动画系统.data转换(card)
 		if 可进行的卡牌.has(card_gui):
 			可进行的卡牌[card_gui] += 4
 		else :
@@ -220,7 +244,7 @@ func 主要阶段判断(cards1:Array[战斗_单位管理系统.Card_sys], cards2
 			可进行的区[card.pos][-1] = 2
 		
 	for card in 发动cards:
-		var card_gui:Card = 动画系统._data转换(card)
+		var card_gui:Card = 动画系统.data转换(card)
 		if 可进行的卡牌.has(card_gui):
 			可进行的卡牌[card_gui] += 1
 		else :
@@ -287,7 +311,7 @@ func _process(delta: float) -> void:
 		if 被点击卡牌 is Card:
 			按钮.global_position = 被点击卡牌.顶部.global_position + Vector2(0, -30)
 		elif 被点击卡牌 is String:
-			按钮.global_position = 动画系统._data转换(life_sys).get_posi(被点击卡牌) + Vector2(0, -20)
+			按钮.global_position = 动画系统.data转换(life_sys).get_posi(被点击卡牌) + Vector2(0, -20)
 
 
 var 可进行的卡牌:Dictionary
@@ -330,7 +354,7 @@ func _清除卡牌颜色() -> void:
 		i.光圈改变(0)
 	可进行的卡牌 = {}
 	可进行的区 = {"白区":[[],[],[],0], "绿区":[[],[],[],0], "蓝区":[[],[],[],0], "红区":[[],[],[],0]}
-	动画系统._data转换(life_sys).卡牌五区.光圈([0,0,0,0])
+	动画系统.data转换(life_sys).卡牌五区.光圈([0,0,0,0])
 
 
 
@@ -340,7 +364,7 @@ func set_card_mode() -> void:
 			card.光圈改变(1)
 		else :
 			card.光圈改变(2)
-	动画系统._data转换(life_sys).卡牌五区.光圈([可进行的区["白区"][-1], 可进行的区["绿区"][-1], 可进行的区["蓝区"][-1], 可进行的区["红区"][-1]])
+	动画系统.data转换(life_sys).卡牌五区.光圈([可进行的区["白区"][-1], 可进行的区["绿区"][-1], 可进行的区["蓝区"][-1], 可进行的区["红区"][-1]])
 	
 
 func _卡牌四区的按钮按下(pos:String) -> void:
@@ -364,32 +388,41 @@ func _卡牌四区的按钮按下(pos:String) -> void:
 
 
 func _on_发动_button_up() -> void:
+	发动按钮.visible = false
+	打出按钮.visible = false
+	合成按钮.visible = false
 	var card:战斗_单位管理系统.Card_sys
 	if 被点击卡牌 is Card:
 		card = 被点击卡牌.card_sys
 	elif 被点击卡牌 is String:
 		card = await 发动(可进行的区[被点击卡牌][0])
 	if card:
-		动画系统._data转换(card).光圈改变(0)
+		动画系统.data转换(card).光圈改变(0)
 		emit_signal("主要阶段发动的信号", card)
 		回合结束.disabled = true
 		_清除卡牌颜色()
 		_卡牌_被点击_取消()
 
 func _on_打出_button_up() -> void:
+	发动按钮.visible = false
+	打出按钮.visible = false
+	合成按钮.visible = false
 	var card:战斗_单位管理系统.Card_sys
 	if 被点击卡牌 is Card:
 		card = 被点击卡牌.card_sys
 	elif 被点击卡牌 is String:
 		card = await 发动(可进行的区[被点击卡牌][1])
 	if card:
-		动画系统._data转换(card).光圈改变(0)
+		动画系统.data转换(card).光圈改变(0)
 		emit_signal("主要阶段打出的信号", card)
 		回合结束.disabled = true
 		_清除卡牌颜色()
 		_卡牌_被点击_取消()
 
 func _on_合成按钮_button_up() -> void:
+	发动按钮.visible = false
+	打出按钮.visible = false
+	合成按钮.visible = false
 	var card:战斗_单位管理系统.Card_sys
 	var cards:Array
 	if 被点击卡牌 is Card:
@@ -405,7 +438,7 @@ func _on_合成按钮_button_up() -> void:
 		if cards:
 			card = cards[0]
 	if card:
-		动画系统._data转换(card).光圈改变(0)
+		动画系统.data转换(card).光圈改变(0)
 		emit_signal("合成的信号", cards)
 		回合结束.disabled = true
 		_清除卡牌颜色()

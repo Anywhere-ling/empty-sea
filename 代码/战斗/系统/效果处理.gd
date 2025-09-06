@@ -5,7 +5,7 @@ signal 数据返回
 
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
-
+var 场地行数:int = C0nfig.场地行数
 
 var targets:Array = []
 #[0:这个效果/buff的依赖/对象卡牌
@@ -89,6 +89,9 @@ func _effect_process(p_effect:Array) -> bool:
 
 var effect标点:Dictionary ={
 	"逐一":_逐一,
+	"否定":_否定,
+	"如果":_如果,
+	"否则":_否则,
 }
 
 var effect组件:Dictionary = {
@@ -97,19 +100,23 @@ var effect组件:Dictionary = {
 	"初始区":_初始区,
 	"以全局数据为对象":_以全局数据为对象,
 	"以数据为对象":_以数据为对象,
+	"以单位数据为对象":_以单位数据为对象,
 	"以单位为对象":_以单位为对象,
 	"以区为对象":_以区为对象,
 	"以序号为对象":_以序号为对象,
 	"以场上为对象":_以场上为对象,
+	"直接存入":_直接存入,
 	
 	"对象处理":_对象处理,
 	"数据判断":_数据判断,
 	"计算数量":_计算数量,
 	"计算相似度":_计算相似度,
 	"效果判断":_效果判断,
+	"条件卡牌筛选":_条件卡牌筛选,
 	"非条件卡牌筛选":_非条件卡牌筛选,
 	"格筛选":_格筛选,
 	"合成检测":_合成检测,
+	
 	"线段取格":_线段取格,
 	"两点取角":_两点取角,
 	"方形取格":_方形取格,
@@ -135,6 +142,7 @@ var effect组件:Dictionary = {
 	"合成":_合成,
 	"移动":_移动,
 	"构造":_构造,
+	"行动打出":_行动打出,
 	
 	"添加buff":_添加buff,
 }
@@ -210,19 +218,21 @@ func _has_element(arr, target) -> bool:
 
 
 func _gett(sub:String, arr:bool = false, 直接:bool = false, cla = null):
-	var arr1:Array = _get_array_sub(sub).duplicate(true)
-	var arr2:Array
+	var arr1:Array = _get_array_sub(sub)
+	while arr1.has(null):
+		arr1.erase(null)
+	
+	arr1 = arr1.duplicate(true)
+	
 	if cla:
 		for i in arr1:
 			assert(is_instance_of(i, cla), "类型不符")
 	
-	arr2 = arr1
-	
-	if arr2:
+	if arr1:
 		if arr:
-			return arr2
+			return arr1
 		else :
-			return arr2[0]
+			return arr1[0]
 	else :
 		if 直接:
 			if arr:
@@ -243,6 +253,7 @@ func _逐一(data:Array) -> bool:
 	var index:String = data[0]
 	var data0 = _gett(data[0], true)
 	
+	
 	if !data0:
 		return false
 	
@@ -258,12 +269,41 @@ func _逐一(data:Array) -> bool:
 	
 	return ret
 
+func _否定(data:Array) -> bool:
+	var ret:bool = true
+	
+	if await  _effect_process(data):
+		ret = false
+	
+	return ret
+
+func _如果(data:Array) -> bool:
+	var 进入否则:bool = false
+	
+	for i in data:
+		if 进入否则:
+			if i is Array and i[0] == "否则":
+				i.pop_at(0)
+				_effect_process(i)
+		else:
+			if i is Array and i[0] == "否则":
+				continue
+			if !await _effect_process([i]):
+				进入否则 = true
+	
+	
+	return true
+
+func _否则(data:Array) -> bool:
+	return true
 
 
 func _改变主视角(data:Array) -> bool:
 	var poss:Array = []
 	var data0 = _gett(data[0], false, true)
-		
+	
+	if data0 == "攻击目标" and !targets[1].att_life:
+		return false
 	match data0 :
 		"攻击目标":data0 = [targets[1].att_life]
 		"自己":data0 = [targets[1]]
@@ -284,18 +324,24 @@ func _初始区(data:Array) -> bool:
 		i = _gett(i, true, true, TYPE_STRING)
 		if i:
 			data0.append_array(i)
-		
+	var data1:Array = _gett(data[1], true, true)
+	if !data1:
+		return false
+	
 	#目标单位
 	var lifes:Array = []
-	if data[1] == "攻击目标" and !targets[1].att_life:
-		return false
-		
-	match data[1] :
-		"攻击目标":lifes = [targets[1].att_life]
-		"自己":lifes = [targets[1]]
-		"敌人":lifes = all_lifes[int(all_lifes[0].has(targets[1]))]
-		"友方":lifes = all_lifes[int(!all_lifes[0].has(targets[1]))]
-		"全部":lifes = all_lifes[0] + all_lifes[1]
+	if !data1[0] is String:
+		lifes = data1
+	else:
+		if data1[0] == "攻击目标" and !targets[1].att_life:
+			return false
+			
+		match data1[0] :
+			"攻击目标":lifes.append_array([targets[1].att_life])
+			"自己":lifes.append_array([targets[1]])
+			"敌人":lifes.append_array(all_lifes[int(all_lifes[0].has(targets[1]))])
+			"友方":lifes.append_array(all_lifes[int(!all_lifes[0].has(targets[1]))])
+			"全部":lifes.append_array(all_lifes[0] + all_lifes[1])
 		
 	for life:战斗_单位管理系统.Life_sys in lifes:
 		for pos:String in data0:
@@ -318,13 +364,7 @@ func _初始对象(data:Array) -> bool:
 	
 	
 	for pos:战斗_单位管理系统.Card_pos_sys in poss:
-		if pos.nam == "场上":
-			if pos.cards:
-				var cards1:Array = pos.cards.duplicate(true)
-				cards.append(cards1.pop_at(0))
-				cards.append_array(单位管理系统.get_给定显示以上的卡牌(cards1, 2))
-		else :
-			cards.append_array(pos.cards)
+		cards.append_array(pos.cards)
 	
 	#对象
 	
@@ -378,14 +418,33 @@ func _以数据为对象(data:Array) -> bool:
 			pass
 		elif data[1] == "构造状态":
 			ret = str(data0.state)
-		elif data[1] == "素材数量":
-			ret = str(len(data0.get_素材(true) + data0.get_素材(false)))
-		elif data[1] == "活性素材数量":
-			ret = str(len(data0.get_素材(true)))
+		elif data[1] == "源数量":
+			ret = str(len(data0.get_源(true) + data0.get_源(false)))
+		elif data[1] == "活性源数量":
+			ret = str(len(data0.get_源(true)))
 		else :
 			ret = data0.get_value(data[1])
 			if data[1] in ["sp", "mp"]:
 				ret = str(ret)
+	
+	if ret == null:
+		return false
+	targets[_get_sub_index(data[2])] = ret
+		
+	
+	return true
+
+func _以单位数据为对象(data:Array) -> bool:
+	#提取数据
+	var data0 = _gett(data[0], false, false, 战斗_单位管理系统.Life_sys)
+	if !data0:
+		return false
+	
+	
+	var ret
+	#任意显示
+	if data[1] in ["speed", "state", "mode", "卡名无效"]:
+		ret = data0.get_value(data[1])
 	
 	if ret == null:
 		return false
@@ -400,15 +459,9 @@ func _以单位为对象(data:Array) -> bool:
 	if !data0:
 		return false
 	
-	var ret
-	var pos:战斗_单位管理系统.Card_pos_sys = data0.get_parent()
-	ret = pos
-	if pos.name == "临时":
-		ret = []
-	elif !pos.get_parent():
-		ret = []
-	else:
-		ret = pos.get_parent()
+	var ret = data0.get_所属life()
+	if !ret:
+		return false
 	
 	targets[_get_sub_index(data[1])] = ret
 	
@@ -454,7 +507,7 @@ func _以场上为对象(data:Array) -> bool:
 	
 	if !data0 or !data1:
 		return false
-	if data0 <1 or data0 >5 or data1 <1 or data1 >5:
+	if data0 <1 or data0 >5 or data1 <1 or data1 > 场地行数:
 		return false
 	
 	
@@ -462,60 +515,78 @@ func _以场上为对象(data:Array) -> bool:
 	
 	return true
 
+func _直接存入(data:Array) -> bool:
+	#提取数据
+	var data0 = data[0]
+	
+	data0 = JSON.parse_string(data0)
+	if !data0 is Array:
+		return false
+	
+	targets[_get_sub_index(data[1])] = data0
+	
+	return true
+
 
 
 func _对象处理(data:Array) -> bool:
 	var data0 = targets[_get_sub_index(data[0])]
-	var mode:String = ""
+	var data2 = data[2]
 	if _get_sub_index(data[2]) != -1:
-		var data2 = _get_array_sub(data[2])
-		if data[1] == "加":
-			data0 = _get_array(data0)
-			data0.append_array(data2)
-		elif data[1] == "减":
-			for i in data2:
-				_get_array(data0).erase(i)
-		elif data[1] == "复制或乘算":
-			if data0 is Array:
-				for i in data0.duplicate(true):
-					data0.erase(i)
-				for i in data2:
-					data0.append(i)
-			else :
+		data2 = targets[_get_sub_index(data[2])]
+	
+	if data[1] == "重设":
+		if data2:
+			targets[_get_sub_index(data[0])] = data2
+		else :
+			targets[_get_sub_index(data[0])] = null
+		return true
+	
+	elif !data0:
+		if data[1] in ["复制或乘算"]:
+			data0 = data2
+		if data[1] in ["加"]:
+			if data2 is String and data2.is_valid_float():
 				data0 = data2
-	
-	elif data0 is Array:
-		if data[1] == "加":
-			data0.append(data[2])
+			else :
+				data0 = [data2]
 		elif data[1] == "减":
-			data0.erase(data[2])
-		elif data[1] == "复制或乘算":
-			for i in data0.duplicate(true):
-				data0.erase(i)
-			data0.append(data[2])
-	
-	elif data[2].is_valid_float():
-		if !data0 is int and !data0 is float:
 			return false
+	
+	elif data0 is String and data0.is_valid_float():
+		assert(data2.is_valid_float())
+		data0 = float(data0)
 		if data[1] == "加":
-			data0 += float(data[2])
+			data0 += float(data2)
 		elif data[1] == "减":
-			data0 -= float(data[2])
+			data0 -= float(data2)
 		elif data[1] == "复制或乘算":
-			data0 = data0 * float(data[2])
+			data0 = data0 * float(data2)
+		data0 = str(data0)
 	
-	
-	
-	else :
+	elif data0 is String:
 		if !data0 is String:
 			return false
 		if data[1] == "加":
-			data0 += data[2]
+			data0 += data2
 		elif data[1] == "减":
-			for i in data[2]:
+			for i in data2:
 				data0.erase(data0.find(i))
 		elif data[1] == "复制或乘算":
-			data0 = data[2]
+			data0 = data2
+	
+	else :
+		data0 = _get_array(data0)
+		data2 = _get_array(data2)
+		if data[1] == "加":
+			data0.append_array(data2)
+		elif data[1] == "减":
+			for i in data2:
+				data0.erase(i)
+		elif data[1] == "复制或乘算":
+			for i in data0.duplicate(true):
+				data0.erase(i)
+			data0.append_array(data2)
 	
 	targets[_get_sub_index(data[0])] = data0
 	return true
@@ -539,7 +610,9 @@ func _数据判断(data:Array) -> bool:
 		data2 = int(data2)
 	elif data0 is String:
 		assert(data2 is String, "类型不符")
-	elif data0 is Array:
+	else:
+		data0 = _get_array(data0)
+		data2 = _get_array(data2)
 		assert(data2 is Array or typeof(data0[0]) == typeof(data2), "类型不符")
 		
 	if data[1] == "相等":
@@ -587,7 +660,7 @@ func _计算数量(data:Array) -> bool:
 func _计算相似度(data:Array) -> bool:
 	#提取
 	var data0 = targets[_get_sub_index(data[0])]
-	var data1 = targets[_get_sub_index(data[1])]
+	var data1 = _gett(data[2], false, true)
 	
 	if data0 is String:
 		#判断
@@ -621,16 +694,114 @@ func _效果判断(data:Array) -> bool:
 	
 	return true
 
+func _条件卡牌筛选(data:Array) -> bool:
+	#提取
+	var data0 = _gett(data[0], true, false, 战斗_单位管理系统.Card_sys)
+	if !data0:
+		return false
+	var data1:String = data[1]
+	var data2:String = data[2]
+	var o_data3
+	if !data[3].is_valid_float() and _get_sub_index(data[3]) != -1:
+		o_data3 = targets[_get_sub_index(data[3])]
+	else :
+		o_data3 = data[3]
+	
+	
+	var ret:Array
+	for i:战斗_单位管理系统.Card_sys in data0:
+		var data3 = o_data3
+		if data3 is Array:
+			data3 = data3.duplicate(true)
+		
+		var 数据
+		#任意显示
+		if data[1] == "位置":
+			数据 = i.pos
+		elif data[1] == "显现":
+			数据 = str(i.appear)
+		elif data[1] == "方向":
+			数据 = str(i.direction)
+		elif data[1] == "上一位置":
+			if len(i.his_pos) >= 2:
+				数据 = i.his_pos[-2]
+			else:
+				continue
+				
+		#表侧
+		else :
+			if !i.appear:
+				pass
+			elif data[1] == "构造状态":
+				数据 = str(i.state)
+			elif data[1] == "源数量":
+				数据 = str(len(i.get_源(true) + i.get_源(false)))
+			elif data[1] == "活性源数量":
+				数据 = str(len(i.get_源(true)))
+			else :
+				数据 = i.get_value(data[1])
+				if data[1] in ["sp", "mp"]:
+					数据 = str(数据)
+		
+		
+		var 判断:bool = false
+		if 数据 is String and 数据.is_valid_float():
+			assert(data3 is String and data3.is_valid_float(), "类型不符")
+			数据 = int(数据)
+			data3 = int(data3)
+		elif 数据 is String:
+			assert(data3 is String, "类型不符")
+		else:
+			数据 = _get_array(数据)
+			data3 = _get_array(data3)
+			assert(data3 is Array or typeof(数据[0]) == typeof(data3), "类型不符")
+			
+		if data2 == "相等":
+			if 数据 is int:
+				判断 = 数据 == data3
+			elif 数据 is String:
+				判断 = 数据 == data3
+			elif 数据 is Array:
+				判断 = 数据 == data3
+		
+		elif data2 == "包含":
+			if 数据 is int:
+				判断 = 数据 >= data3
+			elif 数据 is String:
+				判断 = !数据.find(data3) == -1
+			elif 数据 is Array:
+				if data3 is Array:
+					判断 = data3.all(func(a):return 数据.has(a))
+				else:
+					判断 = 数据.has(data3)
+		
+		elif data2 == "被包含":
+			if 数据 is int:
+				判断 = 数据 <= data3
+			elif 数据 is String:
+				判断 = !data3.find(数据) == -1
+			elif 数据 is Array:
+				判断 = 数据.all(func(a):return data3.has(a))
+		
+		if 判断:
+			ret.append(i)
+	
+	
+	targets[_get_sub_index(data[0])] = ret
+	
+	return true
+
 func _非条件卡牌筛选(data:Array) -> bool:
 	#提取
 	var data0 = _gett(data[0], true, false, 战斗_单位管理系统.Card_sys)
 	if !data0:
 		return false
 	var data1:String = data[1]
-	var data2:int = int(data[2])
+	var data2:int = int(_gett(data[2], false, true))
 	
 	if data2 > data0.size():
-		return false
+		targets[_get_sub_index(data[0])] = data0
+		return true
 	
 	var ret:Array
 	if data1 == "随机":
@@ -704,6 +875,8 @@ func _合成检测(data:Array) -> bool:
 	
 	
 	return true
+
+
 
 func _线段取格(data:Array) -> bool:
 	#提取
@@ -789,10 +962,16 @@ func _视角化(data:Array) -> bool:
 	var data1:Array = _gett(data[1], true, false, 战斗_单位管理系统.Card_pos_sys)
 	
 	var mode:Array
-	if data0.glo_x >= 3:
-		mode.append("反")
-	if data0.glo_x <= 3:
-		mode.append("正")
+	if data0.get_parent():
+		if data0.get_parent().is_positive:
+			mode.append("正")
+		else:
+			mode.append("反")
+	else:
+		if data0.glo_x >= 3:
+			mode.append("反")
+		if data0.glo_x <= 3:
+			mode.append("正")
 	
 	var arr_ind:Array
 	for i in data1:
@@ -816,8 +995,8 @@ func _取卡牌对象(data:Array) -> bool:
 	if data0 == []:
 		return false
 	
-	var 最小数量:int = int(data[3])
-	var 最大数量:int = int(data[2])
+	var 最小数量:int = int(_gett(data[3], false, true))
+	var 最大数量:int = int(_gett(data[2], false, true))
 	var 描述:String = data[1]
 	if 最小数量 == -1:
 		最小数量 = 最大数量
@@ -854,8 +1033,8 @@ func _取格对象(data:Array) -> bool:
 	if data0 == []:
 		return false
 	
-	var 最小数量:int = int(data[3])
-	var 最大数量:int = int(data[2])
+	var 最小数量:int = int(_gett(data[3], false, true))
+	var 最大数量:int = int(_gett(data[2], false, true))
 	var 描述:String = data[1]
 	if 最小数量 == -1:
 		最小数量 = 最大数量
@@ -992,9 +1171,16 @@ func _释放(data:Array) -> bool:
 		return false
 	
 	var ret:bool = true
-	for i:战斗_单位管理系统.Card_sys in data0:
-		if !await 二级行动系统.释放(i.get_所属life(), i):
+	for i:int in len(data0):
+		if !await 二级行动系统.释放(data0[i].get_所属life(), data0[i]):
 			ret = false
+		else:
+			data0[i] = null
+	
+	while data0.has(null):
+		data0.erase(null)
+	
+	targets[_get_sub_index(data[0])] = data0
 	
 	await 最终行动系统.等待动画完成()
 	return ret
@@ -1047,10 +1233,13 @@ func _去除(data:Array) -> bool:
 	if !data2:
 		return false
 	data2 = int(data2)
+	var data3 = _gett(data[3], false, true, TYPE_STRING)
+	if !data3:
+		data3 = "蓝区"
 	
 	var cards1:Dictionary
 	for card:战斗_单位管理系统.Card_sys in data0:
-		for i in card.get_素材(is_活性):
+		for i in card.get_源(is_活性):
 			cards1[i] = card
 	
 	if len(cards1) < int(data[2]):
@@ -1058,7 +1247,7 @@ func _去除(data:Array) -> bool:
 			return false
 		else :
 			for card:战斗_单位管理系统.Card_sys in data0:
-				for i in card.get_素材(true):
+				for i in card.get_源(true):
 					cards1[i] = card
 			if len(cards1) < int(data[2]):
 				return false
@@ -1070,15 +1259,11 @@ func _去除(data:Array) -> bool:
 	
 	var ret:bool = true
 	for i:战斗_单位管理系统.Card_sys in cards2:
-		var life:战斗_单位管理系统.Life_sys = i.own
-		var pos:战斗_单位管理系统.Card_pos_sys
-		if life:
-			pos = life.cards_pos["白区"]
-		if !await 二级行动系统.去除(i.get_所属life(), cards2[i], i, pos):
+		if !await 二级行动系统.去除(i.get_所属life(), cards2[i], i, data3):
 			ret = false
 	
-	if _get_sub_index(data[3]) != -1:
-		targets[_get_sub_index(data[3])] = cards2.keys()
+	if _get_sub_index(data[4]) != -1:
+		targets[_get_sub_index(data[4])] = cards2.keys()
 	
 	await 最终行动系统.等待动画完成()
 	return ret
@@ -1142,8 +1327,8 @@ func _改变可视数据(data:Array) -> bool:
 		for i in data0:
 			i.add_value(data1, [data2, data3, ind])
 	
-	if _get_sub_index(data[2]) != -1:
-		targets[_get_sub_index(data[2])] = ind
+	if _get_sub_index(data[4]) != -1:
+		targets[_get_sub_index(data[4])] = str(ind)
 	
 	for i in data0:
 		await 最终行动系统.图形化数据改变(i.get_所属life(), i, data1)
@@ -1197,6 +1382,7 @@ func _删除可视数据改变(data:Array) -> bool:
 	#提取数据
 	var data0 = _gett(data[0], true, false)
 	var data1 = targets[_get_sub_index(data[1])]
+	data1 = int(data1)
 	
 	var key:String
 	for i in data0:
@@ -1204,20 +1390,34 @@ func _删除可视数据改变(data:Array) -> bool:
 	
 	if key:
 		for i in data0:
-			await 最终行动系统.图形化数据改变(i, key)
+			await 最终行动系统.图形化数据改变(i.get_所属life(), i, key)
 	
 	return true
 
 func _阻止(data:Array) -> bool:
 	#提取数据
-	var data0 = _gett(data[0], true, false, 战斗_单位管理系统.Life_sys)
+	var data0:Array = _gett(data[0], true, true)
 	if !data0:
 		return false
 	
-	for i:战斗_单位管理系统.Life_sys in data0:
+	#目标单位
+	var lifes:Array = []
+	if !data0[0] is String:
+		lifes = data0
+	else:
+		if data0[0] == "攻击目标" and !targets[1].att_life:
+			return false
+			
+		match data0[0] :
+			"攻击目标":lifes.append_array([targets[1].att_life])
+			"自己":lifes.append_array([targets[1]])
+			"敌人":lifes.append_array(all_lifes[int(all_lifes[0].has(targets[1]))])
+			"友方":lifes.append_array(all_lifes[int(!all_lifes[0].has(targets[1]))])
+			"全部":lifes.append_array(all_lifes[0] + all_lifes[1])
+		
+	for i:战斗_单位管理系统.Life_sys in lifes:
 		i.state.append("阻止")
 		await 最终行动系统.单位图形化数据改变(i, "state")
-	
 	
 	return true
 
@@ -1270,11 +1470,17 @@ func _移动(data:Array) -> bool:
 	if !data0:
 		return false
 	
+	if data0.appear < 4:
+		return false
+	
 	var pos:战斗_单位管理系统.Card_pos_sys = _gett(data[1], false, false, 战斗_单位管理系统.Card_pos_sys)
 	if !pos:
 		return false
 	
 	if pos.nam != "场上" or pos.appear == 4:
+		return false
+	
+	if pos.cards[0].appear > 2:
 		return false
 	
 	
@@ -1297,6 +1503,25 @@ func _构造(data:Array) -> bool:
 	for i:战斗_单位管理系统.Card_sys in data0:
 		if !await 二级行动系统.构造(i.get_所属life(), i, pos):
 			ret = false
+	
+	await 最终行动系统.等待动画完成()
+	return ret
+
+func _行动打出(data:Array) -> bool:
+	#提取数据
+	var data0 = _gett(data[0], true, false, 战斗_单位管理系统.Card_sys)
+	if !data0:
+		return false
+	
+	var ret:bool = true
+	for card:战斗_单位管理系统.Card_sys in data0:
+		if !card.get_value("种类") in ["攻击", "防御"]:
+			continue
+		
+		if !await 卡牌打出与发动系统.打出(targets[1], card):
+			ret = false
+		
+	
 	
 	await 最终行动系统.等待动画完成()
 	return ret

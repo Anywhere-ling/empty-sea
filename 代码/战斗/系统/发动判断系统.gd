@@ -16,16 +16,17 @@ extends Node
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
 func 单位主要阶段发动判断(life:战斗_单位管理系统.Life_sys) -> Array[战斗_单位管理系统.Card_sys]:
+	#冲击
+	if life.get_value("state").has("冲击"):
+		return []
+	
 	var ret可发动的卡牌:Array[战斗_单位管理系统.Card_sys] = []
-	#发动
 	var cards:Array[战斗_单位管理系统.Card_sys] = 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards(), 3)
 	for card:战斗_单位管理系统.Card_sys in cards:
 		#test
 		if card.test == 1:
 			pass
 		
-		if card.nam == "内装甲激活":
-			pass
 		
 		if await _发动消耗判断(life, card):
 			if await 卡牌发动判断(life, card, card.get_parent().nam):
@@ -61,8 +62,11 @@ func 单位主要阶段打出判断(life:战斗_单位管理系统.Life_sys) -> 
 
 
 func 单位非主要阶段发动判断(life:战斗_单位管理系统.Life_sys) -> Array[战斗_单位管理系统.Card_sys]:
+	#冲击
+	if life.get_value("state").has("冲击"):
+		return []
+	
 	var ret可发动的卡牌:Array[战斗_单位管理系统.Card_sys] = []
-	#发动
 	var cards:Array[战斗_单位管理系统.Card_sys]
 	if life.state.has("防御"):
 		cards = 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards(), 3)
@@ -153,6 +157,14 @@ func 合成构造判断(life:战斗_单位管理系统.Life_sys, cards目标:Arr
 
 
 func 卡牌发动判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:String) -> Array:
+	#卡名无效检测
+	if !card.get_parent().nam in ["红区"]:
+		var arr:Array = life.get_value("卡名无效")
+		if arr.has(card.nam):
+			
+			日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "卡名无效检测未通过"])
+			return []
+	
 	#可用格检测
 	if !card.get_parent().nam in ["场上", "行动"]:
 		if !场地系统.get_可用场上(life, card.pos, card.get_value("mp")):
@@ -180,7 +192,7 @@ func 卡牌发动判断(life:战斗_单位管理系统.Life_sys, card:战斗_单
 		return []
 	
 	#自然下降检测
-	if 卡牌打出与发动系统.自然下降的卡牌.has(card):
+	if card.get_value("特征").has("下降"):
 		
 		日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "自然下降检测未通过"])
 		return []
@@ -190,6 +202,7 @@ func 卡牌发动判断(life:战斗_单位管理系统.Life_sys, card:战斗_单
 	for effect:战斗_单位管理系统.Effect_sys in card.effects:
 		if await 卡牌发动判断_单个效果(life, card, pos, effect):
 			ret可发动的效果.append(effect)
+			effect.set_颜色信息("可以发动")
 	
 	if ret可发动的效果:
 		日志系统.callv("录入信息", [name, "卡牌发动判断", [life, card, pos], "通过"])
@@ -200,66 +213,16 @@ func 卡牌发动判断(life:战斗_单位管理系统.Life_sys, card:战斗_单
 
 
 func _发动消耗判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
-	var i:int = buff系统.单位与全部buff判断("打出消耗判断", [null, life, card])
-	if i == -1:
-		
-		if card.data["种类"] in ["攻击", "防御"]:
-			if int(card.data["mp"]) <= len(life.cards_pos["蓝区"].cards):
-				
-				日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], true])
-				return true
-			else:
-				
-				日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], false])
-				return false
-		if card.data["种类"] in ["法术", "仪式"]:
-			if int(card.data["sp"]) <= len(单位管理系统.get_给定显示以上的卡牌(life.cards_pos["绿区"].cards)):
-				
-				日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], true])
-				return true
-			else:
-				
-				日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], false])
-				return false
-	elif i == 1:
-		
-		日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], true])
-		return true
 	
-	日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], false])
-	return false
+	#日志系统.callv("录入信息", [name, "_发动消耗判断", [life, card], false])
+	return true
 
 
 
 func _打出消耗判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
-	var i:int = buff系统.单位与全部buff判断("打出消耗判断", [null, life, card])
-	if i == -1:
-		
-		if card.data["种类"] in ["攻击", "防御"]:
-			if int(card.data["sp"]) <= len(单位管理系统.get_给定显示以上的卡牌(life.cards_pos["绿区"].cards)):
-				
-				日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], true])
-				return true
-			else:
-				
-				日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], false])
-				return false
-		if card.data["种类"] in ["法术", "仪式"]:
-			if int(card.data["mp"]) <= len(life.cards_pos["蓝区"].cards):
-				
-				日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], true])
-				return true
-			else:
-				
-				日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], false])
-				return false
-	elif i == 1:
-		
-		日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], true])
-		return true
 	
-	日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], false])
-	return false
+	#日志系统.callv("录入信息", [name, "_打出消耗判断", [life, card], false])
+	return true
 
 
 
@@ -405,7 +368,7 @@ func _模式判断(features:Array, mode:Array[String]) -> bool:
 
 
 func _效果发动判断(eff:Array, car:战斗_单位管理系统.Card_sys, fea:Array = [], tar:Array = []) -> Array:
-	var effect_processing:= 战斗_发动判断系统.new(self, eff, [单位管理系统.lifes, 单位管理系统.efils], car, fea, tar)
+	var effect_processing:= 战斗_发动判断系统.new(self, eff, [单位管理系统.lifes, 单位管理系统.efils], car, fea, tar.duplicate(true))
 	var ret:Array = await effect_processing.start()
 	effect_processing.queue_free()
 	

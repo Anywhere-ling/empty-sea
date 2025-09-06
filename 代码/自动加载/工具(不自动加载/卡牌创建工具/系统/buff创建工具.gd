@@ -11,33 +11,7 @@ class_name buff创建工具
 
 
 
-var specification_影响:Dictionary = {
-	"全部":"会检测全部单位",
-	"加入":"加入卡牌时",
-	"发动":"卡牌发动时",
-	"打出":"打出卡牌时",
-	"构造":"构造卡牌时",
-	"改变方向":"改变卡牌方向时",
-	"反转":"反转卡牌时",
-	"破坏":"破坏卡牌时",
-	"创造":"创造卡牌时",
-	"阻止":"单位被阻止时",
-	"抽牌":"抽牌时",
-	"释放":"卡牌释放时",
-	"攻击":"攻击时",
-	"直接攻击":"直接攻击时",
-	"斩击":"斩击时",
-	"重击":"重击时",
-	"刺击":"刺击时",
-	"格挡":"格挡时",
-	"可被取为对象":"卡牌可被取为对象时(对象/对象单位/效果所属卡牌/效果数据)",
-	"被取为对象":"卡牌被取为对象时(对象/对象单位/效果所属卡牌/效果数据)",
-	
-	"开始":"回合开始时",
-	"结束":"回合结束时",
-	"连锁处理开始":"连锁处理开始时",
-	"连锁处理结束":"连锁处理结束时",
-}
+
 
 
 #规范文件的加载数据
@@ -48,6 +22,7 @@ var specification_影响:Dictionary = {
 
 func _ready() -> void:
 	await DatatableLoader.加载完成
+	_基本设置()
 	_加载卡牌数据()
 	_加载规范文件并处理数据()
 	_将数据写入选择器()
@@ -64,8 +39,6 @@ func _ready() -> void:
 	add_单个角色设计区()
 
 
-
-
 func _将数据写入选择器() -> void:
 	标点.choose_data = specification_效果标点.keys()
 	标点.start_build()
@@ -79,30 +52,34 @@ func _将数据写入选择器() -> void:
 	文件.start_build()
 
 
-
-
 func _add_node(node:Control, s:String) -> Control:
-	if specification_效果标点.has(s) and node is 卡牌创建工具_不定数量的数据节点容器:
-		if specification_效果标点[s][1] == "括号":
-			return _add_node_括号(node, s)
-	elif node.tooltip_text == "影响":
-		if specification_影响.has(s):
+	var nam:String = 选择器.get_current_tab_control().name
+	if nam == "标点":
+		if specification_效果标点.has(s) and node is 卡牌创建工具_不定数量的数据节点容器:
+			if specification_效果标点[s][1] == "括号":
+				return _add_node_括号(node, s)
+	
+	elif nam == "影响":
+		if node.tooltip_text == "影响":
+			if specification_影响.has(s):
+				return _add_node_文本(node, s)
+	
+	elif nam == "特征":
+		if specification_效果特征.has(s):
 			return _add_node_文本(node, s)
-	elif node.tooltip_text == "组":
-		if specification_组.has(s):
-			return _add_node_文本(node, s)
-	elif specification_效果特征.has(s):
-		return _add_node_文本(node, s)
-	elif specification_效果组件.has(s):
-		return _add_node_组件(node, s)
-	elif buffs_data.has(s):
-		var focus:Control = get_viewport().gui_get_focus_owner()
-		if focus is LineEdit:
-			focus.text = s
-			return
+	
+	elif nam == "组件":
+		if specification_效果组件.has(s):
+			return _add_node_组件(node, s)
+	
+	elif nam == "文件":
+		if buffs_data.has(s):
+			var focus:Control = get_viewport().gui_get_focus_owner()
+			if focus is LineEdit:
+				focus.text = s
+				return
+	
 	return 
-
-
 
 
 func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
@@ -125,9 +102,6 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 	return life_data
 
 
-
-
-
 func add_单个角色设计区() -> 卡牌创建工具_单个buff设计区:
 	var node:卡牌创建工具_单个buff设计区 = preload(文件路径.tscn卡牌创建工具_buff_单个卡牌设计区).instantiate()
 	卡牌设计区容器.add_child(node)
@@ -137,6 +111,7 @@ func add_单个角色设计区() -> 卡牌创建工具_单个buff设计区:
 	node.请求读取历史记录.connect(_请求读取历史记录的信号)
 	node.name = "[空]"
 	return node
+
 
 func load_card(card_data:Dictionary) -> 卡牌创建工具_单个buff设计区:
 	读取中 = true
@@ -149,6 +124,7 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个buff设计区:
 	
 
 	for i:String in card_data["影响"]:
+		改变选择器("影响")
 		_add_node(node.影响, i)
 	
 	for i:Array in card_data["效果"]:
@@ -162,6 +138,7 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个buff设计区:
 		for i1 in i:
 			_翻译效果node(i1, node1.get_child(-1), node1.名字.get_child(-1))
 	读取中 = false
+	改变选择器("文件")
 	return node
 
 

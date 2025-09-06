@@ -1,7 +1,21 @@
-[gd_scene load_steps=3 format=3 uid="uid://iegorx0n1tjw"]
+[gd_scene load_steps=9 format=3 uid="uid://iegorx0n1tjw"]
 
 [ext_resource type="Theme" uid="uid://cr5es1wy1227s" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/字体大小.tres" id="1_hk82t"]
 [ext_resource type="Script" uid="uid://dymvxxoudran7" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/不定数量的数据节点容器_h.gd" id="2_y224o"]
+[ext_resource type="Script" uid="uid://tjjup5xfnlqd" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/提供焦点.gd" id="3_y224o"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gbb6r"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6mv8u"]
+bg_color = Color(0, 0.647059, 0.898039, 0.301961)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nwv7l"]
+bg_color = Color(0, 0.647059, 0.898039, 0.301961)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j6g5h"]
+bg_color = Color(0, 0.647059, 0.898039, 0.541176)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_35bkk"]
 
 [node name="不定数量的数据节点容器_h" type="HBoxContainer"]
 unique_name_in_owner = true
@@ -19,9 +33,27 @@ visible = false
 layout_mode = 2
 text = "  +  "
 
+[node name="提供焦点" type="Button" parent="加"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_gbb6r")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_6mv8u")
+theme_override_styles/hover = SubResource("StyleBoxFlat_nwv7l")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_j6g5h")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_35bkk")
+toggle_mode = true
+script = ExtResource("3_y224o")
+
 [node name="选项卡" type="OptionButton" parent="."]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
 [connection signal="button_up" from="加" to="." method="_on_加_button_up"]
+[connection signal="button_up" from="加/提供焦点" to="加/提供焦点" method="_on_button_up"]

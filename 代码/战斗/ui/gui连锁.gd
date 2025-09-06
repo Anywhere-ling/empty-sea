@@ -83,7 +83,7 @@ func remove_card() -> void:
 	
 	if !is_动画:
 		time = 0
-	await _tween(v_bar.max_value - v_bar.page - l, time)
+	await _tween(v_bar.max_value - v_bar.page, time)
 	
 	cards[-1].free_card()
 	cards.remove_at(cards.size() - 1)

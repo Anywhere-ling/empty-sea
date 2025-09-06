@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://bh8hxq45s0awa"]
+[gd_scene load_steps=10 format=3 uid="uid://bh8hxq45s0awa"]
 
 [ext_resource type="Script" uid="uid://07feh2nex3x8" path="res://代码/战斗/ui/gui单位管理.gd" id="1_vl3yh"]
 [ext_resource type="PackedScene" uid="uid://rxxyhi404v4s" path="res://代码/战斗/ui/手牌.tscn" id="2_s7org"]
+[ext_resource type="PackedScene" uid="uid://dmitgqacfheab" path="res://代码/战斗/ui/区卡牌显示.tscn" id="3_ool2m"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vl3yh"]
 
@@ -110,5 +111,14 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+grow_horizontal = 0
+
+[node name="区卡牌显示" parent="Control" instance=ExtResource("3_ool2m")]
 
 [connection signal="button_up" from="点击旁边" to="." method="_on_点击旁边_button_up"]

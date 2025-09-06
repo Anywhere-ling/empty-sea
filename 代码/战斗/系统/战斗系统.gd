@@ -29,7 +29,7 @@ func _ready() -> void:
 	
 	场地系统.start()
 	最终行动系统.临时pos = 战斗_单位管理系统.Card_pos_sys.new("临时")
-	
+
 
 
 func add_life(life, is_positive:bool) -> void:
@@ -90,16 +90,18 @@ func _战斗阶段(life:战斗_单位管理系统.Life_sys) -> void:
 				
 				if life.get_value("state").has("阻止"):
 					await buff系统.单位与全部buff判断("阻止", [null, life, null])
+					await 最终行动系统.阻止(life)
 					emit_signal("下一阶段")
 					return
 				
 				if card.get_parent().nam == "行动" and card.get_所属life() == life:
 					if life.get_value("state").has("攻击"):
 						await _攻击判断(life, card)
-			卡牌打出与发动系统.自然下降的卡牌[card] = ["打出", life]
+			卡牌打出与发动系统.add_自动下降(card, "打出", life)
 	
 	else:
 		await buff系统.单位与全部buff判断("阻止", [null, life, null])
+		await 最终行动系统.阻止(life)
 	
 	emit_signal("下一阶段")
 
@@ -164,6 +166,11 @@ func _攻击判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位�
 				await 最终行动系统.反转(att_life, cards[i])
 	
 	await buff系统.单位与全部buff判断("被攻击", [null, att_life, card])
+	#冲击
+	var state:Array = att_life.get_value("state")
+	if !state.has("受袭") and !state.has("冲击") and !state.has("恢复"):
+		att_life.信息state.append("受袭")
+		
 
 
 
@@ -237,6 +244,8 @@ func _开始阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	
 	await 释放与源.添加源(life)
 	await _恢复绿区(life)
+	await 卡牌打出与发动系统.自动下降(life)
+	await _去掉源(life)
 	
 	await buff系统.开始阶段结算buff(life)
 	emit_signal("下一阶段")
@@ -257,6 +266,17 @@ func _行动阶段(life:战斗_单位管理系统.Life_sys) -> void:
 				await 卡牌打出与发动系统.行动组结束()
 				
 				await _行动阶段移动(life, [card.get_value("种类")])
+	
+	#冲击
+	var state:Array = life.get_value("state")
+	if state.has("受袭"):
+		life.信息state.erase("受袭")
+		life.信息state.append("冲击")
+	if state.has("冲击"):
+		life.信息state.erase("冲击")
+		life.信息state.append("恢复")
+	if state.has("恢复"):
+		life.信息state.erase("恢复")
 	
 	emit_signal("下一阶段")
 
@@ -338,6 +358,8 @@ func _主要阶段判断(life:战斗_单位管理系统.Life_sys) -> void:
 	单位控制系统.control[life].主要阶段判断(发动cards, 打出cards, 合成cards)
 
 
+
+
 func _合成(cards:Array) -> void:
 	await 卡牌打出与发动系统.合成(cards)
 	
@@ -372,10 +394,26 @@ func _结束阶段(life:战斗_单位管理系统.Life_sys) -> void:
 func _恢复绿区(life:战斗_单位管理系统.Life_sys) -> void:
 	日志系统.callv("录入信息", [name, "_恢复绿区", [life], null])
 	
+	var 红区盖卡数量:int = len(life.cards_pos["红区"].cards) - len(单位管理系统.get_给定显示以上的卡牌(life.cards_pos["红区"].cards, 1))
+	var 绿区盖卡数量:int = len(life.cards_pos["绿区"].cards) - len(单位管理系统.get_给定显示以上的卡牌(life.cards_pos["绿区"].cards, 1))
+	var 蓝区盖卡差数量:int = len(life.cards_pos["蓝区"].cards) - 2*len(单位管理系统.get_给定显示以上的卡牌(life.cards_pos["蓝区"].cards, 1))
+	
+	var 可恢复上限:int = 绿区盖卡数量 - 红区盖卡数量
+	var 可恢复:int = min(可恢复上限, 蓝区盖卡差数量)
+	
 	var cards:Array[战斗_单位管理系统.Card_sys] = life.cards_pos["绿区"].cards
+	if 可恢复 >= 0:
+		for card:战斗_单位管理系统.Card_sys in cards:
+			if 可恢复 >= 0:
+				if !card.appear:
+					await 最终行动系统.反转(life, card)
+					可恢复 -= 1
+	
+	#固定回1
 	for card:战斗_单位管理系统.Card_sys in cards:
-		if !card.appear:
-			await 最终行动系统.反转(life, card)
+			if !card.appear:
+				await 最终行动系统.反转(life, card)
+				return
 
 func _恢复红区(life:战斗_单位管理系统.Life_sys) -> void:
 	日志系统.callv("录入信息", [name, "_恢复红区", [life], null])
@@ -389,7 +427,16 @@ func _恢复红区(life:战斗_单位管理系统.Life_sys) -> void:
 			await 最终行动系统.反转(life, card)
 			return
 
-
+func _去掉源(life:战斗_单位管理系统.Life_sys) -> void:
+	var cards:Array = 单位管理系统.get_给定显示以上的卡牌(life.get_all_cards(), 4)
+	for i:战斗_单位管理系统.Card_sys in cards:
+		var cards1:Array = i.get_源(false)
+		if !cards1:
+			cards1 = i.get_源(true)
+			if !cards1:
+				return
+			
+		await 二级行动系统.去除(life, i, cards1[0], "蓝区")
 
 
 
@@ -407,14 +454,4 @@ func _绑定信号() -> void:
 	event_bus.subscribe("战斗_回合进入主要阶段", _主要阶段)
 	event_bus.subscribe("战斗_回合进入结束阶段", _结束阶段)
 	
-	event_bus.subscribe("战斗_请求检查行动冲突", _战斗_请求检查行动冲突的信号)
-
-
-
-
-func _战斗_请求检查行动冲突的信号(life:战斗_单位管理系统.Life_sys) -> void:
-	日志系统.callv("录入信息", [name, "_战斗_请求检查行动冲突的信号", [life], null])
 	
-	for card:战斗_单位管理系统.Card_sys in life.cards_pos["行动"]:
-		if !await card.get_value("种类") in life.state:
-			最终行动系统.破坏(life, card)

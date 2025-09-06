@@ -97,6 +97,7 @@ func select(card:Card) -> void:
 	else :
 		if cards[card].select():
 			if len(select_cards) >= max:
+				cards[card].dis_select()
 				return
 			if !select_cards.has(card):
 				select_cards.append(card)

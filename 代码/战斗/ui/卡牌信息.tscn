@@ -46,8 +46,30 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="文本" type="Label" parent="ScrollContainer/VBoxContainer"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "活性素材："
+
+[node name="活性源" type="Label" parent="ScrollContainer/VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label2" type="Label" parent="ScrollContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "惰性素材："
+
+[node name="惰性源" type="Label" parent="ScrollContainer/VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="文本" type="RichTextLabel" parent="ScrollContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+bbcode_enabled = true
 autowrap_mode = 2

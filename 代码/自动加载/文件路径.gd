@@ -65,3 +65,5 @@ const tscn_战斗_gui连锁_子:String = "res://代码/战斗/ui/gui连锁_子.t
 const folder动画效果:String = "res://数据/战斗动画/动画效果/"
 
 const folder动画效果_shader:String = "res://数据/战斗动画/动画效果/shader/"
+
+const tscn_场上_单格:String = "res://代码/战斗/ui/场上_单格.tscn"

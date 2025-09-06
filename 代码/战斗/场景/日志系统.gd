@@ -114,6 +114,8 @@ func _out_data(p_obj:String, p_fun:String, p_args:Array, p_ret) -> void:
 			data = _get_nam(p_args[1]) + " 破坏了"
 		elif p_fun == "填入":
 			data = _get_nam(p_args[2]) + " 填入到 " + _get_nam(p_args[1])
+		elif p_fun == "流填入":
+			data = _get_nam(p_args[1]) + " 流填入到 " + _get_nam(p_args[2])
 		elif p_fun == "去除":
 			data = _get_nam(p_args[2]) + " 去除到 " + _get_nam(p_args[3])
 		
@@ -133,9 +135,19 @@ func _out_data(p_obj:String, p_fun:String, p_args:Array, p_ret) -> void:
 		if p_fun == "start":
 			data = "连锁开始处理"
 	
-	elif p_obj == "战斗_发动判断系统":
-		data = _get_nam(p_args[1][1]) + " 的 " + _get_nam(p_args[1][0]) + " 在 " + p_fun + " 上检测失败"
-	
+	#elif p_obj == "发动判断系统":
+		#if p_fun == "卡牌发动判断":
+			#data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + " 在 " + p_args[2] + " 上 " + p_ret
+		#elif p_fun == "卡牌发动判断_单个效果":
+			#data = "1   2   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + " 的 " + str(p_args[1].effects.find(p_args[3])+1) + "效果 在 " + p_args[2] + " 上 " + p_ret
+		#elif p_fun == "_打出消耗判断":
+			#data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + "打出消耗判断" + str(p_ret)
+		#elif p_fun == "_发动消耗判断":
+			#data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + "发动消耗判断" + str(p_ret)
+	#
+	#elif p_obj == "战斗_发动判断系统":
+		#data = _get_nam(p_args[1][1]) + " 的 " + _get_nam(p_args[1][0]) + " 在 " + p_fun + " 上检测失败"
+	#
 	elif p_obj == "战斗_效果处理系统":
 		data = _get_nam(p_args[1][1]) + " 的 " + _get_nam(p_args[1][0]) + " 在 " + p_fun + " 上处理失败"
 	
@@ -148,21 +160,14 @@ func _out_data(p_obj:String, p_fun:String, p_args:Array, p_ret) -> void:
 		elif p_fun == "create_buff":
 			data = p_args[0] + " 被创建"
 	
-	elif p_obj == "发动判断系统":
-		if p_fun == "卡牌发动判断":
-			data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + " 在 " + p_args[2] + " 上 " + p_ret
-		elif p_fun == "卡牌发动判断_单个效果":
-			data = "1   2   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + " 的 " + str(p_args[1].effects.find(p_args[3])+1) + "效果 在 " + p_args[2] + " 上 " + p_ret
-		elif p_fun == "_打出消耗判断":
-			data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + "打出消耗判断" + str(p_ret)
-		elif p_fun == "_发动消耗判断":
-			data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + "发动消耗判断" + str(p_ret)
 	
 	
 	if data:
 		print(data)
 
 func _get_nam(data_sys:战斗_单位管理系统.Data_sys) -> String:
+	if !data_sys:
+		return ""
 	if !data_sys is 战斗_单位管理系统.Card_sys or data_sys.appear != 0:
 		return data_sys.nam + "[" + str(data_sys.编号) + "]"
 	else:

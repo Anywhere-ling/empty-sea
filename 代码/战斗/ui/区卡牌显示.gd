@@ -5,9 +5,23 @@ class_name 战斗_区卡牌显示
 @export var card_边距:Vector2
 @onready var 容器: VBoxContainer = %容器
 
+var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
-var cards:Array[Card] = []
+var cards:Array = []
+var 正在显示的区:Node
 
+func _ready() -> void:
+	event_bus.subscribe("战斗_区卡牌显示改变", set_card)
+
+
+func set_card(node:Node, node_cards:Array) -> void:
+	if 正在显示的区:
+		正在显示的区.请求区卡牌显示.disconnect(set_card)
+	正在显示的区 = node
+	正在显示的区.请求区卡牌显示.connect(set_card)
+	
+	cards = node_cards
+	_reset_cadrs()
 
 
 

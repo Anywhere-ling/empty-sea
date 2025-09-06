@@ -5,6 +5,7 @@ class_name 卡牌创建工具_单个单位设计区
 @onready var 装备: 卡牌创建工具_不定数量的数据节点容器_h = %装备
 @onready var 大小: SpinBox = %大小
 @onready var 组: 卡牌创建工具_不定数量的数据节点容器_h = %组
+@onready var 种类: OptionButton = %种类
 
 
 

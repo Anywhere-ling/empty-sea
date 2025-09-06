@@ -25,7 +25,6 @@ func 效果处理(eff:Array, car:战斗_单位管理系统.Card_sys, fea:Array =
 	var effect_processing:= 战斗_效果处理系统.new(self, eff, [单位管理系统.lifes, 单位管理系统.efils], car, fea, tar)
 	var ret:Array = await effect_processing.start()
 	effect_processing.queue_free()
-	await 最终行动系统.等待动画完成()
 	
 	日志系统.callv("录入信息", [name, "_效果发动判断", [eff, fea, tar], ret])
 	return ret
@@ -57,13 +56,20 @@ func 可用移动(life:战斗_单位管理系统.Life_sys, 方向:Array, 格数1
 func 单卡可用移动(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, 方向:Array, 格数1:int, 格数2:int = 0) -> Array:
 	var eff1:Array = [
 		["线段取格", "对象0", "angle", "d1", "d2", "对象3"], 
-		["视角化", "对象0", "对象3", "对象3"]
+		["视角化", "对象0", "对象3", "对象3"],
+		["逐一", "对象3", 
+			["初始对象", "对象3", "对象4"], 
+			["否定", 
+				["条件卡牌筛选", "对象4", "显现", "包含", "3"], 
+				["计算数量", "对象4", "对象4"], 
+				["数据判断", "对象4", "包含", "1"], 
+			], 
+			["对象处理", "对象5", "加", "对象3"]
+		
 		]
+	]
 	
-	var eff2:Array = [
-		["取格对象", "对象3", "移动", "1.0", "1.0"], 
-		["移动", "对象0", "对象3"]
-		]
+	
 	
 	var ret:Array
 	
@@ -72,6 +78,6 @@ func 单卡可用移动(life:战斗_单位管理系统.Life_sys, card:战斗_单
 		eff1[0] = ["线段取格", "对象0", str(i), str(格数1), str(格数2), "对象3"]
 		targets = await 效果处理(eff1, null, [], targets)
 		if targets:
-			ret.append_array(targets[3])
+			ret.append_array(targets[5])
 	
 	return ret

@@ -5,15 +5,12 @@ class_name 装备创建工具
 
 @onready var 卡牌: 卡牌创建工具_带搜索的选择器 = %卡牌
 @onready var buff: 卡牌创建工具_带搜索的选择器 = %buff
-@onready var 媒介: 卡牌创建工具_带搜索的选择器 = %媒介
 
 
 
 
 
-var specification_影响:Dictionary = {
-	"发动判断":"对于卡牌是否能发动的限制",
-}
+
 
 
 #规范文件的加载数据
@@ -24,12 +21,13 @@ var specification_影响:Dictionary = {
 
 func _ready() -> void:
 	await DatatableLoader.加载完成
+	_基本设置()
+	
 	_加载卡牌数据()
 	_加载规范文件并处理数据()
 	_将数据写入选择器()
 	卡牌.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	buff.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
-	媒介.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	
 	add_单个角色设计区()
 
@@ -43,48 +41,33 @@ func _将数据写入选择器() -> void:
 	buff.start_build()
 	卡牌.choose_data = cards_data.keys()
 	卡牌.start_build()
-	#媒介.choose_data = specification_媒介
-	媒介.start_build()
 	文件.choose_data = equips_data.keys()
 	文件.start_build()
 
 
-
-
-
-
-
 func _add_node(node:Control, s:String) -> Control:
-	#if node.tooltip_text == "媒介":
-		#if specification_媒介.has(s):
-			#return _add_node_文本(node, s)
-	if node.tooltip_text == "卡牌":
-		if cards_data.has(s):
-			return _add_node_文本(node, s)
-	elif node.tooltip_text == "buff":
-		if buffs_data.has(s):
-			return _add_node_文本(node, s)
+	var nam:String = 选择器.get_current_tab_control().name
+	if nam == "卡牌":
+		if node.tooltip_text == "卡牌":
+			if cards_data.has(s):
+				return _add_node_文本(node, s)
+	
+	elif nam == "buff":
+		if node.tooltip_text == "buff":
+			if buffs_data.has(s):
+				return _add_node_文本(node, s)
 	return 
-
-
 
 
 func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 	var life_data:Dictionary
 	life_data["卡名"] = _tran_node_to_data(card_node.卡名)
-	life_data["媒介"] = _tran_node_to_data(card_node.媒介)
 	life_data["重量"] = _tran_node_to_data(card_node.重量)
 	life_data["卡牌"] = _tran_node_to_data(card_node.卡牌)
 	life_data["buff"] = _tran_node_to_data(card_node.buff)
 	
 	
-	
-	
-	
 	return life_data
-
-
-
 
 
 func add_单个角色设计区() -> 卡牌创建工具_单个装备设计区:
@@ -97,6 +80,7 @@ func add_单个角色设计区() -> 卡牌创建工具_单个装备设计区:
 	node.name = "[空]"
 	return node
 
+
 func load_card(card_data:Dictionary) -> 卡牌创建工具_单个装备设计区:
 	读取中 = true
 	card_data = card_data.duplicate(true)
@@ -106,18 +90,19 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个装备设计区
 	
 	node.重量.value = card_data["重量"]
 	
-
-	for i:String in card_data["媒介"]:
-		_add_node(node.媒介, i)
+	
 		
 	for i:String in card_data["卡牌"]:
+		改变选择器("卡牌")
 		_add_node(node.卡牌, i)
 		
 	for i:String in card_data["buff"]:
+		改变选择器("buff")
 		_add_node(node.buff, i)
 	
 	
 	读取中 = false
+	改变选择器("文件")
 	return node
 
 

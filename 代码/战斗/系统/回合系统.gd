@@ -59,9 +59,9 @@ func swicth_state(state:String = "") -> void:
 
 
 func _阶段改变的信号(from_state: BaseState, to_state: BaseState) -> void:
-	日志系统.callv("录入信息", [name, "_阶段改变的信号", [from_state, to_state], to_state.state_id])
 	if to_state.state_id == "战斗":
 		_回合结束()
+	日志系统.callv("录入信息", [name, "_阶段改变的信号", [from_state, to_state], to_state.state_id])
 	match to_state.state_id:
 		&"初始":_回合进入初始阶段()
 		

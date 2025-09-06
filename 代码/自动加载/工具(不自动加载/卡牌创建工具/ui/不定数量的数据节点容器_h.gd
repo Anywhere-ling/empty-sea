@@ -3,6 +3,7 @@ class_name 卡牌创建工具_不定数量的数据节点容器_h
 
 @onready var 加: Button = %加
 @onready var 选项卡: OptionButton = %选项卡
+@onready var 提供焦点: Button = %提供焦点
 
 
 
@@ -49,12 +50,15 @@ func 按钮添加() -> void:
 	var node1:= Label.new()
 	node1.text = 选项卡.get_item_text(选项卡.selected)
 	add_child_node(node1)
-	var btn:= Button.new()
+	var btn:= 提供焦点.duplicate(15)
+	btn.visible = true
 	node1.add_child(btn)
-	for i:String in ["disabled", "hover_pressed", "hover", "pressed", "normal"]:
-		btn.add_theme_stylebox_override(i, StyleBoxEmpty.new())
-	btn.anchor_bottom = 1
-	btn.anchor_right = 1
+	#var btn:= Button.new()
+	#node1.add_child(btn)
+	#for i:String in ["disabled", "hover_pressed", "hover", "pressed", "normal"]:
+		#btn.add_theme_stylebox_override(i, StyleBoxEmpty.new())
+	#btn.anchor_bottom = 1
+	#btn.anchor_right = 1
 
 func _on_加_button_up() -> void:
 	if 选项卡.visible == true and 选项卡.selected != -1:

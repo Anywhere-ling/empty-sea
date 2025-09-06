@@ -1,12 +1,15 @@
 extends Node
 
+var 场地行数:int = C0nfig.场地行数
 var poss:Array
 
 
 func start() -> void:
-	for i in 5:
+	for i in 场地行数:
 		for i2 in 5:
-			var pos := 战斗_单位管理系统.Card_pos_sys.new("场上")
+			var pos := 战斗_单位管理系统.Pos_cs_sys.new("场上")
+			var pos_y := 战斗_单位管理系统.Pos_y_sys.new("流区")
+			pos.流区 = pos_y
 			pos.glo_x = i2 + 1
 			if i2 + 1 > 3:
 				pos.x = 6 - pos.glo_x
@@ -28,14 +31,14 @@ func get_连接场上(life:战斗_单位管理系统.Life_sys) -> Array:
 		old_ret = ret
 		ret = []
 		
-		for i:战斗_单位管理系统.Card_pos_sys in life.cards_pos["场上"]:
+		for i:战斗_单位管理系统.Pos_cs_sys in life.cards_pos["场上"]:
 			if i.glo_x == o_x:
 				ret.append(i)
 			elif get_相邻场上(i).any(func(a):return old_ret.has(a)):
 				ret.append(i)
 	
 	return ret
-	
+
 
 
 func get_可攻击场上(life:战斗_单位管理系统.Life_sys) -> Array:
@@ -62,11 +65,15 @@ func get_可攻击场上(life:战斗_单位管理系统.Life_sys) -> Array:
 
 
 func get_可用场上(life:战斗_单位管理系统.Life_sys, 区:String, mp:int = 0) -> Array:
-	var life_pos:Array = life.cards_pos["场上"]
+	var life_pos:Array
+	for i in life.cards_pos["场上"]:
+		if i.appear == 4:
+			life_pos.append(i)
 	var x:int
 	var y:int = mp
-	if y < 1 or y > 5:
+	if y < 1:
 		y = 0
+	y = y % 场地行数
 	if 区 in ["手牌"]:
 		x = 0
 	elif 区 in ["绿区", "白区"]:
@@ -104,7 +111,7 @@ func get_可用场上(life:战斗_单位管理系统.Life_sys, 区:String, mp:in
 			elif pos.glo_x == 5 and !life.is_positive:
 				ret.append(pos)
 	
-	ret = get_按appear筛选格(ret, [-1,0,2])
+	ret = get_按appear筛选格(ret, [-1,2])
 	
 	return ret
 
@@ -118,7 +125,7 @@ func get_按appear筛选格(arr:Array, appear:Array) -> Array:
 	return ret
 
 
-func get_相邻场上(pos:战斗_单位管理系统.Card_pos_sys) -> Array:
+func get_相邻场上(pos:战斗_单位管理系统.Pos_cs_sys) -> Array:
 	if pos.nam != "场上":
 		return []
 	var x:int = pos.glo_x
@@ -136,20 +143,65 @@ func get_相邻场上(pos:战斗_单位管理系统.Card_pos_sys) -> Array:
 	return ret
 
 
-func get_场上(x:int, y:int) -> 战斗_单位管理系统.Card_pos_sys:
-	if x<1 or x>5 or y<1 or y>5:
+func get_场上(x:int, y:int) -> 战斗_单位管理系统.Pos_cs_sys:
+	if x<1 or x>5 or y<1 or y>场地行数:
 		return null
 	var ind:int = ((y-1)*5)+x-1
 	return poss[ind]
 
-func get_场上2(vec:Vector2) -> 战斗_单位管理系统.Card_pos_sys:
+func get_场上2(vec:Vector2) -> 战斗_单位管理系统.Pos_cs_sys:
 	var x = vec.x
 	var y = vec.y
-	if x<1 or x>5 or y<1 or y>5:
+	if x<1 or x>5 or y<1 or y>场地行数:
 		return null
 	var ind:int = ((y-1)*5)+x-1
 	return poss[ind]
 
+
+
+#流形
+func get_场上流形() -> Dictionary:
+	var ret:Dictionary = {}
+	for i in poss:
+		ret[i] = get_单格流形(i)
+	return ret
+
+func get_单格流形(pos:战斗_单位管理系统.Pos_cs_sys) -> Array:
+	var 流:int = pos.get_流()
+	
+	var 正方向:bool = true
+	if 流 == 0:
+		return []
+	elif 流 < 0:
+		正方向 = false
+	
+	if 正方向:
+		var pos流向:战斗_单位管理系统.Pos_cs_sys = get_场上(pos.glo_x+1, pos.y)
+		if pos流向:
+			var 流1:int = pos流向.get_流()
+			if 流1 < 0 and abs(流) <= abs(流1):
+				return []
+	else:
+		var pos流向:战斗_单位管理系统.Pos_cs_sys = get_场上(pos.glo_x-1, pos.y)
+		if pos流向:
+			var 流1:int = pos流向.get_流()
+			if 流1 > 0 and abs(流) <= abs(流1):
+				return []
+	
+	
+	var ret:Array = [正方向, false, true, false]
+	var pos上方:战斗_单位管理系统.Pos_cs_sys = get_场上(pos.glo_x, pos.y-1)
+	var pos下方:战斗_单位管理系统.Pos_cs_sys = get_场上(pos.glo_x, pos.y+1)
+	if pos上方:
+		var 流2:int = pos上方.get_流()
+		if 流2 < 流:
+			ret[1] = true
+	if pos下方:
+		var 流2:int = pos下方.get_流()
+		if 流2 < 流:
+			ret[3] = true
+	
+	return ret
 
 
 
@@ -172,7 +224,7 @@ func 线段取格(origin: Vector2, angle_deg: float, d1: float, d2: float) -> Ar
 	#格相交
 	var ret:Array
 	for x in range(1,6):
-		for y in range(1,6):
+		for y in range(1,场地行数+1):
 			if 相交判断(Vector2(x,y), vec2_d1, vec2_d2):
 				ret.append(Vector2(x,y))
 	
@@ -228,7 +280,7 @@ func 方形取格(origin: Vector2, d1: int, d2: int) -> Array:
 		for y in range(-d3, d3+1):
 			var x1 = origin.x + x
 			var y1 = origin.y + y
-			if x1<1 or x1>5 or y1<1 or y1>5:
+			if x1<1 or x1>5 or y1<1 or y1>场地行数:
 				continue
 			ret.append(Vector2(x1,y1))
 	
@@ -236,7 +288,7 @@ func 方形取格(origin: Vector2, d1: int, d2: int) -> Array:
 		for y in range(1-d4, d4):
 			var x1 = origin.x + x
 			var y1 = origin.y + y
-			if x1<1 or x1>5 or y1<1 or y1>5:
+			if x1<1 or x1>5 or y1<1 or y1>场地行数:
 				continue
 			ret.erase(Vector2(x1,y1))
 	

@@ -4,22 +4,28 @@ class_name 战斗_发动判断系统
 
 var effect可判断:Array = [
 	"逐一",
+	"否定",
+	"如果",
+	"否则",
 	
 	"改变主视角",
 	"初始区",
 	"初始对象",
 	"以全局数据为对象",
 	"以数据为对象",
+	"以单位数据为对象",
 	"以单位为对象",
 	"以区为对象",
 	"以序号为对象",
 	"以场上为对象",
+	"直接存入",
 	
 	"对象处理",
 	"数据判断",
 	"计算数量",
 	"计算相似度",
 	"效果判断",
+	"条件卡牌筛选",
 	"非条件卡牌筛选",
 	"格筛选",
 	"合成检测",
@@ -114,7 +120,7 @@ func _去除(data:Array) -> bool:
 	
 	var cards1:Dictionary
 	for card:战斗_单位管理系统.Card_sys in data0:
-		for i in card.get_素材(is_活性):
+		for i in card.get_源(is_活性):
 			cards1[i] = card
 	
 	if len(cards1) < int(data[2]):
@@ -122,7 +128,7 @@ func _去除(data:Array) -> bool:
 			return false
 		else :
 			for card:战斗_单位管理系统.Card_sys in data0:
-				for i in card.get_素材(true):
+				for i in card.get_源(true):
 					cards1[i] = card
 			if len(cards1) < int(data[2]):
 				return false

@@ -27,6 +27,8 @@ var nam:String
 var card_sys:战斗_单位管理系统.Card_sys
 var alpha:float:
 	set(a):
+		if a != 0.0 and a != 1.0:
+			pass
 		alpha = a
 		if a > 1:
 			alpha = 1
@@ -36,10 +38,13 @@ var alpha:float:
 		if alpha == 0:
 			visible = false
 		else :
-			visible = true
+			if !visible:
+				visible = true
 		
 		modulate = Color(1,1,1,alpha)
-			
+		if visible:
+			assert(modulate.a > 0)
+
 var pos:Node
 
 
@@ -107,18 +112,21 @@ func _图片或文字改变的信号(key:String) -> void:
 		mp.text = str(card_sys.get_value("mp"))
 	elif key in ["组"]:
 		组 = card_sys.get_value("组")
-		emit_signal("卡牌信息改变")
+		emit_signal("卡牌信息改变", self)
 		_重新渲染()
 		return
 	elif key in ["特征"]:
 		特征 = card_sys.get_value("特征")
-		emit_signal("卡牌信息改变")
+		emit_signal("卡牌信息改变", self)
 		_重新渲染()
 		return
 	
 	
 	
 	_重新渲染()
+
+
+signal 源数量改变
 
 
 
@@ -134,34 +142,45 @@ func 光圈改变(index:int) -> void:
 
 
 
-func get_pos() -> String:
+func get_card_sys_pos() -> String:
 	return card_sys.pos
 
 func get_his_pos() -> String:
 	return card_sys.his_pos[-2]
 
-#素材相关
+#源相关
 func get_中心() -> Control:
 	return 中心
 
+var cards:Array
+signal 请求区卡牌显示
 func add_card(card:Card) -> void:
 	if card.get_parent():
 		card.get_parent().remove_child(card)
 	
 	中心.add_child(card)
 	card.set_pos(self)
+	cards.append(card)
+	emit_signal("请求区卡牌显示", self, cards)
 
 func remove_card(card:Card) -> void:
 	中心.remove_child(card)
+	cards.erase(card)
+	emit_signal("请求区卡牌显示", self, cards)
 
 
 func set_pos(node:Node) -> void:
 	pos = node
 
-func pos_remove_card() -> void:
+func get_pos() -> Node:
+	return pos
+
+func pos_remove_card() -> Node:
 	pos.remove_card(self)
 	assert(!get_parent(), "有父节点")
+	var ret:Node = pos
 	pos = null
+	return ret
 
 
 signal 卡牌被释放
@@ -229,3 +248,5 @@ func 检测鼠标() -> bool:
 
 func _on_左_button_up() -> void:
 	event_bus.push_event("战斗_卡牌被左键点击", self)
+	if cards:
+		event_bus.push_event("战斗_区卡牌显示改变", [self, cards])

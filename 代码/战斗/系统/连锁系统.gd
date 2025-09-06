@@ -89,6 +89,7 @@ func add_chain(effect:战斗_单位管理系统.Effect_sys) -> bool:
 		chain_state = 1
 		current_life = life
 		all_chain.append([effect, targets])
+		effect.set_颜色信息("即将发动")
 		
 		日志系统.callv("录入信息", [name, "add_chain", [effect], true])
 		return true
@@ -105,7 +106,7 @@ func set_now_speed(effect:战斗_单位管理系统.Effect_sys, speed:int) -> vo
 	effect.count -= 1
 	
 	await 最终行动系统.加入连锁的动画(effect.get_parent().get_所属life(), effect.get_parent(), effect.get_parent().effects.find(effect), speed)
-	
+
 
 
 
@@ -123,13 +124,14 @@ func start() -> void:
 		var life:战斗_单位管理系统.Life_sys = card.get_所属life()
 		await 最终行动系统.退出连锁的动画(card)
 		await 效果系统.效果处理(effect.main_effect, card, await effect.get_value("features"), arr[1])
+		effect.set_颜色信息("")
 	all_chain = []
 	chain_state = 0
 	now_可发动的效果 = {}
 	event_bus.push_event("战斗_连锁处理结束")
 	emit_signal("连锁处理结束")
 	await 卡牌打出与发动系统.行动组结束()
-	
+
 
 func 请求新连锁() -> void:
 	now_可发动的效果 = next_可发动的效果.duplicate(true)
@@ -169,6 +171,7 @@ func _请求新连锁() -> void:
 		if await 单位控制系统.发动询问(i):
 			return
 	
+	now_可发动的效果 = {}
 	
 
 func _储存取对象的目标(cards:Array) -> void:

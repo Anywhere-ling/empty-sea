@@ -1,6 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://bhgo6q8vq5rwi"]
+[gd_scene load_steps=12 format=3 uid="uid://bhgo6q8vq5rwi"]
 
 [ext_resource type="Script" uid="uid://bh1c3kouy4j1e" path="res://代码/战斗/ui/卡牌五区.gd" id="1_hj1ho"]
+[ext_resource type="Script" uid="uid://ckp8yngpjpmnt" path="res://代码/战斗/ui/卡牌五区_子区.gd" id="2_40ayn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hj1ho"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
@@ -81,6 +82,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
 text = "0"
+script = ExtResource("2_40ayn")
 
 [node name="Control" type="Control" parent="光圈白区/MarginContainer/ColorRect/白区"]
 layout_mode = 1
@@ -131,6 +133,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
 text = "0"
+script = ExtResource("2_40ayn")
 
 [node name="Control" type="Control" parent="光圈手牌/MarginContainer/ColorRect/手牌"]
 layout_mode = 1
@@ -181,6 +184,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
 text = "0"
+script = ExtResource("2_40ayn")
 
 [node name="Control2" type="Control" parent="光圈绿区/MarginContainer/ColorRect2/绿区"]
 layout_mode = 1
@@ -231,6 +235,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
 text = "0"
+script = ExtResource("2_40ayn")
 
 [node name="Control3" type="Control" parent="光圈蓝区/MarginContainer/ColorRect3/蓝区"]
 layout_mode = 1
@@ -281,6 +286,7 @@ theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5hvuo")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_v0y2s")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_e24cl")
 text = "0"
+script = ExtResource("2_40ayn")
 
 [node name="Control4" type="Control" parent="光圈红区/MarginContainer/ColorRect4/红区"]
 layout_mode = 1

@@ -37,7 +37,7 @@ func add_card(card:Card) -> 战斗_卡牌复制:
 
 func _set_color(卡牌复制:战斗_卡牌复制) -> void:
 	var card:Card = 卡牌复制.card
-	var pos:String = card.get_pos()
+	var pos:String = card.get_card_sys_pos()
 	if "场上" in pos:
 		pos = "场上"
 	var style:StyleBoxFlat = colors[pos]

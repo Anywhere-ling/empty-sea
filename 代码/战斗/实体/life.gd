@@ -3,7 +3,7 @@ class_name 战斗_life
 
 @onready var life图: TextureRect = %life图
 @onready var 卡牌五区: 战斗_卡牌五区 = %卡牌五区
-@onready var 手牌: Node2D = %卡牌五区
+@onready var 手牌: Node
 @onready var 行动: 战斗_行动与手牌 = %行动
 
 
@@ -20,6 +20,7 @@ func set_life(p_life_sys:战斗_单位管理系统.Life_sys, p_is_positive:bool,
 	life_ind = p_life_ind
 	
 	卡牌五区.life_sys = life_sys
+	手牌 = 卡牌五区.手牌
 	
 	display()
 
@@ -28,6 +29,14 @@ func set_c0ntrol() -> void:
 
 func set_all() -> void:
 	卡牌五区.set_all(is_positive)
+	手牌.pos_sys = life_sys.cards_pos["手牌"]
+	行动.pos_sys = life_sys.cards_pos["行动"]
+	卡牌五区.白区.pos_sys = life_sys.cards_pos["白区"]
+	卡牌五区.绿区.pos_sys = life_sys.cards_pos["绿区"]
+	卡牌五区.蓝区.pos_sys = life_sys.cards_pos["蓝区"]
+	卡牌五区.红区.pos_sys = life_sys.cards_pos["红区"]
+	
+	
 
 func add_cards(cards:Array, pos:String) -> void:
 	for card in cards:
@@ -47,7 +56,7 @@ func add_card(card:Card, pos:String) -> void:
 	if pos in ["白区", "绿区", "蓝区" ,"红区"]:
 		卡牌五区.add_card(card, pos)
 	elif pos == "手牌":
-		手牌.add_card(card, pos)
+		手牌.add_card(card)
 	elif pos == "行动":
 		行动.add_card(card)
 	
@@ -61,7 +70,7 @@ func remove_card(card:Card, pos:String) -> void:
 	elif pos in ["白区", "绿区", "蓝区" ,"红区"]:
 		卡牌五区.remove_card(card, pos)
 	elif pos == "手牌":
-		手牌.remove_card(card, pos)
+		手牌.remove_card(card)
 	elif pos == "行动":
 		行动.remove_card(card)
 	

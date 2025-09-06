@@ -7,6 +7,7 @@ class_name 单位创建工具
 @onready var 卡牌: 卡牌创建工具_带搜索的选择器 = %卡牌
 @onready var 数量: 卡牌创建工具_带搜索的选择器 = %数量
 @onready var 组: 卡牌创建工具_带搜索的选择器 = %组
+@onready var 装备: 卡牌创建工具_带搜索的选择器 = %装备
 
 
 
@@ -20,12 +21,15 @@ class_name 单位创建工具
 
 func _ready() -> void:
 	await DatatableLoader.加载完成
+	_基本设置()
+	
 	_加载卡牌数据()
 	_加载规范文件并处理数据()
 	_将数据写入选择器()
 	卡牌.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	数量.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	组.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
+	装备.确认按钮被按下.connect(_选择器的确认按钮被按下的信号)
 	
 	add_单个角色设计区()
 
@@ -38,28 +42,35 @@ func _将数据写入选择器() -> void:
 	组.start_build()
 	卡牌.choose_data = cards_data.keys()
 	卡牌.start_build()
+	装备.choose_data = equips_data.keys()
+	装备.start_build()
 	数量.choose_data = ["数量"]
 	数量.start_build()
 	文件.choose_data = lifes_data.keys()
 	文件.start_build()
 
 
-
-
-
-
-
 func _add_node(node:Control, s:String) -> Control:
-	if ["数量"].has(s):
-		return _add_node_任意输入(node, s)
-	elif node.tooltip_text == "组":
-		if specification_组.has(s):
+	var nam:String = 选择器.get_current_tab_control().name
+	if nam == "数量":
+		if ["数量"].has(s):
+			return _add_node_任意输入(node, s)
+	
+	elif nam == "组":
+		if node.tooltip_text == "组":
+			if specification_组.has(s):
+				return _add_node_文本(node, s)
+	
+	elif nam == "装备":
+		if node.tooltip_text == "装备":
+			if equips_data.has(s):
+				return _add_node_文本(node, s)
+	
+	elif nam == "卡牌":
+		if cards_data.keys().has(s):
 			return _add_node_文本(node, s)
-	elif cards_data.keys().has(s):
-		return _add_node_文本(node, s)
+	
 	return 
-
-
 
 
 func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
@@ -68,6 +79,7 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 	life_data["种类"] = _tran_node_to_data(card_node.种类)
 	life_data["大小"] = _tran_node_to_data(card_node.大小)
 	life_data["组"] = _tran_node_to_data(card_node.组)
+	life_data["装备"] = _tran_node_to_data(card_node.装备)
 	#效果
 	var arr:Array = []
 	for i:Control in card_node.效果.get_children():
@@ -83,9 +95,6 @@ func save_card(card_node:卡牌创建工具_单个设计区) -> Dictionary:
 	return life_data
 
 
-
-
-
 func add_单个角色设计区() -> 卡牌创建工具_单个单位设计区:
 	var node:卡牌创建工具_单个单位设计区 = preload(文件路径.tscn卡牌创建工具_单位_单个卡牌设计区).instantiate()
 	卡牌设计区容器.add_child(node)
@@ -95,6 +104,7 @@ func add_单个角色设计区() -> 卡牌创建工具_单个单位设计区:
 	node.请求读取历史记录.connect(_请求读取历史记录的信号)
 	node.name = "[空]"
 	return node
+
 
 func load_card(card_data:Dictionary) -> 卡牌创建工具_单个单位设计区:
 	读取中 = true
@@ -112,6 +122,7 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个单位设计区
 	
 
 	for i:String in card_data["组"]:
+		改变选择器("组")
 		_add_node(node.组, i)
 	
 	for i:Array in card_data["效果"]:
@@ -125,9 +136,10 @@ func load_card(card_data:Dictionary) -> 卡牌创建工具_单个单位设计区
 		for i1 in i:
 			_翻译效果node(i1, node1.get_child(-1), node1.名字.get_child(-1))
 	读取中 = false
+	改变选择器("文件")
 	return node
 
-func _翻译效果node(data, node:卡牌创建工具_不定数量的数据节点容器, focus:Control) -> void:
+func _翻译效果node(data, node:Control, focus:Control) -> void:
 	if !data:
 		return
 	focus.grab_focus()

@@ -119,10 +119,11 @@ func 加入战斗(data:Dictionary) -> void:
 		life序号[life.nam] = 1
 	life_gui.set_life(life, is_positive, life_ind)
 	
-	动画系统.对照表["life"][life] = life_gui
+	动画系统.add_对照表(life_gui)
 	gui单位管理.add_life(life_gui, index, all_index, is_positive)
 	
 	可选卡牌容器.add_life(life)
+	
 	
 	emit_可以继续(data["动画index"])
 	emit_动画完成()
@@ -144,6 +145,7 @@ func 创造牌库(data:Dictionary) -> void:
 		gui控制.set_life_gui(life_gui)
 		gui单位管理.set_c0ntrol(life_gui)
 		life_gui.set_c0ntrol()
+		动画系统.add_对照表(life_gui)
 	
 	emit_可以继续(data["动画index"])
 	emit_动画完成()
@@ -174,7 +176,7 @@ func 整理手牌(data:Dictionary) -> void:
 	emit_动画完成()
 
 func 加入连锁的动画(data:Dictionary) -> void:
-	data = 动画系统._data转换(data)
+	data = 动画系统.data转换(data)
 	var card = data["card"]
 	var life:战斗_life = data["life"]
 	
@@ -192,7 +194,7 @@ func 退出连锁的动画(data:Dictionary) -> void:
 	emit_动画完成()
 
 func 图形化数据改变(data:Dictionary) -> void:
-	data = 动画系统._data转换(data)
+	data = 动画系统.data转换(data)
 	var card:Card = data["card"]
 	var key:String = data["key"]
 	

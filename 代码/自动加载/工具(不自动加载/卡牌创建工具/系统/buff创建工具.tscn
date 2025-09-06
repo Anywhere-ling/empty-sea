@@ -1,18 +1,22 @@
-[gd_scene load_steps=9 format=3 uid="uid://bfu21gmks7gwa"]
+[gd_scene load_steps=10 format=3 uid="uid://bfu21gmks7gwa"]
 
 [ext_resource type="Theme" uid="uid://cr5es1wy1227s" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/字体大小.tres" id="1_7heau"]
 [ext_resource type="Script" uid="uid://bga1hkvix2oen" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/系统/buff创建工具.gd" id="2_7heau"]
 [ext_resource type="PackedScene" uid="uid://cgjjoifajv4y5" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/带搜索的选择器.tscn" id="3_lnksy"]
+[ext_resource type="Script" uid="uid://tjjup5xfnlqd" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/提供焦点.gd" id="4_yupoy"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_v06sk"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lnksy"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sn78y"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1a3j7"]
+bg_color = Color(0, 0.647059, 0.898039, 0.301961)
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vmhwu"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y1tyd"]
+bg_color = Color(0, 0.647059, 0.898039, 0.301961)
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_63yhl"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gnor8"]
+bg_color = Color(0, 0.647059, 0.898039, 0.301961)
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_yxil1"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6fm4s"]
 
 [node name="buff创建工具" type="Control"]
 layout_mode = 3
@@ -49,35 +53,36 @@ tab_focus_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TabContainer" type="TabContainer" parent="PanelContainer/HBoxContainer/文件控制区"]
+[node name="选择器" type="TabContainer" parent="PanelContainer/HBoxContainer/文件控制区"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 current_tab = 0
 tab_focus_mode = 0
 
-[node name="影响" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_lnksy")]
+[node name="影响" parent="PanelContainer/HBoxContainer/文件控制区/选择器" instance=ExtResource("3_lnksy")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="组件" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_lnksy")]
+[node name="组件" parent="PanelContainer/HBoxContainer/文件控制区/选择器" instance=ExtResource("3_lnksy")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="特征" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_lnksy")]
+[node name="特征" parent="PanelContainer/HBoxContainer/文件控制区/选择器" instance=ExtResource("3_lnksy")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 
-[node name="标点" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_lnksy")]
+[node name="标点" parent="PanelContainer/HBoxContainer/文件控制区/选择器" instance=ExtResource("3_lnksy")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 3
 
-[node name="文件" parent="PanelContainer/HBoxContainer/文件控制区/TabContainer" instance=ExtResource("3_lnksy")]
+[node name="文件" parent="PanelContainer/HBoxContainer/文件控制区/选择器" instance=ExtResource("3_lnksy")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -158,11 +163,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_v06sk")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_sn78y")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_vmhwu")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_63yhl")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_yxil1")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_lnksy")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_1a3j7")
+theme_override_styles/hover = SubResource("StyleBoxFlat_y1tyd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnor8")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_6fm4s")
+toggle_mode = true
+script = ExtResource("4_yupoy")
 
 [node name="push_error" type="PanelContainer" parent="."]
 unique_name_in_owner = true
@@ -210,4 +217,5 @@ size_flags_horizontal = 3
 [connection signal="button_up" from="PanelContainer/HBoxContainer/文件控制区/HBoxContainer/新建" to="." method="_on_新建_button_up"]
 [connection signal="button_up" from="PanelContainer/HBoxContainer/文件控制区/HBoxContainer/加载" to="." method="_on_加载_button_up"]
 [connection signal="button_up" from="PanelContainer/HBoxContainer/文件控制区/HBoxContainer/保存" to="." method="_on_保存_button_up"]
+[connection signal="button_up" from="提供焦点" to="提供焦点" method="_on_button_up"]
 [connection signal="button_up" from="push_error/VBoxContainer/HBoxContainer/确认" to="." method="_on_确认_button_up"]

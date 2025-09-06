@@ -6,10 +6,10 @@ extends 战斗_动画
 func _start() -> void:
 	card = data["card"]
 	var life:战斗_life = data["life"]
-	var pos:String = card.get_pos()
+	var pos:Node = card.get_pos()
 	
 	
-	if is_方块区(life, pos):
+	if is_方块区(pos) or pos is Card:
 		card.emit_signal("图片或文字改变", "appear")
 		emit_可以继续(data["动画index"])
 		emit_动画完成()
@@ -20,14 +20,14 @@ func _start() -> void:
 		card.tween_ease = Tween.EASE_IN
 		card.tween动画添加_第二层("位置", "position", vec2, 0.3/speed)
 		await get_tree().create_timer(0.1/speed).timeout
-		card.tween动画添加_第二层("浮现", "alpha", 0, 0.2/speed)
+		card.tween动画添加_第二层("浮现", "modulate", Color(1,1,1,0), 0.2/speed)
 		await get_tree().create_timer(0.2/speed).timeout
-		card.emit_signal("图片或文字改变")
+		card.emit_signal("图片或文字改变", "appear")
 		emit_可以继续(data["动画index"])
 		card.tween_ease = Tween.EASE_OUT
 		card.tween动画添加_第二层("位置", "position", Vector2(0, 0), 0.3/speed)
 		await get_tree().create_timer(0.1/speed).timeout
-		card.tween动画添加_第二层("浮现", "alpha", 1, 0.2/speed)
+		card.tween动画添加_第二层("浮现", "modulate", Color(1,1,1,1), 0.2/speed)
 		await get_tree().create_timer(0.2/speed).timeout
 		
 		emit_动画完成()

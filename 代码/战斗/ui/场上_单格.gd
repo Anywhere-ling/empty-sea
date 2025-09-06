@@ -8,7 +8,7 @@ class_name 战斗_场上_单格
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
 
-var pos_sys:战斗_单位管理系统.Card_pos_sys
+var pos_sys:战斗_单位管理系统.Pos_cs_sys
 var x:int
 var y:int
 
@@ -23,6 +23,9 @@ func set_card(p_pos:战斗_单位管理系统.Card_pos_sys) -> void:
 	x = pos_sys.glo_x
 	y = pos_sys.y
 
+
+func get_pos_nam() -> String:
+	return pos_sys.nam
 
 func add_card(card:Card) -> void:
 	if card.get_parent():

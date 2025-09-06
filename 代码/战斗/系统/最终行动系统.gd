@@ -57,7 +57,7 @@ func _请求动画(nam:String, data:Dictionary) -> void:
 
 
 func 行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
-	card.get_parent().remove_card(card)
+	card.remove_self()
 	life.cards_pos["行动"].add_card(card)
 	_add_history(life, "打出", card)
 	_add_history(card, "打出")
@@ -78,7 +78,7 @@ func 行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管
 
 
 func 非行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Card_pos_sys) -> bool:
-	card.get_parent().remove_card(card)
+	card.remove_self()
 	pos.add_card(card)
 	_add_history(life, "打出", card)
 	_add_history(card, "打出")
@@ -98,7 +98,7 @@ func 非行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 
 
 func 构造(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Card_pos_sys) -> bool:
-	card.get_parent().remove_card(card)
+	card.remove_self()
 	pos.add_card(card)
 	card.state = true
 	_add_history(life, "构造", card)
@@ -123,7 +123,7 @@ func 非场上发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 	var o_pos:String = card.get_parent().nam
 	
 	
-	card.get_parent().remove_card(card)
+	card.remove_self()
 	pos.add_card(card)
 	
 	#动画
@@ -189,7 +189,7 @@ func 破坏(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 		return false
 	
 	
-	card.get_parent().remove_card(card)
+	card.remove_self()
 	life.cards_pos["绿区"].add_card(card)
 	_add_history(card, "破坏")
 	
@@ -215,7 +215,7 @@ func 加入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 		return false
 	
 	
-	card.get_parent().remove_card(card)
+	card.remove_self()
 	pos.add_card(card)
 	_add_history(life, "加入", card)
 	_add_history(card, "加入", pos.nam)
@@ -243,7 +243,7 @@ func 插入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 		return false
 	
 	
-	card.get_parent().remove_card(card)
+	card.remove_self()
 	pos.add_card(card)
 	pos.move_card(card, 1)
 	_add_history(life, "插入", card)
@@ -261,38 +261,53 @@ func 插入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	return true
 
 
-func 填入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, 素材:战斗_单位管理系统.Card_sys) -> bool:
-	card.add_素材(素材)
-	_add_history(life, "填入", 素材)
-	_add_history(card, "填入", 素材)
-	_add_history(素材, "被填入", card)
+func 填入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, 源:战斗_单位管理系统.Card_sys) -> bool:
+	card.add_源(源)
+	_add_history(life, "填入", 源)
+	_add_history(card, "填入", 源)
+	_add_history(源, "被填入", card)
 	
 	#动画
-	await _请求动画("填入", {"life":life, "card":card, "素材":素材})
+	await _请求动画("填入", {"life":life, "card":card, "源":源})
 	
 	
 	#后续
-	日志系统.callv("录入信息", [name, "填入", [life, card, 素材], true])
+	日志系统.callv("录入信息", [name, "填入", [life, card, 源], true])
 	
 	
 	return true
 
 
-func 去除(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, 素材:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Card_pos_sys) -> bool:
-	if card.nam == "剑之坟":
-		pass
-	card.remove_素材(素材)
-	pos.add_card(素材)
-	_add_history(life, "去除", 素材)
-	_add_history(card, "去除", 素材)
-	_add_history(素材, "被去除", pos)
+func 流填入(life:战斗_单位管理系统.Life_sys, 源:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Pos_cs_sys) -> bool:
+	pos.add_源(源, life.is_positive)
+	_add_history(life, "流填入", 源)
+	_add_history(pos, "流填入", 源)
+	_add_history(源, "被填入", pos)
 	
 	#动画
-	await _请求动画("去除", {"life":life, "card":card, "素材":素材, "pos":pos})
+	await _请求动画("流填入", {"life":life, "源":源, "pos":pos})
 	
 	
 	#后续
-	日志系统.callv("录入信息", [name, "去除", [life, card, 素材, pos], true])
+	日志系统.callv("录入信息", [name, "流填入", [life, 源, pos], true])
+	
+	
+	return true
+
+
+func 去除(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, 源:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Card_pos_sys) -> bool:
+	card.remove_源(源)
+	pos.add_card(源)
+	_add_history(life, "去除", 源)
+	_add_history(card, "去除", 源)
+	_add_history(源, "被去除", pos)
+	
+	#动画
+	await _请求动画("去除", {"life":life, "card":card, "源":源, "pos":pos})
+	
+	
+	#后续
+	日志系统.callv("录入信息", [name, "去除", [life, card, 源, pos], true])
 	
 	
 	return true
@@ -331,7 +346,7 @@ func 抽牌(life:战斗_单位管理系统.Life_sys) -> bool:
 	
 	var card:战斗_单位管理系统.Card_sys = life.cards_pos["白区"].cards[0]
 	card.face_up()
-	card.get_parent().remove_card(card)
+	card.remove_self()
 	life.cards_pos["手牌"].add_card(card)
 	_add_history(life, "抽牌", card)
 	_add_history(card, "抽牌")
@@ -350,7 +365,11 @@ func 抽牌(life:战斗_单位管理系统.Life_sys) -> bool:
 
 
 func 释放(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
-	card.get_parent().remove_card(card)
+	#buff判断
+	await buff系统.单位与全部buff判断("释放前", [null, life, card])
+	
+	
+	card.remove_self()
 	临时pos.add_card(card)
 	_add_history(life, "释放", card)
 	_add_history(card, "释放")
@@ -363,8 +382,6 @@ func 释放(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	日志系统.callv("录入信息", [name, "释放", [life, card], true])
 	
 	
-	#buff判断
-	await buff系统.单位与全部buff判断("释放", [null, life, card])
 	
 	return true
 
@@ -408,7 +425,7 @@ func 加入战斗(控制, is_positive:bool) -> 战斗_单位管理系统.Life_sy
 
 func 图形化数据改变(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, key:String) -> bool:
 	if key == "组" and card.pos == "红区":
-		life.reset_组无效()
+		life.reset_卡名无效()
 	#动画
 	await _请求动画("图形化数据改变", {"life":life, "card":card, "key":key})
 	

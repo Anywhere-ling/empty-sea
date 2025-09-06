@@ -1,19 +1,23 @@
-[gd_scene load_steps=10 format=3 uid="uid://crgjwvwup60dq"]
+[gd_scene load_steps=11 format=3 uid="uid://crgjwvwup60dq"]
 
 [ext_resource type="Theme" uid="uid://cr5es1wy1227s" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/字体大小.tres" id="1_u37jy"]
 [ext_resource type="Script" uid="uid://b0s4ji7v3ogke" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/buff_单个卡牌设计区.gd" id="2_u37jy"]
 [ext_resource type="PackedScene" uid="uid://iegorx0n1tjw" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/不定数量的数据节点容器_h.tscn" id="3_8slvg"]
+[ext_resource type="Script" uid="uid://tjjup5xfnlqd" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/提供焦点.gd" id="3_egups"]
 [ext_resource type="PackedScene" uid="uid://dp46167mmhfua" path="res://代码/自动加载/工具(不自动加载/卡牌创建工具/ui/效果设计区.tscn" id="4_5mhsp"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ji6gn"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8slvg"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_l32e3"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5mhsp"]
+bg_color = Color(0, 0.647059, 0.898039, 0.301961)
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5eigx"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uoyxv"]
+bg_color = Color(0, 0.647059, 0.898039, 0.301961)
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ogok6"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4oldo"]
+bg_color = Color(0, 0.647059, 0.898039, 0.541176)
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ekktd"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nae6x"]
 
 [node name="buff_单个卡牌设计区" type="Control"]
 layout_mode = 3
@@ -147,11 +151,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_ji6gn")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_l32e3")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_5eigx")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_ogok6")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_ekktd")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_8slvg")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_5mhsp")
+theme_override_styles/hover = SubResource("StyleBoxFlat_uoyxv")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_4oldo")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_nae6x")
+toggle_mode = true
+script = ExtResource("3_egups")
 
 [node name="影响" parent="PanelContainer/主要区域/VBoxContainer/3" instance=ExtResource("3_8slvg")]
 layout_mode = 2
@@ -170,3 +176,4 @@ layout_mode = 2
 [connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/0/Label3/后退" to="." method="_on_后退_button_up"]
 [connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/0/RichTextLabel/关闭" to="." method="_on_关闭_button_up"]
 [connection signal="value_changed" from="PanelContainer/主要区域/VBoxContainer/2/优先" to="." method="_on_优先_value_changed"]
+[connection signal="button_up" from="PanelContainer/主要区域/VBoxContainer/3/Label4/提供焦点" to="PanelContainer/主要区域/VBoxContainer/3/Label4/提供焦点" method="_on_button_up"]

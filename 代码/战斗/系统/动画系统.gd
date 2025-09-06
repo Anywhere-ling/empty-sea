@@ -10,6 +10,7 @@ signal 动画完成
 var 对照表:Dictionary[String, Dictionary] = {
 	"card":{},
 	"life":{},
+	"pos":{},
 }
 var dic动画:Dictionary[String, Dictionary] = {
 	"加入":{"":{}
@@ -36,12 +37,13 @@ func create_动画(tapy:String, data:Dictionary) -> 战斗_动画:
 	if !符合动画:
 		符合动画 = tapy
 	
-	data = _data转换(data)
+	data = data转换(data)
 	符合动画 = load(文件路径.folder战斗动画 + 符合动画 +".gd").new(data)
 	add_child(符合动画)
 	return 符合动画
 
-func _data转换(data):
+
+func data转换(data):
 	if data is Dictionary:
 		for i:String in data:
 			if data[i] is 战斗_单位管理系统.Life_sys:
@@ -49,25 +51,37 @@ func _data转换(data):
 			elif data[i] is 战斗_单位管理系统.Card_sys:
 				data[i] = 对照表["card"][data[i]]
 			elif data[i] is 战斗_单位管理系统.Card_pos_sys:
-				var life_gui:战斗_life = null
-				if data[i].get_parent():
-					life_gui = 对照表["life"][data[i].get_parent()]
-				var nam:String = data[i].nam
-				if nam == "场上":
-					data[i] = [life_gui, nam, [data[i].glo_x, data[i].y]]
-				else:
-					data[i] = [life_gui, nam]
+				data[i] = 对照表["pos"][data[i]]
 		return data
 	elif data is 战斗_单位管理系统.Life_sys:
 		return 对照表["life"][data]
 	elif data is 战斗_单位管理系统.Card_sys:
 		return 对照表["card"][data]
 	elif data is 战斗_单位管理系统.Card_pos_sys:
-		var life_gui:战斗_life = 对照表["life"][data.get_parent()]
-		var nam:String = data.nam
-		if nam == "场上":
-			nam = nam + str(data.场上index)
-		return [life_gui, nam]
+		return 对照表["pos"][data]
+
+func add_对照表(data) -> void:
+	if data is 战斗_life:
+		var life:战斗_life = data
+		var life_sys:战斗_单位管理系统.Life_sys = life.life_sys
+		对照表["life"][life_sys] = life
+		对照表["pos"][life_sys.cards_pos["手牌"]] = life.手牌
+		对照表["pos"][life_sys.cards_pos["白区"]] = life.卡牌五区.白区
+		对照表["pos"][life_sys.cards_pos["绿区"]] = life.卡牌五区.绿区
+		对照表["pos"][life_sys.cards_pos["蓝区"]] = life.卡牌五区.蓝区
+		对照表["pos"][life_sys.cards_pos["红区"]] = life.卡牌五区.红区
+		对照表["pos"][life_sys.cards_pos["行动"]] = life.行动
+	
+	elif data is Card:
+		var card:Card = data
+		var card_sys:战斗_单位管理系统.Card_sys = card.card_sys
+		对照表["card"][card_sys] = card
+	
+	elif data is 战斗_场上_单格:
+		var pos:战斗_场上_单格 = data
+		var pos_sys:战斗_单位管理系统.Pos_cs_sys = pos.pos_sys
+		对照表["pos"][pos_sys] = pos
+	
 
 
 func start_动画(动画:战斗_动画) -> void:

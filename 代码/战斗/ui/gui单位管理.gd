@@ -23,11 +23,9 @@ var efils_ind:float = 0:
 		efils_ind = value
 
 
-#func _ready() -> void:
-	#event_bus.call_deferred("push_event", "战斗_右边显示改变", 选项集节点)
-
 
 func set_c0ntrol(life:战斗_life) -> void:
+	手牌.pos_sys = life.手牌.pos_sys
 	life.手牌 = 手牌
 	life.卡牌五区.光圈手牌.visible = false
 
@@ -106,5 +104,4 @@ func _按钮被按下(life:战斗_life) -> void:
 
 
 func _on_点击旁边_button_up() -> void:
-	#event_bus.push_event("战斗_右边显示改变", 选项集节点)
 	event_bus.push_event("战斗_左键点击旁边")

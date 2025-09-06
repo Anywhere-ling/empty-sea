@@ -26,12 +26,8 @@ func _start() -> void:
 	pass
 
 
-func is_方块区(life:战斗_life, pos:String) -> bool:
-	if pos in ["白区", "绿区", "蓝区" ,"红区"]:
-		return true
-	elif pos == "手牌":
-		return !life.is_c0ntrol
-	return false
+func is_方块区(pos:Node) -> bool:
+	return pos is 战斗_卡牌五区_子区
 
 func get_场上(x:int, y:int) -> 战斗_场上_单格:
 	return get_parent().gui_场上.get_ind(x,y)
