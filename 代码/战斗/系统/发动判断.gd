@@ -43,6 +43,7 @@ func _effect_process(p_effect:Array) -> bool:
 		var arr:Array = p_effect[i].duplicate(true)
 		#发动判断
 		if !arr[0] in effect可判断:
+			targets.append("不需要main判断")
 			break
 		
 		elif arr[0] in effect标点:
@@ -75,7 +76,9 @@ func _取卡牌对象(data:Array) -> bool:
 	var 最小数量:int = int(data[3])
 	var 最大数量:int = int(data[2])
 	var 描述:String = data[1]
-	if 最小数量 == -1:
+	if 最大数量 < 1:
+		最大数量 = len(data0)
+	if 最小数量  -1:
 		最小数量 = 最大数量
 	assert(最大数量 > -1, "卡牌data数据错误")
 	

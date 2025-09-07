@@ -449,30 +449,29 @@ func _翻译效果data(node) -> Array:
 		
 	var arr:Array = []#返回值
 	var temp_string:String = ""#正在处理的符号
-	var temp_dic:Dictionary = {}#处理符号时使用
+	var temp_arr:Array = []#处理符号时使用
 	for node1:Control in arr_nodes:
 		var data:Variant = _tran_node_to_data(node1)
 		
 		if data.find("[") != -1:
 			data = data.replace("[", "")
-			assert(!temp_dic.keys().has(data) , "已经有该括号")
 			temp_string = data
-			temp_dic[data] = [data]
+			temp_arr.append([data])
 		
 		elif data.find("]") != -1:
 			data = data.replace("]", "")
 			assert(temp_string == data , "没有正括号，或者顺序错误")
-			if len(temp_dic.keys()) > 1:
-				temp_dic[temp_dic.keys()[-2]].append(temp_dic[temp_dic.keys()[-1]])
-				temp_dic.erase(temp_string)
-				temp_string = temp_dic.keys()[-1]
+			if len(temp_arr) > 1:
+				temp_arr[-2].append(temp_arr[-1])
+				temp_arr.pop_back()
+				temp_string = temp_arr[-1][0]
 			else:
-				arr.append(temp_dic[temp_dic.keys()[-1]])
-				temp_dic.erase(temp_string)
+				arr.append(temp_arr[-1])
+				temp_arr.pop_back()
 				temp_string = ""
 		else:
 			if temp_string:
-				temp_dic[temp_string].append(data)
+				temp_arr[-1].append(data)
 			else :
 				arr.append(data)
 			
@@ -667,27 +666,48 @@ func copy_node(nodes:Array) -> void:
 				var node1:Container = node.get_parent()
 				var arr_node1:Array = node1.get_children()
 				var 开始录入:bool = false
-				for ind:int in range(0, arr_node1.find(node) + 1):
+				var 临时arr_nodes:Array
+				var 同名层级:int = -1
+				for ind:int in range(arr_node1.find(node), -1, -1):
 					var node2:Control = arr_node1[ind]
-					if 开始录入:
-						arr_nodes.erase(node2)
-						arr_nodes.append(node2)
+					if node2 is Label and node2.text == node.text:
+						if !临时arr_nodes.has(node2):
+							临时arr_nodes.append(node2)
+						同名层级 += 1
+					elif node2 is Label and node2.text == 关键词:
+						if !临时arr_nodes.has(node2):
+							临时arr_nodes.append(node2)
+						if 同名层级 == 0:
+							break
+						else :
+							同名层级 -= 1
 					else:
-						if node2 is Label and node2.text == 关键词:
-							开始录入 = true
-							arr_nodes.erase(node2)
-							arr_nodes.append(node2)
+						if !临时arr_nodes.has(node2):
+							临时arr_nodes.append(node2)
+				临时arr_nodes.reverse()
+				for i in 临时arr_nodes:
+					if !arr_nodes.has(i):
+						arr_nodes.append(i)
 				
+			
 			elif node is Label and node.text.ends_with("["):
 				var 关键词:String = "]" + node.text.erase(2)
+				var 同名层级:int = -1
 				var node1:Container = node.get_parent()
 				var arr_node1:Array = node1.get_children()
 				for ind:int in range(arr_node1.find(node), len(arr_node1) - 2):
 					var node2:Control = arr_node1[ind]
-					if node2 is Label and node2.text == 关键词:
+					if node2 is Label and node2.text == node.text:
 						if !arr_nodes.has(node2):
 							arr_nodes.append(node2)
-						break
+						同名层级 += 1
+					elif node2 is Label and node2.text == 关键词:
+						if !arr_nodes.has(node2):
+							arr_nodes.append(node2)
+						if 同名层级 == 0:
+							break
+						else :
+							同名层级 -= 1
 					else:
 						if !arr_nodes.has(node2):
 							arr_nodes.append(node2)

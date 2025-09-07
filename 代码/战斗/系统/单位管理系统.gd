@@ -648,6 +648,8 @@ class Card_sys extends Data_sys:
 		if key == "显示卡名":
 			is_显示卡名 = true
 			key = "卡名"
+		elif key == "有效卡名":
+			key = "卡名"
 		
 		var value = data.get(key)
 		if value is Dictionary or value is Array:

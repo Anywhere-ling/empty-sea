@@ -102,6 +102,9 @@ func _战斗阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	else:
 		await buff系统.单位与全部buff判断("阻止", [null, life, null])
 		await 最终行动系统.阻止(life)
+		
+		while life.state.has("阻止"):
+			life.state.erase("阻止")
 	
 	emit_signal("下一阶段")
 
@@ -256,7 +259,7 @@ func _行动阶段(life:战斗_单位管理系统.Life_sys) -> void:
 	var card:战斗_单位管理系统.Card_sys
 	if life.cards_pos["行动"].cards:
 		card = life.cards_pos["行动"].cards[0]
-		_行动阶段移动(life, [card.get_value("种类")])
+		await _行动阶段移动(life, [card.get_value("种类")])
 	else:
 		var cards:Array[战斗_单位管理系统.Card_sys] = await 发动判断系统.单位行动阶段打出判断(life)
 		card = await 单位控制系统.control[life].打出(cards)

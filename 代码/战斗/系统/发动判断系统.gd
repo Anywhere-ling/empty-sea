@@ -292,10 +292,11 @@ func 卡牌发动判断_单个效果(life:战斗_单位管理系统.Life_sys, ca
 	
 	
 	#main检测
-	if ! await _效果发动判断(effect.main_effect, card, features, targets):
-		
-		日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "main检测未通过"])
-		return false
+	if targets.size() == 10:
+		if ! await _效果发动判断(effect.main_effect, card, features, targets):
+			
+			日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "main检测未通过"])
+			return false
 	
 	
 	日志系统.callv("录入信息", [name, "卡牌发动判断_单个效果", [life, card, pos, effect], "通过"])

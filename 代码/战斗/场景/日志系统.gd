@@ -135,19 +135,19 @@ func _out_data(p_obj:String, p_fun:String, p_args:Array, p_ret) -> void:
 		if p_fun == "start":
 			data = "连锁开始处理"
 	
-	#elif p_obj == "发动判断系统":
-		#if p_fun == "卡牌发动判断":
-			#data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + " 在 " + p_args[2] + " 上 " + p_ret
-		#elif p_fun == "卡牌发动判断_单个效果":
-			#data = "1   2   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + " 的 " + str(p_args[1].effects.find(p_args[3])+1) + "效果 在 " + p_args[2] + " 上 " + p_ret
-		#elif p_fun == "_打出消耗判断":
-			#data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + "打出消耗判断" + str(p_ret)
-		#elif p_fun == "_发动消耗判断":
-			#data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + "发动消耗判断" + str(p_ret)
-	#
-	#elif p_obj == "战斗_发动判断系统":
-		#data = _get_nam(p_args[1][1]) + " 的 " + _get_nam(p_args[1][0]) + " 在 " + p_fun + " 上检测失败"
-	#
+	elif p_obj == "发动判断系统":
+		if p_fun == "卡牌发动判断":
+			data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + " 在 " + p_args[2] + " 上 " + p_ret
+		elif p_fun == "卡牌发动判断_单个效果":
+			data = "1   2   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + " 的 " + str(p_args[1].effects.find(p_args[3])+1) + "效果 在 " + p_args[2] + " 上 " + p_ret
+		elif p_fun == "_打出消耗判断":
+			data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + "打出消耗判断" + str(p_ret)
+		elif p_fun == "_发动消耗判断":
+			data = "1   " + _get_nam(p_args[0]) + " 的 " + _get_nam(p_args[1]) + "发动消耗判断" + str(p_ret)
+	
+	elif p_obj == "战斗_发动判断系统":
+		data = _get_nam(p_args[1][1]) + " 的 " + _get_nam(p_args[1][0]) + " 在 " + p_fun + " 上检测失败"
+	
 	elif p_obj == "战斗_效果处理系统":
 		data = _get_nam(p_args[1][1]) + " 的 " + _get_nam(p_args[1][0]) + " 在 " + p_fun + " 上处理失败"
 	

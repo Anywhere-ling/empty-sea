@@ -284,7 +284,7 @@ func _如果(data:Array) -> bool:
 		if 进入否则:
 			if i is Array and i[0] == "否则":
 				i.pop_at(0)
-				_effect_process(i)
+				await _effect_process(i)
 		else:
 			if i is Array and i[0] == "否则":
 				continue
@@ -998,7 +998,9 @@ func _取卡牌对象(data:Array) -> bool:
 	var 最小数量:int = int(_gett(data[3], false, true))
 	var 最大数量:int = int(_gett(data[2], false, true))
 	var 描述:String = data[1]
-	if 最小数量 == -1:
+	if 最大数量 < 1:
+		最大数量 = len(data0)
+	if 最小数量 < 0:
 		最小数量 = 最大数量
 	assert(最大数量 > -1, "卡牌data数据错误")
 	
@@ -1174,13 +1176,7 @@ func _释放(data:Array) -> bool:
 	for i:int in len(data0):
 		if !await 二级行动系统.释放(data0[i].get_所属life(), data0[i]):
 			ret = false
-		else:
-			data0[i] = null
 	
-	while data0.has(null):
-		data0.erase(null)
-	
-	targets[_get_sub_index(data[0])] = data0
 	
 	await 最终行动系统.等待动画完成()
 	return ret
@@ -1478,9 +1474,6 @@ func _移动(data:Array) -> bool:
 		return false
 	
 	if pos.nam != "场上" or pos.appear == 4:
-		return false
-	
-	if pos.cards[0].appear > 2:
 		return false
 	
 	
