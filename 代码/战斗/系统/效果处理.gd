@@ -92,6 +92,8 @@ var effect标点:Dictionary ={
 	"否定":_否定,
 	"如果":_如果,
 	"否则":_否则,
+	"选项":_选项,
+	"逐一判断":_逐一判断,
 }
 
 var effect组件:Dictionary = {
@@ -295,6 +297,42 @@ func _如果(data:Array) -> bool:
 	return true
 
 func _否则(data:Array) -> bool:
+	return true
+
+func _选项(data:Array) -> bool:
+	return true
+
+func _逐一判断(data:Array) -> bool:
+	var 次数:int = int(_gett(data[0], false, true))
+	var 选项s:Array
+	for i in data:
+		if i is Array and i[0] == "选项":
+			i.pop_at(0)
+			i.pop_at(0)
+			var 条件:Array
+			for i1 in i:
+				if i1 is Array and i1[0] == "条件":
+					条件 = i1
+					break
+			
+			i.erase(条件)
+			条件.pop_at(0)
+			
+			选项s.append([条件, i])
+	
+	var ret:bool = false
+	for i in 选项s:
+		if 次数 <= 0:
+			break
+		
+		if i[0]:
+			if !await _effect_process(i[0]):
+				continue
+		次数 -= 1
+		ret = true
+		await _effect_process(i[1])
+	
+	
 	return true
 
 
@@ -694,6 +732,37 @@ func _效果判断(data:Array) -> bool:
 	
 	return true
 
+func _非条件格筛选(data:Array) -> bool:
+	#提取
+	var data0 = _gett(data[0], true, false, 战斗_单位管理系统.Pos_cs_sys)
+	if !data0:
+		return false
+	var data1:String = data[1]
+	var data2:int = int(_gett(data[2], false, true))
+	
+	if data2 > data0.size():
+		targets[_get_sub_index(data[0])] = data0
+		return true
+	
+	data0.sort_custom(func(a,b):
+		if a.y != b.y:
+			return a.y < b.y
+		else:
+			return a.glo_x < b.glo_x)
+	
+	var ret:Array
+	if data1 == "随机":
+		data0.shuffle()
+	elif data1 == "倒序":
+		data0.reverse()
+	
+	for i in data2:
+		ret.append(data0[i])
+	
+	targets[_get_sub_index(data[0])] = ret
+	
+	return true
+
 func _条件卡牌筛选(data:Array) -> bool:
 	#提取
 	var data0 = _gett(data[0], true, false, 战斗_单位管理系统.Card_sys)
@@ -1021,6 +1090,9 @@ func _取卡牌对象(data:Array) -> bool:
 	
 	if !ret:
 		return false
+	
+	连锁系统.储存取对象的目标(ret)
+	
 	targets[_get_sub_index(data[0])] = ret
 	
 	return true
@@ -1494,7 +1566,7 @@ func _构造(data:Array) -> bool:
 	
 	var ret:bool = true
 	for i:战斗_单位管理系统.Card_sys in data0:
-		if !await 二级行动系统.构造(i.get_所属life(), i, pos):
+		if !await 卡牌打出与发动系统.打出(i.get_所属life(), i, pos):
 			ret = false
 	
 	await 最终行动系统.等待动画完成()

@@ -19,16 +19,10 @@ var chain_state:int = 0
 var current_life:战斗_单位管理系统.Life_sys
 var frist_lifes:Array
 
+
 var next_可发动的效果:Dictionary
 var now_可发动的效果:Dictionary
 
-
-func _ready() -> void:
-	event_bus.subscribe("战斗_请求选择返回", func(a):
-		_储存取对象的目标(a)
-		, 2, false, 
-		func(_p):
-		return _p[0] != [] and _p[0][0] is 战斗_单位管理系统.Card_sys)
 
 
 func 请求进行下一连锁() -> void:
@@ -103,7 +97,8 @@ func set_now_speed(effect:战斗_单位管理系统.Effect_sys, speed:int) -> vo
 	all_chain[-1].append(speed)
 	
 	now_可发动的效果.erase(effect)
-	effect.count -= 1
+	if !effect.get_value("features").has("无限"):
+		effect.count -= 1
 	
 	await 最终行动系统.加入连锁的动画(effect.get_parent().get_所属life(), effect.get_parent(), effect.get_parent().effects.find(effect), speed)
 
@@ -125,6 +120,7 @@ func start() -> void:
 		await 最终行动系统.退出连锁的动画(card)
 		await 效果系统.效果处理(effect.main_effect, card, await effect.get_value("features"), arr[1])
 		effect.set_颜色信息("")
+	单位管理系统.remove_被取对象的卡牌()
 	all_chain = []
 	chain_state = 0
 	now_可发动的效果 = {}
@@ -172,12 +168,13 @@ func _请求新连锁() -> void:
 			return
 	
 	now_可发动的效果 = {}
-	
 
-func _储存取对象的目标(cards:Array) -> void:
-	日志系统.callv("录入信息", [name, "_储存取对象的目标", [cards], null])
-	
+
+func 储存取对象的目标(cards:Array) -> void:
 	for card:战斗_单位管理系统.Card_sys in cards:
+		if card.appear >= 3:
+			card.appear = 5
+		单位管理系统.被取对象的卡牌.append(card)
 		var life:战斗_单位管理系统.Life_sys = card.get_所属life()
 		frist_lifes.erase(life)
 		frist_lifes.append(life)

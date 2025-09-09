@@ -47,8 +47,8 @@ func get_可攻击场上(life:战斗_单位管理系统.Life_sys) -> Array:
 		范围.append_array([Vector2(1,0),Vector2(2,0),Vector2(3,0),Vector2(4,0)])
 	
 	if !life.is_positive:
-		for i in 范围:
-			i.x = i.x * -1
+		for i in len(范围):
+			范围[i].x = 范围[i].x * -1
 	
 	var ret:Array
 	var life_pos:Array = life.cards_pos["场上"]

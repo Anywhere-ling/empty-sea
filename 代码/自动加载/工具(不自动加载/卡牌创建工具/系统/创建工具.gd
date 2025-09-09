@@ -29,6 +29,7 @@ var specification_效果特征:Dictionary = {
 	"蓝区":"在蓝区可以发动",
 	"红区":"在红区可以发动",
 	"启动":"当打出或构造时可以发动",
+	"无限":"一回合可以多次发动",
 }
 var specification_效果标点:Dictionary = {
 	"特征":["效果的特征，用于检测", "括号"],
@@ -39,7 +40,8 @@ var specification_效果标点:Dictionary = {
 	"否定":["括号内通过则返回否", "括号"],
 	"如果":["一定返回是", "括号"],
 	"否则":["在如果内使用，之前的判断未通过则执行", "括号"],
-	
+	"选项":["在括号内作为一个项使用，根据上级括号，可以在其中使用条件、括号输入", "括号输入"],
+	"逐一判断":["逐一判断选项的条件，将可上限的数量的满足选项执行", "括号输入"],
 }
 
 var specification_特征:Dictionary = {
@@ -48,14 +50,13 @@ var specification_特征:Dictionary = {
 	"永恒":"不能被破坏",
 	"无限":"不能被取为对象",
 }
-#var specification_媒介:Array = [
-	#"潮汐",
-#]
+
 var specification_组:Array = [
+	"幻觉",
 	"基本动作",
 	"潮汐",
 	"深海",
-	"重型",
+	"力",
 	"血",
 	"本能",
 ]
@@ -74,6 +75,7 @@ var specification_影响:Dictionary = {
 	"抽牌":"抽牌时",
 	"释放前":"卡牌即将释放时",
 	"攻击":"攻击时",
+	"被攻击":"被攻击时",
 	"直接攻击":"直接攻击时",
 	"斩击":"斩击时",
 	"重击":"重击时",
@@ -691,7 +693,7 @@ func copy_node(nodes:Array) -> void:
 				
 			
 			elif node is Label and node.text.ends_with("["):
-				var 关键词:String = "]" + node.text.erase(2)
+				var 关键词:String = "]" + node.text.erase(node.text.find("["))
 				var 同名层级:int = -1
 				var node1:Container = node.get_parent()
 				var arr_node1:Array = node1.get_children()

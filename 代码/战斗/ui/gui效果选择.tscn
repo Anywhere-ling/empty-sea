@@ -10,11 +10,11 @@ script = ExtResource("1_6w8th")
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="文本" type="Label" parent="HBoxContainer"]
+[node name="文本" type="RichTextLabel" parent="HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 1
+bbcode_enabled = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2

@@ -47,8 +47,7 @@ func 去除(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 			return false
 	else :
 		card.remove_源(源)
-		if !await 释放与源.添加释放卡牌(life, 源):
-			return false
+		await 释放与源.添加释放卡牌(life, 源)
 	
 	卡牌打出与发动系统.eraes_自动下降(源)
 	return true
@@ -92,7 +91,7 @@ func 加入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 
 
 func 构造(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Card_pos_sys) -> bool:
-	if card.get_value("种类") == "法术":
+	if card.get_value("种类") != "仪式":
 		var ind:int = 单位管理系统.get_数据改变唯一标识()
 		card.add_value("种类", ["等", "仪式", ind])
 		await 最终行动系统.图形化数据改变(card.get_所属life(), card, "种类")
@@ -100,6 +99,7 @@ func 构造(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	if !await 最终行动系统.构造(life, card, pos):
 		return false
+	
 	
 	_吃掉源检测(pos)
 	卡牌打出与发动系统.eraes_自动下降(card)

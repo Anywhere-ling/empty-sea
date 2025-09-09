@@ -15,6 +15,8 @@ class_name Card
 @onready var 光圈: Panel = %光圈
 @onready var 顶部: Control = %顶部
 @onready var 中心: Control = %中心
+@onready var 动画: AnimationPlayer = %动画
+@onready var 选择光圈: Panel = %选择光圈
 
 @export var 光圈_arr:Array[StyleBoxFlat]
 
@@ -140,6 +142,15 @@ func 光圈改变(index:int) -> void:
 	var style:StyleBoxFlat = 光圈_arr[index]
 	光圈.add_theme_stylebox_override("panel", style)
 
+func 播放动画(nam:String) -> void:
+	动画.stop()
+	if nam in ["可选"]:
+		动画.play("可选")
+	elif nam in ["被选"]:
+		动画.play("被选")
+		动画.queue("被选")
+		动画.queue("被选")
+
 
 
 func get_card_sys_pos() -> String:
@@ -250,3 +261,11 @@ func _on_左_button_up() -> void:
 	event_bus.push_event("战斗_卡牌被左键点击", self)
 	if cards:
 		event_bus.push_event("战斗_区卡牌显示改变", [self, cards])
+
+
+func _on_动画_animation_finished(anim_name: StringName) -> void:
+	选择光圈.visible = false
+
+
+func _on_动画_animation_started(anim_name: StringName) -> void:
+	选择光圈.visible = true

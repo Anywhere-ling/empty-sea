@@ -356,7 +356,7 @@ func _主要阶段判断(life:战斗_单位管理系统.Life_sys) -> void:
 				场上cards.append(pos.cards[0])
 		场上cards = 单位管理系统.get_给定显示以上的卡牌(场上cards, 2)
 		var 手牌cards:Array[战斗_单位管理系统.Card_sys] = 单位管理系统.get_给定显示以上的卡牌(life.cards_pos["手牌"].cards, 3)
-		合成cards = 发动判断系统.合成构造判断(life, 蓝区cards+手牌cards, 蓝区cards+场上cards, 蓝区cards+场上cards)
+		合成cards = 发动判断系统.合成构造判断(life, 蓝区cards+手牌cards, 场上cards, 蓝区cards+场上cards)
 		
 	单位控制系统.control[life].主要阶段判断(发动cards, 打出cards, 合成cards)
 

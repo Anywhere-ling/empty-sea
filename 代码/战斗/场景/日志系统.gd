@@ -100,6 +100,8 @@ func _out_data(p_obj:String, p_fun:String, p_args:Array, p_ret) -> void:
 			return
 		if p_fun == "加入":
 			data = _get_nam(p_args[1]) + " 加入了 " + _get_nam(p_args[2].get_parent()) + " 的 " + _get_nam(p_args[2])
+		elif p_fun == "构造":
+			data = _get_nam(p_args[1]) + " 构造到了 " + _get_nam(p_args[2].get_parent()) + " 的 " + _get_nam(p_args[2])
 		elif p_fun == "加入连锁的动画":
 			data = _get_nam(p_args[0]) + " 发动了 " + _get_nam(p_args[1]) + " 的 "  + str(p_args[2] + 1) + " 效果"
 		elif p_fun == "抽牌":

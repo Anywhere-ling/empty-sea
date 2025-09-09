@@ -11,7 +11,7 @@ var all_lifes:Array[Life_sys]
 var lifes:Array[Life_sys]
 var efils:Array[Life_sys]
 var 数据改变唯一标识:int = -1
-
+var 被取对象的卡牌:Array
 
 
 func create_life(life_cont:战斗_单位控制, is_positive:bool) -> Life_sys:
@@ -57,6 +57,12 @@ func get_life场上第一张是纵向的格子数量(life:Life_sys) -> int:
 func get_数据改变唯一标识() -> int:
 	数据改变唯一标识 += 1
 	return 数据改变唯一标识
+
+func remove_被取对象的卡牌() -> void:
+	var arr:Array = 被取对象的卡牌.duplicate(true)
+	被取对象的卡牌 = []
+	for i:Card_sys in arr:
+		i.reset_appear()
 
 
 
@@ -592,6 +598,9 @@ class Card_sys extends Data_sys:
 			appear == 1
 		else:
 			appear = 3
+		if appear >= 3 and buff系统.单位管理系统.被取对象的卡牌.has(self):
+			appear = 5
+		
 		if !is_inside_tree():
 			await tree_entered
 		buff系统.add_触发与固有buff(self)
@@ -638,7 +647,8 @@ class Card_sys extends Data_sys:
 		if 作为源时的所属:
 			作为源时的所属.remove_源(self)
 		else:
-			get_parent().remove_card(self)
+			if get_parent():
+				get_parent().remove_card(self)
 	
 	
 	func get_value(key:String):
@@ -675,8 +685,10 @@ class Card_sys extends Data_sys:
 		elif key in ["卡名"]:
 			value = value.split()
 			if !is_显示卡名:
-				while value.has("·"):
-					value.eraes("·")
+				for i in ["·", "之", "的"]:
+					while value.has(i):
+						value.remove_at(value.find(i))
+			
 			for arr:Array in 数据改变[key]:
 				if arr[0] == "加":
 					value.append_array(arr[1])

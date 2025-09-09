@@ -58,6 +58,8 @@ func _add_node(node:Control, s:String) -> Control:
 		if specification_效果标点.has(s) and node is 卡牌创建工具_不定数量的数据节点容器:
 			if specification_效果标点[s][1] == "括号":
 				return _add_node_括号(node, s)
+			if specification_效果标点[s][1] == "括号输入":
+				return _add_node_括号(node, s, "等待输入")
 	
 	elif nam == "影响":
 		if node.tooltip_text == "影响":

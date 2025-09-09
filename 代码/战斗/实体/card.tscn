@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://i0xiia3q8acd"]
+[gd_scene load_steps=20 format=3 uid="uid://i0xiia3q8acd"]
 
 [ext_resource type="Script" uid="uid://ch4hpnlwt5pu2" path="res://代码/战斗/实体/card.gd" id="1_jra1o"]
 [ext_resource type="Texture2D" uid="uid://6nl3w86fteae" path="res://资产/图片/卡牌/卡牌种类/攻击.png" id="2_ivvf7"]
@@ -50,6 +50,77 @@ anti_aliasing_size = 2.204
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vsfjr"]
 bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ivvf7"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.949893, 0.785329, 0, 1)
+
+[sub_resource type="Animation" id="Animation_aa1r2"]
+resource_name = "可选"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(-2, -2),
+"update": 0,
+"values": [Vector2(220, 320), Vector2(240, 340)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(-2, -2),
+"update": 0,
+"values": [Vector2(-10, -10), Vector2(-20, -20)]
+}
+
+[sub_resource type="Animation" id="Animation_ivvf7"]
+resource_name = "被选"
+length = 0.1
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1),
+"transitions": PackedFloat32Array(0.5, 0.5),
+"update": 0,
+"values": [Vector2(240, 340), Vector2(220, 320)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1),
+"transitions": PackedFloat32Array(0.5, 0.5),
+"update": 0,
+"values": [Vector2(-20, -20), Vector2(-10, -10)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_i2264"]
+_data = {
+&"可选": SubResource("Animation_aa1r2"),
+&"被选": SubResource("Animation_ivvf7")
+}
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ivvf7"]
 
@@ -196,6 +267,27 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_vsfjr")
 
+[node name="选择光圈" type="Panel" parent="第二层/图片"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ivvf7")
+
+[node name="动画" type="AnimationPlayer" parent="第二层/图片/选择光圈"]
+unique_name_in_owner = true
+libraries = {
+&"": SubResource("AnimationLibrary_i2264")
+}
+
 [node name="中心" type="Control" parent="第二层/图片"]
 unique_name_in_owner = true
 layout_mode = 3
@@ -226,4 +318,6 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_vsfjr")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_i2264")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_lk5l5")
 
+[connection signal="animation_finished" from="第二层/图片/选择光圈/动画" to="." method="_on_动画_animation_finished"]
+[connection signal="animation_started" from="第二层/图片/选择光圈/动画" to="." method="_on_动画_animation_started"]
 [connection signal="button_up" from="第二层/图片/左" to="." method="_on_左_button_up"]

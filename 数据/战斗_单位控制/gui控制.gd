@@ -33,12 +33,12 @@ var o_cards:Array = [
 ]
 
 var test_card:Array = [
-	["蓄力", "蓄能动力臂", 10],
+	["海", "暗流", 10],
 	["遗志", 5],
-	["原始冲动", 5],
-	["蓄能动力臂", 3],
+	["冲动", 6],
+	["大洋之伟力", 3],
+	["流变化", 3],
 	["蓄力", 3],
-	["风暴碾压", 3],
 	
 ]
 
@@ -74,7 +74,7 @@ func 创造牌库() -> Array:
 		return cards
 	else :
 		return 生成牌库(test_card)
-	
+
 
 
 func 确认目标(lifes:Array[战斗_单位管理系统.Life_sys], efils:Array[战斗_单位管理系统.Life_sys]) -> void:
@@ -128,7 +128,7 @@ func 打出(cards:Array) -> 战斗_单位管理系统.Card_sys:
 	if !cards:
 		return null
 	for card in cards:
-		cards_gui.append(动画系统.对照表["card"][card])
+		cards_gui.append(动画系统.data转换(card))
 	可选卡牌容器.set_cards(cards_gui, "要打出吗", 1, 0)
 	可选卡牌容器.visible = true
 	
@@ -146,7 +146,7 @@ func 发动(cards:Array) -> 战斗_单位管理系统.Card_sys:
 	if !cards:
 		return null
 	for card in cards:
-		cards_gui.append(动画系统.对照表["card"][card])
+		cards_gui.append(动画系统.data转换(card))
 	可选卡牌容器.set_cards(cards_gui, "要发动吗", 1, 0)
 	可选卡牌容器.visible = true
 	
@@ -274,7 +274,7 @@ func 选择效果发动(card:战斗_单位管理系统.Card_sys, arr_int:Array[i
 	if arr_int.size() <= 1:
 		return arr_int[0]
 	
-	gui效果选择.set_card(card.data["文本"], arr_int)
+	gui效果选择.set_card(动画系统.data转换(card), arr_int)
 	await gui效果选择.确认按下
 	return gui效果选择.select
 
@@ -283,11 +283,15 @@ func 对象选择(arr:Array, 描述:String = "无", count_max:int = 1, count_min
 	var cards_gui:Array
 	for card in arr:
 		cards_gui.append(动画系统.对照表["card"][card])
+	
+	
 	可选卡牌容器.set_cards(cards_gui, 描述, count_max, count_min)
 	可选卡牌容器.visible = true
 	
 	await 可选卡牌容器.按下
 	var ret:Array
+	
+	
 	for i in 可选卡牌容器.free_cards():
 		ret.append(i.card_sys)
 	

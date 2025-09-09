@@ -4,6 +4,7 @@ extends Node
 @onready var 回合系统: Node = %回合系统
 @onready var 连锁系统: Node = %连锁系统
 @onready var 日志系统: 战斗_日志系统 = %日志系统
+@onready var 单位管理系统: 战斗_单位管理系统 = %单位管理系统
 
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
@@ -42,7 +43,7 @@ func _战斗_录入按时间结束的buff的信号(buff:战斗_单位管理系�
 func 开始阶段结算buff(life:战斗_单位管理系统.Life_sys) -> void:
 	日志系统.callv("录入信息", [name, "开始阶段结算buff", [life], null])
 	
-	单位与全部buff判断("开始", [null, life, null])
+	await 单位与全部buff判断("开始", [null, life, null])
 		
 	
 	if start_buffs.has(life):
@@ -57,7 +58,7 @@ func 开始阶段结算buff(life:战斗_单位管理系统.Life_sys) -> void:
 func 结束阶段结算buff(life:战斗_单位管理系统.Life_sys) -> void:
 	日志系统.callv("录入信息", [name, "结束阶段结算buff", [life], null])
 	
-	单位与全部buff判断("结束", [null, life, null])
+	await 单位与全部buff判断("结束", [null, life, null])
 	
 	if end_buffs.has(life):
 		for i:战斗_单位管理系统.Buff_sys in end_buffs[life]:
@@ -71,7 +72,7 @@ func 结束阶段结算buff(life:战斗_单位管理系统.Life_sys) -> void:
 func _战斗_连锁处理开始的信号() -> void:
 	日志系统.callv("录入信息", [name, "_战斗_连锁处理开始的信号", [], null])
 	
-	单位与全部buff判断("连锁处理开始")
+	await 单位与全部buff判断("连锁处理开始")
 	
 	for life:战斗_单位管理系统.Life_sys in chain_start_buffs:
 		for i:战斗_单位管理系统.Buff_sys in chain_start_buffs[life]:
@@ -86,7 +87,7 @@ func _战斗_连锁处理开始的信号() -> void:
 func _战斗_连锁处理结束的信号() -> void:
 	日志系统.callv("录入信息", [name, "_战斗_连锁处理结束的信号", [], null])
 	
-	单位与全部buff判断("连锁处理结束")
+	await 单位与全部buff判断("连锁处理结束")
 	
 	for life:战斗_单位管理系统.Life_sys in chain_start_buffs:
 		for i:战斗_单位管理系统.Buff_sys in chain_end_buffs[life]:
@@ -157,7 +158,7 @@ func add_触发与固有buff(card:战斗_单位管理系统.Card_sys) -> void:
 				continue
 			
 			
-			if ["场上", "行动", "手牌", "白区", "绿区", "蓝区", "红区"].any(func(a):features.has(a)):
+			if ["行动", "手牌", "白区", "绿区", "蓝区", "红区"].any(func(a):return features.has(a)):
 				continue
 				
 			if pos.nam == "场上":
@@ -169,7 +170,7 @@ func add_触发与固有buff(card:战斗_单位管理系统.Card_sys) -> void:
 func 单位与全部buff判断(影响:String, targets:Array = [null, null, null]) -> int :
 	var ret:int = -1
 	#"全部"buff
-	if 影响 =="加入":
+	if 影响 =="破坏":
 		pass
 	for buff:战斗_单位管理系统.Buff_sys in 全部单位buffs:
 		if !buff:

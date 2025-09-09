@@ -21,7 +21,7 @@ var 自然下降的卡牌:Dictionary
 
 
 
-func 打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
+func 打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Card_pos_sys = null) -> bool:
 	日志系统.callv("录入信息", [name, "打出", [life, card], null])
 	
 	var ret:String = ""
@@ -41,13 +41,14 @@ func 打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 		await 最终行动系统.行动打出(life, card)
 		ret = "启动"
 	elif await card.get_value("种类") in ["法术"]:
-		var pos:战斗_单位管理系统.Card_pos_sys = await 单位控制系统.请求选择一格(life, 场地系统.get_可用场上(life, "手牌", 0))
+		if !pos:
+			pos = await 单位控制系统.请求选择一格(life, 场地系统.get_可用场上(life, "手牌", 0))
 		if !pos:
 			return false
 		await 最终行动系统.非行动打出(life, card, pos)
 		ret = "打出"
 	elif await card.get_value("种类") in ["仪式"]:
-		if !await 构造(life, card):
+		if !await 构造(life, card, true, pos):
 			return false
 		ret = "启动"
 	eraes_自动下降(card)
@@ -115,7 +116,10 @@ func 发动场上的效果(life:战斗_单位管理系统.Life_sys, card:战斗_
 	
 	日志系统.callv("录入信息", [name, "发动场上的效果", [card, effect_mode], [card, arr_int, effect_mode]])
 	
-	await 选择效果并发动(life, card, arr_int, effect_mode)
+	if 连锁系统.chain_state != 2:
+		await 选择效果并发动(life, card, arr_int, effect_mode)
+
+
 
 func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, effect_mode:String) -> int:
 	var life:战斗_单位管理系统.Life_sys = card.get_所属life()
@@ -252,8 +256,9 @@ func 合成(cards:Array) -> void:
 	await buff系统.单位与全部buff判断("合成", [null, life1, card1, card2, cards4])
 	await 发动场上的效果(life1, card1, "启动")
 
-func 构造(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, 可以取消:bool = true) -> bool:
-	var pos:战斗_单位管理系统.Card_pos_sys = await 单位控制系统.请求选择一格(life, 场地系统.get_可用场上(life, "手牌", 0), 可以取消)
+func 构造(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, 可以取消:bool = true, pos:战斗_单位管理系统.Card_pos_sys = null) -> bool:
+	if !pos:
+		pos = await 单位控制系统.请求选择一格(life, 场地系统.get_可用场上(life, "手牌", 0), 可以取消)
 	if !pos:
 		return false
 	

@@ -7,6 +7,8 @@ var effect可判断:Array = [
 	"否定",
 	"如果",
 	"否则",
+	"选项",
+	"逐一判断",
 	
 	"改变主视角",
 	"初始区",
@@ -37,12 +39,12 @@ var effect可判断:Array = [
 	"移动",
 ]
 
-
+var 终止:bool = false
 func _effect_process(p_effect:Array) -> bool:
 	for i:int in len(p_effect):
 		var arr:Array = p_effect[i].duplicate(true)
 		#发动判断
-		if !arr[0] in effect可判断:
+		if !arr[0] in effect可判断 or 终止:
 			targets.append("不需要main判断")
 			break
 		
@@ -85,7 +87,7 @@ func _取卡牌对象(data:Array) -> bool:
 	if len(data0) < 最小数量:
 		return false
 	
-	
+	终止 = true
 	return true
 
 func _取格对象(data:Array) -> bool:
@@ -108,7 +110,7 @@ func _取格对象(data:Array) -> bool:
 	if len(data0) < 最小数量:
 		return false
 	
-	
+	终止 = true
 	return true
 
 
@@ -136,7 +138,7 @@ func _去除(data:Array) -> bool:
 			if len(cards1) < int(data[2]):
 				return false
 	
-	
+	终止 = true
 	return true
 
 
@@ -147,5 +149,5 @@ func _移动(data:Array) -> bool:
 	if pos.nam != "场上" or pos.appear == 4:
 		return false
 	
-	
+	终止 = true
 	return true
