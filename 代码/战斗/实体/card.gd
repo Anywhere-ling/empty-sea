@@ -67,8 +67,8 @@ func set_card(p_card_sys:战斗_单位管理系统.Card_sys) -> void:
 
 
 func display() -> void:
-	if FileAccess.file_exists(文件路径.png卡牌种类 + card_sys.nam + "/.png"):
-		卡图.texture = load(文件路径.png卡牌种类 + card_sys.nam + ".png")
+	if FileAccess.file_exists(文件路径.png卡牌 + card_sys.nam + ".png"):
+		卡图.texture = load(文件路径.png卡牌 + card_sys.nam + ".png")
 	else :
 		卡图.texture = preload(文件路径.png_test)
 	

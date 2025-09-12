@@ -173,7 +173,7 @@ func _攻击判断(life:战斗_单位管理系统.Life_sys, card:战斗_单位�
 	var state:Array = att_life.get_value("state")
 	if !state.has("受袭") and !state.has("冲击") and !state.has("恢复"):
 		att_life.信息state.append("受袭")
-		
+
 
 
 
@@ -343,8 +343,9 @@ func _主要阶段发动(card:战斗_单位管理系统.Card_sys) -> void:
 
 func _主要阶段判断(life:战斗_单位管理系统.Life_sys) -> void:
 	日志系统.callv("录入信息", [name, "_主要阶段判断", [life], null])
+	日志系统.录入日志("主要阶段判断", [life])
 	
-	var 发动cards:Array[战斗_单位管理系统.Card_sys] = await 发动判断系统.单位主要阶段发动判断(life)
+	var 发动cards:Array[战斗_单位管理系统.Card_sys] = await 发动判断系统.单位活动回合发动判断(life)
 	var 打出cards:Array[战斗_单位管理系统.Card_sys] = await 发动判断系统.单位主要阶段打出判断(life)
 	
 	var 合成cards:Dictionary

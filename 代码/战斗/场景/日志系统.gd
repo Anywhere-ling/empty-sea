@@ -30,8 +30,55 @@ func 录入信息(obj:String, fun:String, args:Array, ret) -> void:
 	#retarr = 转化成编号(retarr)
 	#
 	#信息.append([obj, fun, args, retarr[0]])
+
+
+func 录入日志(nam:String, data:Array) -> void:
+	var print_text:String
+	var level:int
 	
+	data = data.map(func(a):
+		if a is String:
+			return a
+		elif a is int or a is float:
+			return str(a)
+		elif a is bool:
+			if a:
+				return "通过"
+			else:
+				return "未通过"
+		elif a is 战斗_单位管理系统.Data_sys:
+			return _get_nam(a)
+		elif a is Array:
+			var ret:String = "["
+			for i in a:
+				ret = ret + _get_nam(i) + ", "
+			ret = ret + "]"
+			return ret
+		else :
+			assert(false))
 	
+	var dic:Dictionary = {
+		#回合系统
+		"进入回合":[0, "进入 {} 回合：{}"],
+		"进入阶段":[1, "进入 {} 阶段：{}"],
+		#战斗系统
+		"主要阶段判断":[2, "主要阶段判断开始：{}"],
+		#发动判断系统
+		"单位活动回合发动判断":[11, "单位活动回合发动判断开始：{}"],
+		"单位主要阶段打出判断":[11, "单位主要阶段打出判断开始：{}"],
+		"单位非活动回合发动判断":[11, "单位非活动回合发动判断开始：{}"],
+		"单位行动阶段打出判断":[11, "单位行动阶段打出判断开始：{}"],
+		"合成构造判断":[11, "由 {} 为目标， {} 为核心， {} 为素材的合成判断 {}"],
+		"卡牌发动判断":[12, "{} 在 {} 上的发动判断开始"],
+		"卡牌发动判断_卡名无效检测":[13, "卡名无效检测 {}"],
+		"卡牌发动判断_可用格检测":[13, "在 {} {} 上的可用格检测 {}"],
+		"卡牌发动判断_连接检测":[13, "连接检测 {}"],
+		"卡牌发动判断_表侧检测":[13, "表侧检测 {}"],
+		"卡牌发动判断_无效检测":[13, "无效检测 {}"],
+		"卡牌发动判断_自然下降检测":[13, "自然下降检测 {}"],
+		"卡牌发动判断_单个效果":[13, "{} 的 {} 效果发动判断开始"],
+		
+		}
 
 
 func 转化成编号(arr:Array) -> Array:

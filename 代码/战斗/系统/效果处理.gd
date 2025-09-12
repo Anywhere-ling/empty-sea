@@ -21,6 +21,9 @@ var features:Array = []
 
 var all_lifes:Array
 
+var 处理终止:bool = false
+var 循环终止:bool = false
+
 var 最终行动系统: Node
 var 单位控制系统: Node
 var 发动判断系统: Node
@@ -63,6 +66,9 @@ func start() -> Array:
 
 func _effect_process(p_effect:Array) -> bool:
 	for i:int in len(p_effect):
+		if 处理终止:
+			return false
+		
 		if card_sys and card_sys.is_无效():
 			await 最终行动系统.无效(card_sys.get_所属life(), card_sys)
 			return false
@@ -94,6 +100,7 @@ var effect标点:Dictionary ={
 	"否则":_否则,
 	"选项":_选项,
 	"逐一判断":_逐一判断,
+	"重复":_重复,
 }
 
 var effect组件:Dictionary = {
@@ -109,6 +116,7 @@ var effect组件:Dictionary = {
 	"以场上为对象":_以场上为对象,
 	"直接存入":_直接存入,
 	
+	"终止处理":_终止处理,
 	"对象处理":_对象处理,
 	"数据判断":_数据判断,
 	"计算数量":_计算数量,
@@ -334,6 +342,21 @@ func _逐一判断(data:Array) -> bool:
 	
 	
 	return true
+
+func _重复(data:Array) -> bool:
+	var data0 = _gett(data[0], true, true)
+	
+	if !data0:
+		return false
+	
+	data.remove_at(0)
+	
+	while data0 > 0 and !循环终止:
+		await  _effect_process(data)
+		data0 -= 1
+	
+	return true
+
 
 
 func _改变主视角(data:Array) -> bool:
@@ -566,6 +589,16 @@ func _直接存入(data:Array) -> bool:
 	return true
 
 
+
+func _终止处理(data:Array) -> bool:
+	var data0 = data[0]
+	
+	if data0 == "整个效果":
+		处理终止 = true
+	elif data0 == "循环":
+		循环终止 = true
+	
+	return true
 
 func _对象处理(data:Array) -> bool:
 	var data0 = targets[_get_sub_index(data[0])]
@@ -896,9 +929,16 @@ func _格筛选(data:Array) -> bool:
 	var data1:Array
 	for i in data[1]:
 		data1.append(int(i))
+	if !data1:
+		data1 = [-1,0,1]
+	var data2:Array
+	for i in data[2]:
+		data2.append(int(i))
+	if !data2:
+		data2 = [-1,0,1]
 	
 	
-	var ret:Array = 场地系统.get_按appear筛选格(data0, data1)
+	var ret:Array = 场地系统.get_按appear筛选格(data0, [data1, data2])
 	
 	
 	targets[_get_sub_index(data[0])] = ret
@@ -1560,8 +1600,11 @@ func _构造(data:Array) -> bool:
 	if !data0:
 		return false
 	
-	var pos:战斗_单位管理系统.Card_pos_sys = _gett(data[1], false, false, 战斗_单位管理系统.Card_pos_sys)
-	if !pos and pos.nam != "场上":
+	var data1 = _gett(data[1], false, true)
+	var pos:战斗_单位管理系统.Card_pos_sys
+	if data1 is 战斗_单位管理系统.Card_pos_sys:
+		pos = data1
+	if pos and pos.nam != "场上":
 		return false
 	
 	var ret:bool = true

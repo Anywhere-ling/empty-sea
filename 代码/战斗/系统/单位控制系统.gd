@@ -58,10 +58,10 @@ func 请求选择多格(life:战斗_单位管理系统.Life_sys, 描述:String, 
 func 发动询问(life:战斗_单位管理系统.Life_sys) -> bool:
 	var cards:Array[战斗_单位管理系统.Card_sys]
 	var card:战斗_单位管理系统.Card_sys
-	if 回合系统.period == "主要" and 回合系统.current_life == life:
-		cards = await 发动判断系统.单位主要阶段发动判断(life)
+	if 回合系统.current_life == life:
+		cards = await 发动判断系统.单位活动回合发动判断(life)
 	else :
-		cards = await 发动判断系统.单位非主要阶段发动判断(life)
+		cards = await 发动判断系统.单位非活动回合发动判断(life)
 	
 	card = await control[life].发动(cards)
 	

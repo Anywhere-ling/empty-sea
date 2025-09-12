@@ -257,6 +257,8 @@ func 插入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	#后续
 	日志系统.callv("录入信息", [name, "插入", [life, card, pos], true])
 	
+	#buff判断
+	await buff系统.单位与全部buff判断("插入", [null, life, card])
 	
 	return true
 
@@ -274,6 +276,8 @@ func 填入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	#后续
 	日志系统.callv("录入信息", [name, "填入", [life, card, 源], true])
 	
+	#buff判断
+	await buff系统.单位与全部buff判断("填入", [null, life, card, 源])
 	
 	return true
 
@@ -309,6 +313,8 @@ func 去除(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	#后续
 	日志系统.callv("录入信息", [name, "去除", [life, card, 源, pos], true])
 	
+	#buff判断
+	await buff系统.单位与全部buff判断("去除", [null, life, card, 源])
 	
 	return true
 

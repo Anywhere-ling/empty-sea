@@ -111,7 +111,7 @@ func get_可用场上(life:战斗_单位管理系统.Life_sys, 区:String, mp:in
 			elif pos.glo_x == 5 and !life.is_positive:
 				ret.append(pos)
 	
-	ret = get_按appear筛选格(ret, [-1,2])
+	ret = get_按appear筛选格(ret, [[-1,0,1],[-1]])
 	
 	return ret
 
@@ -119,8 +119,21 @@ func get_可用场上(life:战斗_单位管理系统.Life_sys, 区:String, mp:in
 func get_按appear筛选格(arr:Array, appear:Array) -> Array:
 	var ret:Array
 	for pos in arr:
-		if pos.appear in appear:
+		var pos_app:Array = [-1,-1]
+		for card in pos.cards:
+			if card.appear == 0:
+				if card.direction == 0:
+					pos_app[0] = 0
+				else	:
+					pos_app[0] = 1
+			else:
+				if card.direction == 0:
+					pos_app[1] = 0
+				else	:
+					pos_app[1] = 1
+		if appear[0].has(pos_app[0]) and appear[1].has(pos_app[1]):
 			ret.append(pos)
+		
 	
 	return ret
 

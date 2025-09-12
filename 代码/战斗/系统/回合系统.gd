@@ -46,7 +46,7 @@ func _回合结束() -> void:
 			current_life = turn_lifes[0]
 			turn += 1
 	日志系统.callv("录入信息", [name, "_回合结束", [], [turn, turn_lifes.find(current_life)]])
-
+	日志系统.录入日志("进入回合", [str(turn)+"."+str(turn_lifes.find(current_life)), current_life])
 
 
 ##进入下一个阶段
@@ -62,6 +62,7 @@ func _阶段改变的信号(from_state: BaseState, to_state: BaseState) -> void:
 	if to_state.state_id == "战斗":
 		_回合结束()
 	日志系统.callv("录入信息", [name, "_阶段改变的信号", [from_state, to_state], to_state.state_id])
+	日志系统.录入日志("进入阶段", [to_state.state_id, current_life])
 	match to_state.state_id:
 		&"初始":_回合进入初始阶段()
 		

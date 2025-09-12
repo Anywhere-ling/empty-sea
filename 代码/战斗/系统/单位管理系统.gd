@@ -456,12 +456,19 @@ class Pos_cs_sys extends Card_pos_sys:
 			if get_parent():
 				get_parent().remove_场上(self)
 			return
+		#将纵向的卡牌放在上方
+		if cards.size() >= 2:
+			if cards[1].direction == 1:
+				cards.append(cards.pop_at(0))
+		
 		var card:Card_sys = cards[0]
 		if card.appear >= 3:
 			appear = 4
+		elif card.appear == 0 and card.direction == 1:
+			appear = 3
 		else:
 			appear = card.appear
-		assert(appear in [-1,0,2,4])
+		assert(appear in [-1,0,2,3,4])
 		
 		if appear == 2:
 			pass

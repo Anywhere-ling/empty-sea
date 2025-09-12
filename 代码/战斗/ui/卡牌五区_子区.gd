@@ -29,7 +29,7 @@ func add_cards(p_cards:Array) -> void:
 		card.modulate = Color(1,1,1,0)
 		add_child(card)
 		card.set_pos(self)
-		cards.append(card)
+		cards.insert(0, card)
 	_cards_change()
 
 
@@ -39,7 +39,7 @@ func add_card(card:Card) -> void:
 	
 	add_child(card)
 	card.set_pos(self)
-	cards.append(card)
+	cards.insert(0, card)
 	_cards_change()
 
 
