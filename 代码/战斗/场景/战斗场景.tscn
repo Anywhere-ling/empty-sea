@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://b3jhuoclqxoef"]
+[gd_scene load_steps=28 format=3 uid="uid://b3jhuoclqxoef"]
 
 [ext_resource type="Script" uid="uid://c06wajmtprs4i" path="res://代码/战斗/场景/战斗场景.gd" id="1_ueb0u"]
 [ext_resource type="Script" uid="uid://poy0bjbsuknh" path="res://代码/战斗/系统/战斗系统.gd" id="2_2qwbv"]
@@ -14,7 +14,9 @@
 [ext_resource type="Script" uid="uid://dgbob5btn5lq0" path="res://代码/战斗/系统/单位控制系统.gd" id="8_fsydf"]
 [ext_resource type="Script" uid="uid://bdrndk1gp0gqj" path="res://代码/战斗/系统/连锁系统.gd" id="9_wj7lg"]
 [ext_resource type="Script" uid="uid://b63v06x2klxew" path="res://代码/战斗/系统/释放与源.gd" id="11_o3jr5"]
+[ext_resource type="Script" uid="uid://bsqkvp5ewnmuc" path="res://代码/战斗/系统/发动判断处理系统.gd" id="12_k7lqt"]
 [ext_resource type="PackedScene" uid="uid://bh8hxq45s0awa" path="res://代码/战斗/ui/gui单位管理.tscn" id="13_ifacx"]
+[ext_resource type="Script" uid="uid://bov1jl8gjnvda" path="res://代码/战斗/系统/效果处理系统.gd" id="13_jixhb"]
 [ext_resource type="Script" uid="uid://vnu2u3mp4ib3" path="res://代码/战斗/场景/gui系统.gd" id="13_yaon1"]
 [ext_resource type="Script" uid="uid://b3p43wo7lu6ma" path="res://代码/战斗/系统/动画系统.gd" id="15_6iqt4"]
 [ext_resource type="Script" uid="uid://c6imfujk42pb5" path="res://代码/战斗/系统/二级行动系统.gd" id="15_pha33"]
@@ -74,6 +76,14 @@ script = ExtResource("6_og1up")
 [node name="发动判断系统" type="Node" parent="战斗系统/效果系统"]
 unique_name_in_owner = true
 script = ExtResource("7_og1up")
+
+[node name="发动判断处理系统" type="Node" parent="战斗系统/效果系统/发动判断系统"]
+unique_name_in_owner = true
+script = ExtResource("12_k7lqt")
+
+[node name="效果处理系统" type="Node" parent="战斗系统/效果系统"]
+unique_name_in_owner = true
+script = ExtResource("13_jixhb")
 
 [node name="连锁系统" type="Node" parent="战斗系统"]
 unique_name_in_owner = true

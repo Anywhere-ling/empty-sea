@@ -61,7 +61,8 @@ var specification_组:Array = [
 	"深海",
 	"力",
 	"血",
-	"本能",
+	"术式",
+	"萨卡兹",
 ]
 
 var specification_影响:Dictionary = {

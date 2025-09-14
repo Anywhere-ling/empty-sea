@@ -114,6 +114,7 @@ class Data_sys extends Node:
 
 class Effect_sys extends Data_sys:
 	var buff系统: Node
+	var 序号:int
 	var buffs:Array[Buff_sys] = []
 	var buff_effect:Array = []
 	var 临时buff_effect:Array = [[]]
@@ -573,6 +574,7 @@ class Card_sys extends Data_sys:
 		
 		for i:Array in data["效果"]:
 			var effect = Effect_sys.new(i, buff系统)
+			effect.序号 = len(effects)
 			effects.append(effect)
 			add_child(effect)
 			if get_parent().nam == "场上" and effect.features.has("反转"):

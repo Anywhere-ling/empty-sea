@@ -168,6 +168,8 @@ func add_触发与固有buff(card:战斗_单位管理系统.Card_sys) -> void:
 
 ##1:受影响且通过,0:受影响且未通过，-1:未受影响
 func 单位与全部buff判断(影响:String, targets:Array = [null, null, null]) -> int :
+	日志系统.录入日志("单位与全部buff判断", [影响, targets[0], targets[1], targets[2], targets[3]])
+	
 	var ret:int = -1
 	#"全部"buff
 	if 影响 =="破坏":
@@ -192,6 +194,8 @@ func 单位与全部buff判断(影响:String, targets:Array = [null, null, null]
 
 ##1:受影响且通过,0:受影响且未通过，-1:未受影响
 func _buff判断(buff:战斗_单位管理系统.Buff_sys, 影响:String, targets:Array) -> int:
+	日志系统.录入日志("buff判断", [buff, 影响, targets[0], targets[1], targets[2], targets[3]])
+	
 	if buff.影响.has(影响):
 		
 		targets = targets.duplicate(true)

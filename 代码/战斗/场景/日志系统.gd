@@ -23,7 +23,7 @@ func 录入信息(obj:String, fun:String, args:Array, ret) -> void:
 	
 	args = args.duplicate(true)
 	var retarr:Array = [ret].duplicate(true)
-	_out_data(obj, fun, args, retarr[0])
+	#_out_data(obj, fun, args, retarr[0])
 	
 	
 	#转化成编号(args)
@@ -34,10 +34,12 @@ func 录入信息(obj:String, fun:String, args:Array, ret) -> void:
 
 func 录入日志(nam:String, data:Array) -> void:
 	var print_text:String
-	var level:int
+	var level:float
 	
 	data = data.map(func(a):
-		if a is String:
+		if !a :
+			return "null"
+		elif a is String or a is StringName:
 			return a
 		elif a is int or a is float:
 			return str(a)
@@ -51,7 +53,10 @@ func 录入日志(nam:String, data:Array) -> void:
 		elif a is Array:
 			var ret:String = "["
 			for i in a:
-				ret = ret + _get_nam(i) + ", "
+				if i is 战斗_单位管理系统.Data_sys:
+					ret = ret + _get_nam(i) + ", "
+				else:
+					ret = ret + str(i) + ", "
 			ret = ret + "]"
 			return ret
 		else :
@@ -63,77 +68,83 @@ func 录入日志(nam:String, data:Array) -> void:
 		"进入阶段":[1, "进入 {} 阶段：{}"],
 		#战斗系统
 		"主要阶段判断":[2, "主要阶段判断开始：{}"],
+		"主要阶段打出":[3, "{} 主要阶段打出 {}"],
+		"主要阶段发动":[3, "{} 主要阶段发动 {}"],
 		#发动判断系统
-		"单位活动回合发动判断":[11, "单位活动回合发动判断开始：{}"],
-		"单位主要阶段打出判断":[11, "单位主要阶段打出判断开始：{}"],
-		"单位非活动回合发动判断":[11, "单位非活动回合发动判断开始：{}"],
-		"单位行动阶段打出判断":[11, "单位行动阶段打出判断开始：{}"],
-		"合成构造判断":[11, "由 {} 为目标， {} 为核心， {} 为素材的合成判断 {}"],
-		"卡牌发动判断":[12, "{} 在 {} 上的发动判断开始"],
-		"卡牌发动判断_卡名无效检测":[13, "卡名无效检测 {}"],
-		"卡牌发动判断_可用格检测":[13, "在 {} {} 上的可用格检测 {}"],
-		"卡牌发动判断_连接检测":[13, "连接检测 {}"],
-		"卡牌发动判断_表侧检测":[13, "表侧检测 {}"],
-		"卡牌发动判断_无效检测":[13, "无效检测 {}"],
-		"卡牌发动判断_自然下降检测":[13, "自然下降检测 {}"],
-		"卡牌发动判断_单个效果":[13, "{} 的 {} 效果发动判断开始"],
+		"单位活动回合发动判断":[21, "单位活动回合发动判断开始：{}"],
+		"单位主要阶段打出判断":[21, "单位主要阶段打出判断开始：{}"],
+		"单位非活动回合发动判断":[21, "单位非活动回合发动判断开始：{}"],
+		"单位行动阶段打出判断":[21, "单位行动阶段打出判断开始：{}"],
+		"合成构造判断":[21, "由 {} 为目标， {} 为核心， {} 为素材的合成判断 {}"],
+		"卡牌发动判断":[22, "{} 在 {} 上的发动判断开始"],
+		"卡牌发动判断_卡名无效检测":[23, "卡名无效检测 {}"],
+		"卡牌发动判断_可用格检测":[23, "在 {} {} 上的可用格检测 {}"],
+		"卡牌发动判断_连接检测":[23, "连接检测 {}"],
+		"卡牌发动判断_表侧检测":[23, "表侧检测 {}"],
+		"卡牌发动判断_无效检测":[23, "无效检测 {}"],
+		"卡牌发动判断_自然下降检测":[23, "自然下降检测 {}"],
+		"卡牌发动判断_单个效果":[23, "{} 的 {} 发动判断开始"],
+		"单个效果_次数检测":[24, "次数检测 {}"],
+		"单个效果_位置检测":[24, "{} 上的位置检测 {}"],
+		"单个效果_启动检测":[24, "启动检测 {}"],
+		"单个效果_触发检测":[24, "触发检测 {}"],
+		"单个效果_状态检测":[24, "{} 中的状态检测 {}"],
+		"单个效果_模式检测":[24, "{} 中的模式检测 {}"],
+		"单个效果_buff检测":[24, "buff检测 {}"],
+		"单个效果_cost检测":[24, "buff检测 {}"],
+		"单个效果_main检测":[24, "buff检测 {}"],
+		"单个效果_结束":[24, "{} 的 {} 发动判断 {}"],
+		"卡牌发动判断_结束":[23, "{} 的发动判断 {}：{}"],
+		"单位活动回合发动判断结束":[22, "单位活动回合发动判断结束：{}"],
+		"单位主要阶段打出判断结束":[22, "单位主要阶段打出判断结束：{}"],
+		"单位非活动回合发动判断结束":[22, "单位非活动回合发动判断结束：{}"],
+		"单位行动阶段打出判断结束":[22, "单位行动阶段打出判断结束：{}"],
+		#卡牌打出与发动系统
+		"打出":[7, "{} 准备打出 {}"],
+		"发动":[7, "{} 准备发动 {}"],
+		"发动场上的效果":[8, "{} 准备发动场上的效果 {}：{}"],
+		"选择效果并发动":[9, "{} 准备选择 {} 的 {} 之一效果并发动：{}"],
+		"处理卡牌消耗":[10, "准备处理 {} 的 {} 消耗：{}"],
+		#连锁系统
+		"添加连锁":[10, "{} 的 {} 的 {} 添加连锁 {}：{}"],
+		"请求新连锁":[4, "请求新连锁"],
+		"请求进行下一连锁":[5, "请求进行下一连锁：{}"],
+		"连锁处理开始":[5, "连锁处理开始"],
+		"单个连锁处理开始":[6, "{} 的 {} 的 {} 的单个连锁处理开始：{}"],
+		#单位控制系统
+		"发动询问":[6, "发动询问：{}"],
+		#发动判断处理系统
+		"发动判断效果处理未通过":[25, "{} 发动判断效果处理未通过"],
+		"发动判断效果处理终止":[25, "发动判断效果处理终止"],
+		#效果处理系统
+		"效果处理未通过":[6, "{} 效果处理未通过"],
+		"效果处理终止":[6, "效果处理无效"],
+		"效果处理无效":[6, "效果处理无效"],
+		#最终行动系统
+		"加入":[12, "{} 的 {} 加入了 {}"],
+		"构造":[12, "{} 的 {} 构造到 {}"],
+		"抽牌":[12, "{} 加入了"],
+		"反转":[12, "{} 的 {} 反转了"],
+		"无效":[12, "{} 的 {} 无效了"],
+		"方向改变":[12, "{} 的 {} 方向改变了"],
+		"破坏":[12, "{} 的 {} 方向破坏了"],
+		"填入":[12, "{} 填入到 {} 的 {}"],
+		"去除":[12, "{} 的 {} 去除了 {} 到 {}"],
+		"行动打出":[12, "{} 行动打出了 {}"],
+		"非行动打出":[12, "{} 非行动打出 {} 到 {}"],
+		"非场上发动":[12, "{} 非场上发动 {} 到 {}"],
+		#buff系统
+		"单位与全部buff判断":[13, "{} 导致的buff判断：{}, {}, {}, {}"],
+		"buff判断":[13, "{} 因 {} 导致的buff判断：{}, {}, {}, {}"],
 		
 		}
-
-
-func 转化成编号(arr:Array) -> Array:
-	arr = arr.duplicate(true)
-	var arr1:Array
-	for i:int in len(arr):
-		for i1 in arr:
-			arr1.append(i1)
-		if arr[i] is 战斗_单位管理系统.Data_sys:
-			var data := "编号" + str(arr[i].编号)
-			arr1[i] = data
-		elif arr[i] is Array:
-			arr[i] = 转化成编号(arr[i])
-	return arr1
-	get_parent()
+	
+	level = dic[nam][0]
+	print_text = dic[nam][1].format(data, "{}")
+	print(str(level) + print_text)
 
 
 
-
-
-#class History extends Resource:
-	#var obj:String
-	#var fun:String
-	#var args:Array
-	#var ret
-	#
-	#func _init(p_obj:String, p_fun:String, p_args:Array, p_ret) -> void:
-		#obj = p_obj
-		#fun = p_fun
-		#args = p_args
-		#ret = p_ret
-		#_out_data(p_obj, p_fun, p_args, p_ret)
-	#
-	#func search(data, index:int) -> bool:
-		#var sub
-		#match index:
-			#0 : sub = obj
-			#1 : sub = fun
-			#3 : sub = ret
-		#
-		#if sub == data:
-			#return true
-		#
-		#if !sub is String:
-			#return false
-		#
-		#data = data.split()
-		#for i:String in sub:
-			#data.erase(i)
-		#
-		#if data == []:
-			#return true
-		#else :
-			#return false
-	#
 func _out_data(p_obj:String, p_fun:String, p_args:Array, p_ret) -> void:
 	var data:String
 	if p_obj == "回合系统":
@@ -217,7 +228,9 @@ func _out_data(p_obj:String, p_fun:String, p_args:Array, p_ret) -> void:
 func _get_nam(data_sys:战斗_单位管理系统.Data_sys) -> String:
 	if !data_sys:
 		return ""
-	if !data_sys is 战斗_单位管理系统.Card_sys or data_sys.appear != 0:
+	if data_sys is 战斗_单位管理系统.Effect_sys:
+		return str(data_sys.序号)+"效果" + "[" + str(data_sys.编号) + "]"
+	elif !data_sys is 战斗_单位管理系统.Card_sys or data_sys.appear != 0:
 		return data_sys.nam + "[" + str(data_sys.编号) + "]"
 	else:
 		return "盖卡" + "[" + str(data_sys.编号) + "]"

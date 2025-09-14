@@ -11,6 +11,7 @@ extends Node
 @onready var 连锁系统: Node = %连锁系统
 @onready var 场地系统: Node = %场地系统
 @onready var 二级行动系统: Node = %二级行动系统
+@onready var 效果处理系统: 战斗_效果处理系统 = %效果处理系统
 
 
 var event_bus : CoreSystem.EventBus = CoreSystem.event_bus
@@ -22,9 +23,8 @@ func _ready() -> void:
 
 
 func 效果处理(eff:Array, car:战斗_单位管理系统.Card_sys, fea:Array = [], tar:Array = []) -> Array:
-	var effect_processing:= 战斗_效果处理系统.new(self, eff, [单位管理系统.lifes, 单位管理系统.efils], car, fea, tar)
-	var ret:Array = await effect_processing.start()
-	effect_processing.queue_free()
+	效果处理系统.init(eff, [单位管理系统.lifes, 单位管理系统.efils], car, fea, tar)
+	var ret:Array = await 效果处理系统.start()
 	
 	日志系统.callv("录入信息", [name, "_效果发动判断", [eff, fea, tar], ret])
 	return ret

@@ -23,6 +23,7 @@ var 自然下降的卡牌:Dictionary
 
 func 打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, pos:战斗_单位管理系统.Card_pos_sys = null) -> bool:
 	日志系统.callv("录入信息", [name, "打出", [life, card], null])
+	日志系统.录入日志("打出", [life, card])
 	
 	var ret:String = ""
 	if await card.get_value("种类") in ["攻击"]:
@@ -52,6 +53,9 @@ func 打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 			return false
 		ret = "启动"
 	eraes_自动下降(card)
+	
+	
+	
 	await 发动场上的效果(life, card, ret)
 	
 	return true
@@ -60,6 +64,7 @@ func 打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 
 func 发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys) -> bool:
 	日志系统.callv("录入信息", [name, "发动", [life, card], null])
+	日志系统.录入日志("发动", [life, card])
 	
 	if card.get_parent().nam in ["行动", "场上"]:
 		await 最终行动系统.场上发动(life, card)
@@ -77,6 +82,8 @@ func 发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 
 
 func 发动场上的效果(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, effect_mode:String) -> void:
+	日志系统.录入日志("发动场上的效果", [life, card, effect_mode])
+	
 	var arr_eff:Array
 	if effect_mode == "启动":
 		for effect:战斗_单位管理系统.Effect_sys in card.effects:
@@ -125,7 +132,7 @@ func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, effect_mode:St
 	var life:战斗_单位管理系统.Life_sys = card.get_所属life()
 	var ret:int = 0
 	if effect_mode in ["直接", "攻击前"]:
-		pass
+		return ret
 	
 	var cost:int
 	if card.get_value("种类") in ["攻击", "防御"]:
@@ -134,6 +141,9 @@ func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, effect_mode:St
 		cost = card.get_value("mp")
 	else:
 		assert(true, "超出可处理类型")
+	
+	日志系统.录入日志("处理卡牌消耗", [card, cost, effect_mode])
+	
 	
 	if effect_mode in ["启动"]:
 		var cards:Array[战斗_单位管理系统.Card_sys]
@@ -207,6 +217,7 @@ func _处理卡牌消耗(card:战斗_单位管理系统.Card_sys, effect_mode:St
 
 func 选择效果并发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, arr_int:Array[int], effect_mode:String) -> void:
 	日志系统.callv("录入信息", [name, "选择效果并发动", [card, arr_int, effect_mode], null])
+	日志系统.录入日志("选择效果并发动", [life, card, arr_int, effect_mode])
 	
 	var effect_int:int = -1
 	if arr_int != []:
@@ -214,7 +225,7 @@ func 选择效果并发动(life:战斗_单位管理系统.Life_sys, card:战斗_
 	_重设效果状态(life)
 	await 最终行动系统.等待动画完成
 	if effect_int != -1 and await 连锁系统.add_chain(card.effects[effect_int]):
-		await 连锁系统.set_now_speed(card.effects[effect_int], await _处理卡牌消耗(card, effect_mode))
+		await _处理卡牌消耗(card, effect_mode)
 		life.add_history("发动", 回合系统.turn, 回合系统.period, card)
 		card.add_history("发动", 回合系统.turn, 回合系统.period)
 		#buff判断

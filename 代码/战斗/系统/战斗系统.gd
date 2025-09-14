@@ -325,6 +325,8 @@ func _主要阶段打出(card:战斗_单位管理系统.Card_sys) -> void:
 	日志系统.callv("录入信息", [name, "_主要阶段打出", [card], null])
 	
 	var life:战斗_单位管理系统.Life_sys = 回合系统.current_life
+	日志系统.录入日志("主要阶段打出", [life, card])
+	
 	await 卡牌打出与发动系统.打出(life, card)
 	
 	if 连锁系统.chain_state:
@@ -335,6 +337,9 @@ func _主要阶段发动(card:战斗_单位管理系统.Card_sys) -> void:
 	日志系统.callv("录入信息", [name, "_主要阶段发动", [card], null])
 	
 	var life:战斗_单位管理系统.Life_sys = 回合系统.current_life
+	
+	日志系统.录入日志("主要阶段发动", [life, card])
+	
 	await 卡牌打出与发动系统.发动(life, card)
 	
 	if 连锁系统.chain_state:

@@ -56,6 +56,7 @@ func 请求选择多格(life:战斗_单位管理系统.Life_sys, 描述:String, 
 	return ret
 
 func 发动询问(life:战斗_单位管理系统.Life_sys) -> bool:
+	日志系统.录入日志("发动询问", [life])
 	var cards:Array[战斗_单位管理系统.Card_sys]
 	var card:战斗_单位管理系统.Card_sys
 	if 回合系统.current_life == life:

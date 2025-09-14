@@ -24,31 +24,23 @@ var all_lifes:Array
 var 处理终止:bool = false
 var 循环终止:bool = false
 
-var 最终行动系统: Node
-var 单位控制系统: Node
-var 发动判断系统: Node
-var 卡牌打出与发动系统: Node
-var 单位管理系统: 战斗_单位管理系统
-var 日志系统: 战斗_日志系统
-var 回合系统: Node
-var 连锁系统: Node
-var buff系统: Node
-var 场地系统: Node
-var 二级行动系统: Node
+@onready var 战斗系统: Node = %战斗系统
+@onready var 日志系统: 战斗_日志系统 = %日志系统
+@onready var 回合系统: Node = %回合系统
+@onready var 单位管理系统: 战斗_单位管理系统 = %单位管理系统
+@onready var buff系统: Node = %buff系统
+@onready var 单位控制系统: Node = %单位控制系统
+@onready var 场地系统: Node = %场地系统
+@onready var 卡牌打出与发动系统: Node = %卡牌打出与发动系统
+@onready var 效果系统: Node = %效果系统
+@onready var 发动判断系统: Node = %发动判断系统
+@onready var 连锁系统: Node = %连锁系统
+@onready var 释放与源: Node = %释放与源
+@onready var 最终行动系统: Node = %最终行动系统
+@onready var 二级行动系统: Node = %二级行动系统
 
-func _init(node:Node, eff:Array, lifes:Array, car:战斗_单位管理系统.Card_sys = null, fea:Array = [],  tar:Array = []) -> void:
-	最终行动系统 = node.最终行动系统
-	单位控制系统 = node.单位控制系统
-	发动判断系统 = node.发动判断系统
-	卡牌打出与发动系统 = node.卡牌打出与发动系统
-	单位管理系统 = node.单位管理系统
-	日志系统 = node.日志系统
-	回合系统 = node.回合系统
-	连锁系统 = node.连锁系统
-	buff系统 = node.buff系统
-	场地系统 = node.场地系统
-	二级行动系统 = node.二级行动系统
-	
+
+func init(eff:Array, lifes:Array, car:战斗_单位管理系统.Card_sys = null, fea:Array = [],  tar:Array = []) -> void:
 	effect = eff
 	all_lifes = lifes
 	card_sys = car
@@ -67,10 +59,12 @@ func start() -> Array:
 func _effect_process(p_effect:Array) -> bool:
 	for i:int in len(p_effect):
 		if 处理终止:
+			日志系统.录入日志("效果处理终止", [])
 			return false
 		
 		if card_sys and card_sys.is_无效():
 			await 最终行动系统.无效(card_sys.get_所属life(), card_sys)
+			日志系统.录入日志("效果处理无效", [])
 			return false
 		
 		var arr:Array = p_effect[i].duplicate(true)
@@ -79,6 +73,7 @@ func _effect_process(p_effect:Array) -> bool:
 			if !await effect标点[eff_nam].call(arr):
 				
 				日志系统.callv("录入信息", ["战斗_效果处理系统", eff_nam, [arr, targets], false])
+				日志系统.录入日志("效果处理未通过", [eff_nam])
 				return false
 		
 		elif arr[0] in effect组件:
@@ -86,6 +81,7 @@ func _effect_process(p_effect:Array) -> bool:
 			if !await effect组件[eff_nam].call(arr):
 				
 				日志系统.callv("录入信息", ["战斗_效果处理系统", eff_nam, [arr, targets], false])
+				日志系统.录入日志("效果处理未通过", [eff_nam])
 				return false
 
 	
@@ -1166,6 +1162,23 @@ func _取格对象(data:Array) -> bool:
 	return true
 
 
+
+func _抽牌(data:Array) -> bool:
+	#提取数据
+	var data0 = _gett(data[0], false, false, 战斗_单位管理系统.Life_sys)
+	if !data0:
+		return false
+	var data1 = data[1]
+	if !data1.is_valid():
+		return false
+	data1 = int(data1)
+	
+	var ret:bool = true
+	for i in data1:
+		if !await 最终行动系统.抽牌(data0):
+			ret = false
+	
+	return ret
 
 func _加入(data:Array) -> bool:
 	#提取数据

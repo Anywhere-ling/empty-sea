@@ -180,7 +180,7 @@ func 加入连锁的动画(data:Dictionary) -> void:
 	var card = data["card"]
 	var life:战斗_life = data["life"]
 	
-	gui连锁.add_card(card, life.is_positive, data["effect_ind"], data["speed"])
+	gui连锁.add_card(card, life.is_positive, data["effect_ind"])
 	await gui连锁.完成
 	
 	emit_可以继续(data["动画index"])

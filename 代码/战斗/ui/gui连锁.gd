@@ -17,7 +17,7 @@ func _ready() -> void:
 	event_bus.subscribe("战斗_gui连锁_remove", remove_card)
 
 
-func add_card(card:Card, is_positive:bool, eff_ind:int, speed:int) -> void:
+func add_card(card:Card, is_positive:bool, eff_ind:int) -> void:
 	visible = true
 	
 	var 子:战斗_gui连锁_子
@@ -30,7 +30,7 @@ func add_card(card:Card, is_positive:bool, eff_ind:int, speed:int) -> void:
 		容器.add_child(子)
 	
 	
-	子.set_card(card, is_positive, speed, eff_ind)
+	子.set_card(card, is_positive, eff_ind)
 	
 	cards.append(子)
 	

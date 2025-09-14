@@ -27,6 +27,7 @@ var now_可发动的效果:Dictionary
 
 func 请求进行下一连锁() -> void:
 	日志系统.callv("录入信息", [name, "请求进行下一连锁", [], null])
+	日志系统.录入日志("请求进行下一连锁", [frist_lifes])
 	
 	var life:战斗_单位管理系统.Life_sys = current_life
 	var att_lifes:Array[战斗_单位管理系统.Life_sys]
@@ -85,30 +86,26 @@ func add_chain(effect:战斗_单位管理系统.Effect_sys) -> bool:
 		all_chain.append([effect, targets])
 		effect.set_颜色信息("即将发动")
 		
+		now_可发动的效果.erase(effect)
+		if !effect.get_value("features").has("无限"):
+			effect.count -= 1
+		
+		await 最终行动系统.加入连锁的动画(effect.get_parent().get_所属life(), effect.get_parent(), effect.序号)
+		
 		日志系统.callv("录入信息", [name, "add_chain", [effect], true])
+		日志系统.录入日志("添加连锁", [life, card, effect, true, len(all_chain)])
 		return true
 	
 	日志系统.callv("录入信息", [name, "add_chain", [effect], false])
+	日志系统.录入日志("添加连锁", [life, card, effect, false, len(all_chain)])
 	return false
-
-func set_now_speed(effect:战斗_单位管理系统.Effect_sys, speed:int) -> void:
-	日志系统.callv("录入信息", [name, "set_now_speed", [effect, speed], null])
-	
-	all_chain[-1].append(speed)
-	
-	now_可发动的效果.erase(effect)
-	if !effect.get_value("features").has("无限"):
-		effect.count -= 1
-	
-	await 最终行动系统.加入连锁的动画(effect.get_parent().get_所属life(), effect.get_parent(), effect.get_parent().effects.find(effect), speed)
-
-
 
 
 
 
 func start() -> void:
 	日志系统.callv("录入信息", [name, "start", [], null])
+	日志系统.录入日志("连锁处理开始", [])
 	
 	chain_state = 2
 	event_bus.push_event("战斗_连锁处理开始")
@@ -117,6 +114,9 @@ func start() -> void:
 		var effect:战斗_单位管理系统.Effect_sys = arr[0]
 		var card:战斗_单位管理系统.Card_sys = effect.get_parent()
 		var life:战斗_单位管理系统.Life_sys = card.get_所属life()
+		
+		日志系统.录入日志("单个连锁处理开始", [life, card, effect, len(all_chain)])
+		
 		await 最终行动系统.退出连锁的动画(card)
 		await 效果系统.效果处理(effect.main_effect, card, await effect.get_value("features"), arr[1])
 		effect.set_颜色信息("")
@@ -137,6 +137,7 @@ func 请求新连锁() -> void:
 
 func _请求新连锁() -> void:
 	日志系统.callv("录入信息", [name, "请求新连锁", [], null])
+	日志系统.录入日志("请求新连锁", [])
 	
 	var life:战斗_单位管理系统.Life_sys = 回合系统.current_life
 	var arr_lifes:Array[战斗_单位管理系统.Life_sys]

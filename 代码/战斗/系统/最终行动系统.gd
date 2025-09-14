@@ -68,7 +68,7 @@ func 行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位管
 	
 	#后续
 	日志系统.callv("录入信息", [name, "行动打出", [life, card], true])
-	
+	日志系统.录入日志("行动打出", [life, card])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("打出", [null, life, card])
@@ -89,7 +89,7 @@ func 非行动打出(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 	
 	#后续
 	日志系统.callv("录入信息", [name, "非行动打出", [life, card, pos], true])
-	
+	日志系统.录入日志("非行动打出", [life, card, pos])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("打出", [null, life, card])
@@ -110,7 +110,7 @@ func 构造(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	#后续
 	日志系统.callv("录入信息", [name, "构造", [life, card, pos], true])
-	
+	日志系统.录入日志("构造", [life, card, pos])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("构造", [null, life, card])
@@ -132,7 +132,7 @@ func 非场上发动(life:战斗_单位管理系统.Life_sys, card:战斗_单位
 	
 	#后续
 	日志系统.callv("录入信息", [name, "非场上发动", [life, card, pos], true])
-	
+	日志系统.录入日志("非场上发动", [life, card, pos])
 	
 	return true
 
@@ -151,7 +151,7 @@ func 改变方向(life:战斗_单位管理系统.Life_sys, card:战斗_单位管
 	
 	#后续
 	日志系统.callv("录入信息", [name, "改变方向", [life, card], true])
-	
+	日志系统.录入日志("改变方向", [life, card])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("改变方向", [null, life, card])
@@ -170,10 +170,8 @@ func 反转(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	await _请求动画("反转", {"life":life, "card":card})
 	
 	#后续
-	
-	
 	日志系统.callv("录入信息", [name, "反转", [life, card], true])
-	
+	日志系统.录入日志("反转", [life, card])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("反转", [null, life, card])
@@ -199,7 +197,7 @@ func 破坏(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	#后续
 	日志系统.callv("录入信息", [name, "破坏", [life, card], true])
-	
+	日志系统.录入日志("破坏", [life, card])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("破坏", [null, life, card])
@@ -227,7 +225,7 @@ func 加入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	#后续
 	日志系统.callv("录入信息", [name, "加入", [life, card, pos], true])
-	
+	日志系统.录入日志("加入", [life, card, pos])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("加入", [null, life, card])
@@ -256,6 +254,7 @@ func 插入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	#后续
 	日志系统.callv("录入信息", [name, "插入", [life, card, pos], true])
+	日志系统.录入日志("插入", [life, card, pos])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("插入", [null, life, card])
@@ -275,6 +274,7 @@ func 填入(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	#后续
 	日志系统.callv("录入信息", [name, "填入", [life, card, 源], true])
+	日志系统.录入日志("填入", [源, life, card])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("填入", [null, life, card, 源])
@@ -312,6 +312,7 @@ func 去除(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	#后续
 	日志系统.callv("录入信息", [name, "去除", [life, card, 源, pos], true])
+	日志系统.录入日志("去除", [life, card, 源, pos])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("去除", [null, life, card, 源])
@@ -334,7 +335,7 @@ func 创造(life:战斗_单位管理系统.Life_sys, card_name:String) -> 战斗
 	
 	#后续
 	日志系统.callv("录入信息", [name, "创造", [card_name], true])
-	
+	日志系统.录入日志("创造", [life, card])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("创造", [null, null, card])
@@ -363,7 +364,7 @@ func 抽牌(life:战斗_单位管理系统.Life_sys) -> bool:
 	
 	#后续
 	日志系统.callv("录入信息", [name, "抽牌", [life], true])
-	
+	日志系统.录入日志("抽牌", [life])
 	
 	await buff系统.单位与全部buff判断("抽牌", [null, life, card])
 	
@@ -386,7 +387,7 @@ func 释放(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	
 	#后续
 	日志系统.callv("录入信息", [name, "释放", [life, card], true])
-	
+	日志系统.录入日志("释放", [life, card])
 	
 	
 	return true
@@ -403,7 +404,7 @@ func 攻击(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系
 	#后续
 	
 	日志系统.callv("录入信息", [name, "攻击", [life, card, mode], true])
-	
+	日志系统.录入日志("攻击", [life, card, mode])
 	
 	#buff判断
 	await buff系统.单位与全部buff判断("攻击", [null, life, card])
@@ -457,12 +458,12 @@ func 死亡(life:战斗_单位管理系统.Life_sys) -> bool:
 
 
 #纯动画
-func 加入连锁的动画(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, effect_ind:int, speed:int) -> bool:
+func 加入连锁的动画(life:战斗_单位管理系统.Life_sys, card:战斗_单位管理系统.Card_sys, effect_ind:int) -> bool:
 	#动画
-	await _请求动画("加入连锁的动画", {"life":life, "card":card, "effect_ind":effect_ind, "speed":speed})
+	await _请求动画("加入连锁的动画", {"life":life, "card":card, "effect_ind":effect_ind})
 	
 	
-	日志系统.callv("录入信息", [name, "加入连锁的动画", [life, card, effect_ind, speed], true])
+	日志系统.callv("录入信息", [name, "加入连锁的动画", [life, card, effect_ind], true])
 	return true
 
 func 退出连锁的动画(card:战斗_单位管理系统.Card_sys) -> bool:

@@ -46,6 +46,7 @@ func _effect_process(p_effect:Array) -> bool:
 		#发动判断
 		if !arr[0] in effect可判断 or 终止:
 			targets.append("不需要main判断")
+			日志系统.录入日志("发动判断效果处理终止", [])
 			break
 		
 		elif arr[0] in effect标点:
@@ -53,6 +54,7 @@ func _effect_process(p_effect:Array) -> bool:
 			if !await effect标点[eff_nam].call(arr):
 				
 				日志系统.callv("录入信息", ["战斗_发动判断系统", eff_nam, [arr, targets], false])
+				日志系统.录入日志("发动判断效果处理未通过", [eff_nam])
 				return false
 		
 		elif arr[0] in effect组件:
@@ -60,6 +62,7 @@ func _effect_process(p_effect:Array) -> bool:
 			if !await effect组件[eff_nam].call(arr):
 				
 				日志系统.callv("录入信息", ["战斗_发动判断系统", eff_nam, [arr, targets], false])
+				日志系统.录入日志("发动判断效果处理未通过", [eff_nam])
 				return false
 
 	
